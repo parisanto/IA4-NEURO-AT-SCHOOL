@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA4-NEURO - Prothèse Cognitive</title>
+    <style>
+        /* --- VARIABLES & THÈME (Support Hors-ligne 100%) --- */
+        :root {
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --primary-light-border: #bfdbfe;
+            --secondary: #e2e8f0;
+            --secondary-hover: #cbd5e1;
+            --secondary-text: #1e293b;
+            --success: #22c55e;
+            --success-light: #dcfce7;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius: 1rem;
+            --radius-lg: 1.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark {
+            --bg-color: #020617;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: #0f172a;
+            --card-border: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --primary-light: rgba(59, 130, 246, 0.1);
+            --primary-light-border: rgba(59, 130, 246, 0.2);
+            --secondary: #1e293b;
+            --secondary-hover: #334155;
+            --secondary-text: #f8fafc;
+            --success: #4ade80;
+            --success-light: rgba(34, 197, 94, 0.1);
+        }
+
+        /* --- RESET & TYPOGRAPHIE --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            transition: var(--transition);
+            min-height: 100vh;
+        }
+
+        /* --- UTILITAIRES & LAYOUT --- */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .w-full { width: 100%; }
+
+        /* --- HEADER --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(var(--card-bg), 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 0;
+        }
+        
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 800;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .theme-toggle:hover { background-color: var(--secondary); }
+
+        /* --- COMPOSANTS --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+        }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--secondary-text);
+        }
+        .btn-secondary:hover { background-color: var(--secondary-hover); }
+
+        .btn-ghost {
+            background: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+        }
+        .btn-ghost:hover {
+            color: var(--text-main);
+            background-color: var(--secondary);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        /* --- VUES SPÉCIFIQUES --- */
+        
+        /* Intro */
+        .title-gradient {
+            background: linear-gradient(to right, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 1.5rem auto;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+            border-top: 1px solid var(--card-border);
+            padding-top: 2rem;
+        }
+
+        .tip-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+        }
+        .tip-icon {
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        /* Bento Box (Library) */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .tool-card {
+            display: flex;
+            flex-direction: column; /* CORRECTION APPLIQUÉE ICI */
+            cursor: pointer;
+            height: 100%;
+        }
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+        .tool-icon-wrapper {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .tool-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            margin-bottom: 1rem;
+        }
+
+        /* Quiz */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 1.25rem;
+            background-color: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+        }
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        /* Configurator */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .alert-info {
+            background-color: var(--primary-light);
+            border: 1px solid var(--primary-light-border);
+            color: var(--primary);
+            padding: 1rem;
+            border-radius: var(--radius);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* Result */
+        .prompt-box {
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 1rem;
+            white-space: pre-wrap;
+            color: var(--text-main);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .result-header {
+            background-color: #1e293b;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius) var(--radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: -2rem -2rem 1.5rem -2rem;
+        }
+
+        .copy-success {
+            background-color: var(--success-light) !important;
+            color: var(--success) !important;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo" onclick="switchView('intro')" title="Retour à l'accueil">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+                IA4-NEURO
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" id="btn-theme" aria-label="Changer le thème">
+                <!-- L'icône sera injectée par JS -->
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- VUE : INTRO -->
+        <div id="view-intro" class="fade-in">
+            <div class="text-center">
+                <h1 class="title-gradient mb-4">L'IA comme Prothèse Cognitive</h1>
+                <p class="subtitle">L'IA n'est pas là pour faire le travail à ta place, mais pour lever les barrières qui t'empêchent de démarrer. Découvre ton super-assistant.</p>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8" style="flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="switchView('quiz')" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        Trouver mon outil (Quiz)
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchView('library')" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        Voir tous les outils
+                    </button>
+                </div>
+            </div>
+
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="mb-2">Zéro Clavier</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Utilise la dictée vocale (le bouton micro de ton clavier) pour remplir les champs. Ne t'épuise pas à taper.</p>
+                    </div>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon" style="background-color: var(--success-light); color: var(--success);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="mb-2">Lecture Audio</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Fais lire les réponses de l'IA par ton ordinateur ou ton téléphone pour réduire la fatigue visuelle.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE : QUIZ -->
+        <div id="view-quiz" class="hidden fade-in" style="max-width: 700px; margin: 0 auto;">
+            <button class="btn btn-ghost mb-4" onclick="switchView('intro')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Retour
+            </button>
+            <div class="card">
+                <h2 class="mb-8" style="font-size: 1.5rem;" id="quiz-question-title">Face à ton travail, qu'est-ce qui te bloque le plus en ce moment précis ?</h2>
+                <div id="quiz-options">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE : BIBLIOTHÈQUE -->
+        <div id="view-library" class="hidden fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <button class="btn btn-ghost" onclick="switchView('intro')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    Retour
+                </button>
+                <h2 style="font-size: 1.5rem;">Boîte à outils (Prompts)</h2>
+            </div>
+            <div class="bento-grid" id="library-grid">
+                <!-- Généré par JS -->
+            </div>
+        </div>
+
+        <!-- VUE : CONFIGURATEUR -->
+        <div id="view-configurator" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
+            <button class="btn btn-ghost mb-4" onclick="switchView('library')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Retour aux outils
+            </button>
+            
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 2rem; border-bottom: 1px solid var(--card-border); background-color: var(--primary-light);">
+                    <div class="flex items-center gap-4">
+                        <div id="config-icon" style="background: white; padding: 1rem; border-radius: 1rem; color: var(--primary); box-shadow: var(--shadow);">
+                            <!-- Icon -->
+                        </div>
+                        <div>
+                            <h2 id="config-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Titre</h2>
+                            <p id="config-desc" style="color: var(--text-muted);"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 2rem;">
+                    <div class="alert-info">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                        <div><strong>Astuce :</strong> Clique sur le champ texte et utilise la touche microphone de ton clavier pour dicter tes informations.</div>
+                    </div>
+
+                    <form id="config-form" onsubmit="event.preventDefault(); generatePrompt();">
+                        <div id="config-fields">
+                            <!-- Champs générés par JS -->
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full mt-4" style="font-size: 1.2rem; padding: 1rem;">
+                            Générer mon Prompt
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE : RÉSULTAT -->
+        <div id="view-result" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
+            <button class="btn btn-ghost mb-4" onclick="switchView('configurator')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Modifier les informations
+            </button>
+
+            <div class="card">
+                <div class="result-header">
+                    <div class="flex items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+                        <h2 style="font-size: 1.25rem;">Voici ton instruction pour l'IA</h2>
+                    </div>
+                    <button class="btn" id="btn-copy" onclick="copyPrompt()" style="background-color: rgba(255,255,255,0.1); color: white;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        Copier le texte
+                    </button>
+                </div>
+                
+                <div class="prompt-box" id="result-prompt-text">
+                    <!-- Texte généré -->
+                </div>
+
+                <div class="flex items-center justify-between" style="border-top: 1px solid var(--card-border); margin: 1.5rem -2rem -2rem -2rem; padding: 1.5rem 2rem; background-color: var(--bg-color); border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Colle ce texte dans ChatGPT, Claude ou Gemini.</p>
+                    <button class="btn btn-secondary" onclick="switchView('intro')">Terminer</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- --- JAVASCRIPT --- -->
+    <script>
+        // --- DONNÉES (Prompts & Quiz) ---
+        const SVGS = {
+            chunking: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="6" height="6" rx="1"/><path d="m3 17 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>',
+            decoder: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+            starter: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+            cleaner: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>',
+            passion: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>'
+        };
+
+        const TOOLS = [
+            {
+                id: 'chunking',
+                title: 'Le Découpeur de tâches',
+                category: 'Secrétaire Exécutif',
+                iconSvg: SVGS.chunking,
+                color: '#3b82f6',
+                description: "Découpe une montagne de travail en micro-actions de 15 minutes.",
+                forWho: "TDAH, TSA, Blocage exécutif",
+                fields: [
+                    { id: 'devoir', label: 'Que dois-tu faire ? (Colle la consigne)', type: 'textarea', placeholder: 'Ex: Faire une dissertation sur la Révolution Française...' },
+                    { id: 'energie', label: 'Niveau d\'énergie actuel', type: 'select', options: ['Je suis en forme', 'Moyen', 'Je suis très fatigué'] }
+                ],
+                generatePrompt: (data) => `Agis comme un partenaire d'organisation expert en fonctions exécutives. Face à un gros devoir, je me retrouve paralysé et je n'arrive pas à démarrer. J'ai besoin que tu décomposes ce devoir en micro-tâches et que tu les adaptes à mon niveau d'énergie actuel.
+
+Voici tes contraintes strictes :
+1. Ne fais pas le devoir à ma place.
+2. Découpe mon objectif global en une liste d'actions toutes simples qui prennent moins de 20 minutes chacune.
+3. Classe ces micro-tâches en deux catégories : "Haute Énergie" et "Basse Énergie".
+4. Fais des phrases très courtes et utilise des listes à puces.
+
+Structure ta réponse exactement comme ceci :
+* 🎯 La mission découpée : Explique-moi en une ligne l'objectif.
+* 🔋 Tâches à Haute Énergie : Liste chronologique.
+* 🪫 Tâches à Basse Énergie : Liste des actions faciles.
+* 🚀 Mon point de départ : Indique-moi LA première tâche par laquelle commencer.
+
+MES INFORMATIONS :
+* Le devoir : ${data.devoir}
+* Mon énergie : ${data.energie}`
+            },
+            {
+                id: 'decoder',
+                title: 'Le Décodeur de consignes',
+                category: 'Traducteur d\'implicites',
+                iconSvg: SVGS.decoder,
+                color: '#10b981',
+                description: "Traduit les consignes floues en étapes logiques et factuelles.",
+                forWho: "TSA, DYS",
+                fields: [
+                    { id: 'consigne', label: 'Quelle est la consigne floue ?', type: 'textarea', placeholder: 'Ex: Analysez ce document et faites-en la synthèse.' }
+                ],
+                generatePrompt: (data) => `Agis comme un tuteur bienveillant spécialisé dans l'accompagnement des élèves ayant un trouble du spectre de l'autisme. Mon objectif est de comprendre une consigne scolaire qui me semble trop vague et de pouvoir démarrer mon travail sans angoisser.
+
+Voici tes contraintes strictes :
+1. Ne fais pas le devoir à ma place. Agis comme un décodeur.
+2. Utilise des phrases courtes (moins de 15 mots) et mets les mots-clés importants en gras.
+3. Structure ta réponse avec le formatage Markdown et utilise des émojis ciblés comme ancres visuelles.
+4. À la fin, pose-moi une seule question simple pour vérifier que j'ai bien compris la première étape.
+
+Structure ta réponse exactement comme ceci :
+* 🎯 L'objectif caché : Explique-moi concrètement ce que le professeur évalue avec cette consigne.
+* ⚠️ Les règles non écrites : Liste les codes scolaires implicites que je dois respecter.
+* 🪜 Le plan d'action : Découpe la consigne en une liste chronologique de petites étapes factuelles.
+
+MES INFORMATIONS :
+* La consigne : ${data.consigne}`
+            },
+            {
+                id: 'starter',
+                title: 'Le Générateur d\'amorces',
+                category: 'Démarreur Cognitif',
+                iconSvg: SVGS.starter,
+                color: '#f59e0b',
+                description: "Propose 3 tremplins pour vaincre le syndrome de la page blanche.",
+                forWho: "TDAH, DYS (Page blanche)",
+                fields: [
+                    { id: 'sujet', label: 'Sujet du devoir', type: 'text', placeholder: 'Ex: Raconter un souvenir d\'enfance' }
+                ],
+                generatePrompt: (data) => `Agis comme un partenaire de co-écriture. Je suis bloqué face à la page blanche et j'ai besoin d'un "tremplin" pour lancer mon devoir. Mon moteur n'arrive pas à démarrer, j'ai juste besoin que tu me donnes la toute première impulsion.
+
+Voici tes contraintes strictes :
+1. Ne rédige absolument pas le devoir à ma place.
+2. Propose-moi exactement 3 options très différentes de premières phrases (les amorces) pour commencer mon texte.
+3. Utilise des phrases courtes et un vocabulaire adapté à mon niveau scolaire.
+
+Structure ta réponse exactement comme ceci :
+* 🎯 L'objectif : Rappelle-moi en une phrase ce que je dois démontrer.
+* 🚀 Option 1 (Directe) : Une phrase d'amorce qui rentre dans le vif du sujet.
+* ❓ Option 2 (Question) : Une amorce sous forme de question.
+* 🎨 Option 3 (Créative) : Une amorce originale.
+
+MES INFORMATIONS :
+* Le sujet : ${data.sujet}`
+            },
+            {
+                id: 'cleaner',
+                title: 'Le Nettoyeur de Texte',
+                category: 'Traducteur Universel',
+                iconSvg: SVGS.cleaner,
+                color: '#8b5cf6',
+                description: "Aère un texte dense et le réécrit en phrases courtes (Sujet + Verbe).",
+                forWho: "DYS (Dyslexie), Surcharge visuelle",
+                fields: [
+                    { id: 'texte', label: 'Texte complexe à nettoyer', type: 'textarea', placeholder: 'Colle ton cours ou le texte ici...' }
+                ],
+                generatePrompt: (data) => `Agis comme un adaptateur de contenus scolaires expert en accessibilité pour les profils dyslexiques. J'ai un cours qui est trop long et compliqué à lire, ce qui sature mon cerveau.
+
+Voici tes contraintes strictes :
+1. Nettoie ce texte de tout le jargon inutile et des phrases à rallonge.
+2. Utilise exclusivement des phrases très courtes et directes (Sujet + Verbe + Complément).
+3. Règle absolue : Tu dois impérativement conserver les vrais termes techniques et mots-clés, mais mets-les en gras.
+4. Ne rédige aucun paragraphe de plus de trois lignes. Aère au maximum avec des listes à puces.
+
+Structure ta réponse exactement comme ceci :
+* 🎯 L'idée principale : Résume le but du texte en une phrase.
+* 📝 Le cours aéré : Le texte nettoyé et découpé.
+* 🔑 Les mots techniques : Définitions très courtes des 3 mots les plus compliqués.
+
+MES INFORMATIONS :
+* Texte source : ${data.texte}`
+            },
+            {
+                id: 'passion',
+                title: 'Apprendre par les Passions',
+                category: 'Tuteur Sur-Mesure',
+                iconSvg: SVGS.passion,
+                color: '#ec4899',
+                description: "Explique un concept ennuyeux via ton jeu vidéo ou ta passion préférée.",
+                forWho: "TSA, TDAH (Dopamine)",
+                fields: [
+                    { id: 'concept', label: 'Concept scolaire à apprendre', type: 'text', placeholder: 'Ex: Le système immunitaire' },
+                    { id: 'passion', label: 'Ta passion (Jeu, sport, film...)', type: 'text', placeholder: 'Ex: Minecraft, la mécanique, Harry Potter' }
+                ],
+                generatePrompt: (data) => `Agis comme un tuteur expert capable d'expliquer n'importe quel concept scolaire en utilisant des métaphores sur mesure. J'ai besoin de comprendre une leçon abstraite en m'appuyant sur ma passion.
+
+Voici tes contraintes strictes :
+1. Explique-moi le concept scolaire en utilisant exclusivement une métaphore basée sur ma passion.
+2. Sécurité absolue : La métaphore sert uniquement d'outil. Ne pose aucune question sur l'univers de ma passion lui-même, reste centré sur le concept scolaire.
+3. Fais des phrases courtes et mets les mots-clés du cours en gras.
+
+Structure ta réponse exactement comme ceci :
+* 🎮 Le pont logique : Le point commun entre ma passion et la leçon.
+* 💡 L'explication sur mesure : Le concept raconté via les règles de mon univers.
+* 🎯 Le retour au cours : Traduction avec le vocabulaire officiel du prof.
+* ❓ Le test : Pose-moi une question simple sur le cours.
+
+MES INFORMATIONS :
+* Le concept à apprendre : ${data.concept}
+* Ma passion : ${data.passion}`
+            }
+        ];
+
+        const QUIZ_OPTIONS = [
+            { text: "La consigne est trop floue, je ne comprends pas ce qu'on attend de moi.", toolId: 'decoder' },
+            { text: "La quantité de travail me panique, c'est une montagne.", toolId: 'chunking' },
+            { text: "J'ai les idées, mais impossible d'écrire la première phrase.", toolId: 'starter' },
+            { text: "Le texte est trop long, mes yeux fatiguent, mon cerveau sature.", toolId: 'cleaner' },
+            { text: "C'est beaucoup trop ennuyeux, je n'arrive pas à m'y intéresser.", toolId: 'passion' }
+        ];
+
+        // --- ÉTAT GLOBAL ---
+        let currentTool = null;
+        let generatedText = "";
+
+        // --- GESTION DU THÈME ---
+        const themeIconSun = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+        const themeIconMoon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            document.getElementById('btn-theme').innerHTML = isDark ? themeIconSun : themeIconMoon;
+        }
+
+        // --- INITIALISATION ---
+        window.onload = () => {
+            // Thème système par défaut
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark');
+            }
+            document.getElementById('btn-theme').innerHTML = document.body.classList.contains('dark') ? themeIconSun : themeIconMoon;
+
+            // Remplir la bibliothèque
+            renderLibrary();
+            // Remplir le quiz
+            renderQuiz();
+        };
+
+        // --- NAVIGATION ---
+        const VIEWS = ['view-intro', 'view-quiz', 'view-library', 'view-configurator', 'view-result'];
+
+        function switchView(viewName) {
+            VIEWS.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                // Retrigger l'animation fade-in
+                document.getElementById(id).classList.remove('fade-in');
+                void document.getElementById(id).offsetWidth; // trigger reflow
+                document.getElementById(id).classList.add('fade-in');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // --- RENDUS DYNAMIQUES ---
+        function renderQuiz() {
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            QUIZ_OPTIONS.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt.text;
+                btn.onclick = () => selectTool(opt.toolId);
+                container.appendChild(btn);
+            });
+        }
+
+        function renderLibrary() {
+            const grid = document.getElementById('library-grid');
+            grid.innerHTML = '';
+            TOOLS.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = 'card tool-card';
+                card.onclick = () => selectTool(tool.id);
+                card.innerHTML = `
+                    <div class="tool-icon-wrapper" style="color: ${tool.color}; background-color: ${tool.color}20;">
+                        ${tool.iconSvg}
+                    </div>
+                    <span class="tool-tag" style="color: ${tool.color}; background-color: ${tool.color}15;">${tool.category}</span>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${tool.title}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1;">${tool.description}</p>
+                    <div style="border-top: 1px solid var(--card-border); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+                        <span style="display:flex; align-items:center; gap: 0.25rem;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                            ${tool.forWho}
+                        </span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectTool(toolId) {
+            currentTool = TOOLS.find(t => t.id === toolId);
+            if (!currentTool) return;
+
+            // Remplir le header du configurateur
+            document.getElementById('config-icon').innerHTML = currentTool.iconSvg;
+            document.getElementById('config-icon').style.color = currentTool.color;
+            document.getElementById('config-title').textContent = currentTool.title;
+            document.getElementById('config-desc').textContent = currentTool.description;
+
+            // Générer le formulaire
+            const formContainer = document.getElementById('config-fields');
+            formContainer.innerHTML = '';
+            
+            currentTool.fields.forEach(field => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.className = 'form-label';
+                label.htmlFor = `input-${field.id}`;
+                label.textContent = field.label;
+                group.appendChild(label);
+
+                let inputObj;
+                if (field.type === 'textarea') {
+                    inputObj = document.createElement('textarea');
+                } else if (field.type === 'select') {
+                    inputObj = document.createElement('select');
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "Sélectionner...";
+                    defaultOpt.disabled = true;
+                    defaultOpt.selected = true;
+                    inputObj.appendChild(defaultOpt);
+                    field.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        inputObj.appendChild(option);
+                    });
+                } else {
+                    inputObj = document.createElement('input');
+                    inputObj.type = 'text';
+                }
+
+                inputObj.id = `input-${field.id}`;
+                inputObj.className = 'form-control';
+                if (field.placeholder) inputObj.placeholder = field.placeholder;
+                if (field.type !== 'select') inputObj.required = true;
+                
+                group.appendChild(inputObj);
+                formContainer.appendChild(group);
+            });
+
+            switchView('configurator');
+        }
+
+        // --- GÉNÉRATION & COPIE ---
+        function generatePrompt() {
+            if (!currentTool) return;
+            
+            // Récupérer les données du formulaire
+            const data = {};
+            currentTool.fields.forEach(field => {
+                data[field.id] = document.getElementById(`input-${field.id}`).value || "(Information non renseignée)";
+            });
+
+            // Générer le texte
+            generatedText = currentTool.generatePrompt(data);
+            document.getElementById('result-prompt-text').textContent = generatedText;
+            
+            // Réinitialiser le bouton copier
+            const btnCopy = document.getElementById('btn-copy');
+            btnCopy.classList.remove('copy-success');
+            btnCopy.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copier le texte';
+
+            switchView('result');
+        }
+
+        // Fonction de copie robuste (même en mode fichier local)
+        function copyPrompt() {
+            const btnCopy = document.getElementById('btn-copy');
+            
+            // Fallback pour exécution locale hors serveur (file://)
+            const fallbackCopy = () => {
+                const textArea = document.createElement("textarea");
+                textArea.value = generatedText;
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess(btnCopy);
+                } catch (err) {
+                    console.error('Erreur lors de la copie', err);
+                    alert("Impossible de copier automatiquement. Veuillez sélectionner le texte manuellement.");
+                }
+                document.body.removeChild(textArea);
+            };
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(generatedText)
+                    .then(() => showCopySuccess(btnCopy))
+                    .catch(() => fallbackCopy());
+            } else {
+                fallbackCopy();
+            }
+        }
+
+        function showCopySuccess(btnElement) {
+            btnElement.classList.add('copy-success');
+            btnElement.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Copié !';
+            setTimeout(() => {
+                btnElement.classList.remove('copy-success');
+                btnElement.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copier le texte';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
