@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA4-NEURO - Prothèse Cognitive</title>
+    <title>IA4-NEURO-AT-SCHOOL</title>
     <style>
         /* --- VARIABLES & THÈME --- */
         :root {
@@ -282,7 +282,7 @@
         <div class="header-content">
             <div class="logo" onclick="switchView('intro')" title="Retour à l'accueil">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
-                IA4-NEURO
+                IA4-NEURO-AT-SCHOOL
             </div>
             <div class="flex items-center gap-4">
                 <button class="access-toggle" onclick="toggleAccessPanel()" title="Accessibilité (DYS)">
@@ -753,11 +753,11 @@
         const TOOLS = [
             {
                 id: 'chunking',
-                title: 'Fractionnement de tâches',
-                category: 'Secrétaire Exécutif',
+                title: 'Le Découpeur de devoirs',
+                category: 'Organisation',
                 iconSvg: SVGS.chunking,
                 color: '#3b82f6',
-                description: "Macro-tâche décomposée en micro-actions opérationnelles (Chunking).",
+                description: "Découpe un énorme devoir en petites missions de 15 minutes pour éviter la panique.",
                 forWho: "TDAH, TSA",
                 fields: [
                     { id: 'devoir', label: 'Qu\'est-ce que tu dois faire ? (Colle la consigne du prof)', type: 'textarea', placeholder: 'Ex: Faire une dissertation sur la Révolution...' },
@@ -783,11 +783,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'decoder',
-                title: 'Décodeur d\'implicites',
-                category: 'Traducteur Universel',
+                title: 'Le Décodeur de profs',
+                category: 'Décodeur',
                 iconSvg: SVGS.decoder,
                 color: '#10b981',
-                description: "Traduction des consignes ambiguës en étapes factuelles et séquentielles.",
+                description: "Traduit les consignes floues ('Analysez le document') en étapes super claires.",
                 forWho: "TSA, DYS",
                 fields: [
                     { id: 'consigne', label: 'Quelle est la consigne que tu ne comprends pas trop ?', type: 'textarea', placeholder: 'Ex: Analysez ce document et faites-en la synthèse.' }
@@ -810,11 +810,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'starter',
-                title: 'Générateur d\'amorces',
-                category: 'Démarreur Cognitif',
+                title: 'L\'Anti-Page Blanche',
+                category: 'Coup de pouce',
                 iconSvg: SVGS.starter,
                 color: '#f59e0b',
-                description: "Propositions de tremplins syntaxiques pour contourner l'inhibition.",
+                description: "Te donne 3 idées de premières phrases pour lancer ton texte quand tu es bloqué(e).",
                 forWho: "TDAH, DYS",
                 fields: [
                     { id: 'sujet', label: 'C\'est quoi le sujet exact de ton devoir ?', type: 'text', placeholder: 'Ex: Raconter un souvenir d\'enfance' }
@@ -837,11 +837,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'cleaner',
-                title: 'Réduction du bruit visuel',
-                category: 'Traducteur Universel',
+                title: 'Le Nettoyeur de texte',
+                category: 'Simplificateur',
                 iconSvg: SVGS.cleaner,
                 color: '#8b5cf6',
-                description: "Simplification syntaxique et extraction des données clés (Lexique préservé).",
+                description: "Prend un cours hyper long et le transforme en petites listes faciles à lire.",
                 forWho: "DYS",
                 fields: [
                     { id: 'texte', label: 'Colle le long texte ou la leçon que tu n\'arrives pas à lire ici :', type: 'textarea', placeholder: 'Colle le texte source ici...' }
@@ -863,11 +863,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'passion',
-                title: 'Métaphores sur Mesure (Passions)',
-                category: 'Tuteur Sans Jugement',
+                title: 'Le Prof Sur-Mesure',
+                category: 'Explications cool',
                 iconSvg: SVGS.passion,
                 color: '#ec4899',
-                description: "Traduit des concepts compliqués dans ton univers préféré, sans faire de hors-sujet.",
+                description: "T'explique les cours ennuyeux en utilisant ton jeu ou ta passion préférée.",
                 forWho: "TSA, TDAH",
                 fields: [
                     { id: 'concept', label: 'Quelle est la leçon abstraite ou ennuyeuse à comprendre ?', type: 'text', placeholder: 'Ex: Le système immunitaire, les fractions...' },
@@ -893,11 +893,11 @@ VARIABLES CONTEXTUELLES :
             {
                 id: 'retroplan',
                 title: 'Le Maître du Temps',
-                category: 'Secrétaire Exécutif',
+                category: 'Organisation',
                 iconSvg: SVGS.retroplan,
                 color: '#6366f1',
-                description: "Crée un planning inversé strict pour ne pas réviser à la dernière minute.",
-                forWho: "TDAH (Cécité temporelle)",
+                description: "Te fabrique un planning précis pour t'éviter de tout faire à la dernière minute.",
+                forWho: "TDAH",
                 fields: [
                     { id: 'objectif', label: 'Que dois-tu rendre ou réviser ?', type: 'text', placeholder: 'Ex: Contrôle d\'histoire sur la Révolution' },
                     { id: 'date', label: 'C\'est pour quand ? (Date exacte)', type: 'text', placeholder: 'Ex: Jeudi matin à 8h' },
@@ -922,11 +922,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'formalizer',
-                title: 'Le Filtre Anti-Impulsivité',
-                category: 'Régulation Émotionnelle',
+                title: 'Le Filtre Anti-Embrouilles',
+                category: 'Filtre Social',
                 iconSvg: SVGS.formalizer,
                 color: '#ef4444',
-                description: "Traduit un message écrit sous la colère en un message diplomatique.",
+                description: "Réécrit ton message énervé en une version polie pour éviter les conflits.",
                 forWho: "TDAH, TSA",
                 fields: [
                     { id: 'destinataire', label: 'À qui écris-tu ce message ?', type: 'text', placeholder: 'Ex: Un prof, un ami, un parent...' },
@@ -950,11 +950,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'gamify',
-                title: 'Le Maître de Jeu',
-                category: 'Dopamine & Gamification',
+                title: 'Le Transformateur en Jeu',
+                category: 'Motivation',
                 iconSvg: SVGS.gamify,
                 color: '#eab308',
-                description: "Transforme tes devoirs ennuyeux en quête avec XP et niveaux.",
+                description: "Transforme tes devoirs en une quête épique avec des niveaux et des points d'XP.",
                 forWho: "TDAH",
                 fields: [
                     { id: 'mission', label: 'C\'est quoi la corvée à faire ?', type: 'textarea', placeholder: 'Ex: Apprendre mes 15 mots de vocabulaire en anglais' },
@@ -978,11 +978,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'skeleton',
-                title: 'Le Squelette Logique',
-                category: 'Prothèse Scripturale',
+                title: 'Le Squelette à remplir',
+                category: 'Aide rédaction',
                 iconSvg: SVGS.skeleton,
                 color: '#14b8a6',
-                description: "Génère un texte à trous avec les mots de liaison pour t'aider à rédiger.",
+                description: "Te prépare un plan à trous avec les mots de liaison, glisses-y tes idées.",
                 forWho: "DYS",
                 fields: [
                     { id: 'matiere', label: 'Matière et sujet du texte à produire :', type: 'text', placeholder: 'Ex: SVT - Les causes du réchauffement climatique' },
@@ -1005,12 +1005,12 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'secretary',
-                title: 'Le Secrétaire Orthographique',
-                category: 'Prothèse Scripturale',
+                title: 'Le Secrétaire Anti-Fautes',
+                category: 'Aide rédaction',
                 iconSvg: SVGS.secretary,
                 color: '#0ea5e9',
-                description: "Corrige et structure un texte dicté à l'oral sans changer tes idées.",
-                forWho: "Dysorthographie, Dysgraphie",
+                description: "Dicte tes idées au micro, l'IA corrige tes fautes sans changer tes pensées.",
+                forWho: "DYS",
                 fields: [
                     { id: 'matiere', label: 'C\'est pour quelle matière ?', type: 'text', placeholder: 'Ex: SVT / Histoire / Français' },
                     { id: 'motsCles', label: 'Y a-t-il des mots techniques importants à ne surtout pas changer ?', type: 'text', placeholder: 'Ex: Mitochondrie, Phagocytose' },
@@ -1035,12 +1035,12 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'interview',
-                title: 'L\'Interview Inversée',
-                category: 'Démarreur Cognitif',
+                title: 'Le Trouveur d\'idées',
+                category: 'Coup de pouce',
                 iconSvg: SVGS.interview,
                 color: '#f43f5e',
-                description: "L'IA te pose 5 questions simples pour extraire tes idées et faire ton plan.",
-                forWho: "TDAH, Page blanche",
+                description: "L'IA te pose 5 questions simples pour t'aider à construire ton plan sans forcer.",
+                forWho: "TDAH",
                 fields: [
                     { id: 'sujet', label: 'Sur quoi porte ton devoir ?', type: 'textarea', placeholder: 'Ex: Dissertation sur le réchauffement climatique...' },
                     { id: 'connaissances', label: 'Balance 2 ou 3 trucs que tu sais déjà dessus (en vrac) :', type: 'text', placeholder: 'Ex: pollution, CO2, banquise...' }
@@ -1063,11 +1063,11 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'judge',
-                title: 'L\'Analyseur de Ton Social',
-                category: 'Filtre Social',
+                title: 'Le Décodeur d\'émotions',
+                category: 'Décodeur',
                 iconSvg: SVGS.judge,
                 color: '#64748b',
-                description: "Décode les intentions (ironie, reproche) d'un message reçu.",
+                description: "T'aide à comprendre si un message reçu est ironique, énervé, ou sympa.",
                 forWho: "TSA",
                 fields: [
                     { id: 'expediteur', label: 'Qui t\'a envoyé ça ?', type: 'text', placeholder: 'Ex: Un pote un peu agacé, une prof...' },
@@ -1092,12 +1092,12 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'safespace',
-                title: 'Le Tuteur Bienveillant',
-                category: 'Tuteur Sans Jugement',
+                title: 'Le Tuteur Hyper Sympa',
+                category: 'Explications cool',
                 iconSvg: SVGS.safespace,
                 color: '#14b8a6',
-                description: "Corrige tes erreurs avec douceur, une par une, sans pression.",
-                forWho: "Anxiété de perf, TDAH, TSA",
+                description: "T'explique tes erreurs en douceur, une par une, sans jamais te juger.",
+                forWho: "Anxiété, TSA",
                 fields: [
                     { id: 'besoin', label: 'En quoi je peux t\'aider ?', type: 'text', placeholder: 'Ex: Vérifie mes calculs / Dis-moi si mon intro est claire' },
                     { id: 'travail', label: 'Colle ton brouillon ou ton exercice ici :', type: 'textarea', placeholder: 'Mets ton brouillon ici, on ne juge pas !' }
