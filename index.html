@@ -31,6 +31,11 @@
             --radius: 1rem;
             --radius-lg: 1.5rem;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Accessibilité CSSOM Variables */
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --letter-spacing: normal;
+            --line-height: 1.5;
         }
 
         .dark {
@@ -54,13 +59,21 @@
             --warning-text: #fcd34d;
         }
 
+        /* Mode Sépia (Filtre de stress visuel) */
+        .sepia {
+            --bg-color: #fdf6e3;
+            --card-bg: #fffbf0;
+            --text-main: #433422;
+        }
+
         /* --- RESET & TYPOGRAPHIE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: var(--font-family);
+            letter-spacing: var(--letter-spacing);
+            line-height: var(--line-height);
             background-color: var(--bg-color);
             color: var(--text-main);
-            line-height: 1.5;
             transition: var(--transition);
             min-height: 100vh;
         }
@@ -102,12 +115,29 @@
             display: flex; align-items: center; gap: 0.5rem;
             font-weight: 800; font-size: 1.25rem; cursor: pointer; color: var(--primary);
         }
-        .theme-toggle {
+        .theme-toggle, .access-toggle {
             background: none; border: none; color: var(--text-main); cursor: pointer;
             padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             transition: var(--transition);
         }
-        .theme-toggle:hover { background-color: var(--secondary); }
+        .theme-toggle:hover, .access-toggle:hover { background-color: var(--secondary); }
+
+        /* --- WIDGET ACCESSIBILITÉ --- */
+        .access-panel {
+            position: fixed; top: 5rem; right: 1rem; background: var(--card-bg); 
+            border: 1px solid var(--card-border); border-radius: var(--radius);
+            box-shadow: var(--shadow-lg); padding: 1.5rem; z-index: 100; width: 300px;
+            transform: translateX(120%); transition: transform 0.3s ease-in-out;
+        }
+        .access-panel.open { transform: translateX(0); }
+        .access-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .access-row:last-child { margin-bottom: 0; }
+        .access-btn-group { display: flex; gap: 0.5rem; }
+        .access-btn { 
+            padding: 0.25rem 0.75rem; border: 1px solid var(--card-border); 
+            background: var(--bg-color); border-radius: 4px; cursor: pointer; color: var(--text-main);
+        }
+        .access-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* --- COMPOSANTS --- */
         .btn {
@@ -172,6 +202,42 @@
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
         textarea.form-control { min-height: 150px; resize: vertical; }
 
+        /* --- API ASSISTANCE (STT & TTS) --- */
+        .input-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+        .input-wrapper textarea { padding-right: 3.5rem; }
+        .input-wrapper input { padding-right: 3.5rem; }
+        
+        .mic-btn {
+            position: absolute; right: 0.75rem; 
+            background-color: var(--secondary); color: var(--primary);
+            border: none; border-radius: 50%; width: 2.5rem; height: 2.5rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: var(--transition);
+        }
+        .mic-btn-textarea { top: 0.75rem; }
+        .mic-btn-input { top: 50%; transform: translateY(-50%); }
+        .mic-btn:hover { background-color: var(--primary-light-border); }
+        .mic-btn.listening {
+            background-color: var(--danger); color: white;
+            animation: pulse-mic 1.5s infinite;
+        }
+        @keyframes pulse-mic { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .tts-highlight {
+            background-color: var(--warning-light);
+            color: var(--text-main);
+            border-radius: 4px;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px var(--warning-light);
+        }
+
+        /* --- WIZARD (FORMULAIRE PAR ÉTAPES) --- */
+        .wizard-step { display: none; animation: fadeIn 0.4s ease-out; }
+        .wizard-step.active { display: block; }
+        .wizard-progress-bar { height: 8px; background-color: var(--secondary); border-radius: 4px; margin-bottom: 1rem; overflow: hidden; }
+        .wizard-progress-fill { height: 100%; background-color: var(--primary); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* --- RESULTATS & MINUTEUR --- */
         .prompt-box {
             background-color: var(--bg-color); border: 1px solid var(--card-border); border-radius: var(--radius);
             padding: 1.5rem; font-family: monospace; font-size: 1rem; white-space: pre-wrap; color: var(--text-main);
@@ -179,9 +245,32 @@
         }
         .result-header {
             background-color: #1e293b; color: white; padding: 1rem 1.5rem; border-radius: var(--radius) var(--radius) 0 0;
-            display: flex; justify-content: space-between; align-items: center; margin: -2rem -2rem 1.5rem -2rem;
+            display: flex; justify-content: space-between; align-items: center; margin: -2rem -2rem 1.5rem -2rem; flex-wrap: wrap; gap: 1rem;
         }
         .copy-success { background-color: var(--success-light) !important; color: var(--success) !important; }
+
+        /* Styles pour les Checklists (Markdown to DOM) */
+        .md-checkbox-item {
+            display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem;
+        }
+        .md-checkbox-item input[type="checkbox"] {
+            width: 1.25rem; height: 1.25rem; margin-top: 0.2rem; cursor: pointer; accent-color: var(--primary);
+        }
+        .md-checkbox-item.checked span { text-decoration: line-through; opacity: 0.6; }
+
+        /* Styles pour le Minuteur Visuel (Time Timer) */
+        .timer-container {
+            display: flex; align-items: center; gap: 1.5rem; background: var(--card-bg);
+            padding: 1.5rem; border-radius: var(--radius); border: 2px solid var(--card-border);
+            margin-bottom: 1.5rem;
+        }
+        .timer-svg { transform: rotate(-90deg); width: 80px; height: 80px; }
+        .timer-bg { fill: none; stroke: var(--secondary); stroke-width: 12; }
+        .timer-progress { 
+            fill: none; stroke: var(--danger); stroke-width: 12; 
+            stroke-dasharray: 283; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear;
+        }
+        .timer-controls { display: flex; flex-direction: column; gap: 0.5rem; }
 
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -196,14 +285,50 @@
                 IA4-NEURO
             </div>
             <div class="flex items-center gap-4">
-                <button class="btn btn-ghost" style="font-size: 0.9rem;" onclick="switchView('about-ai')">
+                <button class="access-toggle" onclick="toggleAccessPanel()" title="Accessibilité (DYS)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>
+                </button>
+                <button class="btn btn-ghost" style="font-size: 0.9rem; padding: 0.5rem;" onclick="switchView('methodology')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span style="display: none; sm:display: inline;">Méthode (Combos)</span>
+                </button>
+                <button class="btn btn-ghost" style="font-size: 0.9rem; padding: 0.5rem;" onclick="switchView('about-ai')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                    Cours : Mécanique de l'IA
+                    <span style="display: none; sm:display: inline;">Cours : IA</span>
                 </button>
                 <button class="theme-toggle" onclick="toggleTheme()" id="btn-theme" aria-label="Changer le thème"></button>
             </div>
         </div>
     </header>
+
+    <!-- WIDGET ACCESSIBILITÉ -->
+    <div id="access-panel" class="access-panel">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold">Aides Visuelles (DYS)</h3>
+            <button onclick="toggleAccessPanel()" class="btn-ghost" style="padding:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+        
+        <div class="access-row">
+            <span>Police</span>
+            <div class="access-btn-group">
+                <button class="access-btn active" onclick="setCssVar('--font-family', 'system-ui', this)">Standard</button>
+                <button class="access-btn" onclick="setCssVar('--font-family', '\'Comic Sans MS\', cursive, sans-serif', this)" title="Souvent plus lisible pour la dyslexie">Comic</button>
+            </div>
+        </div>
+        
+        <div class="access-row">
+            <span>Espacement</span>
+            <div class="access-btn-group">
+                <button class="access-btn active" onclick="setCssVar('--letter-spacing', 'normal'); setCssVar('--line-height', '1.5', this)">Normal</button>
+                <button class="access-btn" onclick="setCssVar('--letter-spacing', '0.05em'); setCssVar('--line-height', '2', this)">Aéré</button>
+            </div>
+        </div>
+
+        <div class="access-row mt-4 pt-4" style="border-top: 1px solid var(--card-border);">
+            <span>Filtre Anti-Stress</span>
+            <button id="btn-sepia" class="access-btn w-full mt-2" onclick="toggleSepia()">Activer le fond Sépia</button>
+        </div>
+    </div>
 
     <main class="container">
         
@@ -320,6 +445,110 @@
             </div>
         </div>
 
+        <!-- VUE : MÉTHODOLOGIE ET SÉQUENÇAGE -->
+        <div id="view-methodology" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
+            <button class="btn btn-ghost mb-6" onclick="switchView('intro')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Retour
+            </button>
+            
+            <div class="card" style="margin-bottom: 2rem;">
+                <span class="tool-tag" style="background-color: #8b5cf6; color: white;">Niveau Avancé</span>
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--text-main); font-weight: 800; line-height: 1.2;">La Méthode des "Super-Combos"</h2>
+                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">Parfois, un seul outil ne suffit pas. Pour réussir un gros devoir, il faut souvent <strong>enchaîner plusieurs prothèses cognitives</strong> dans le bon ordre. Voici les meilleurs combos pour contourner tes blocages.</p>
+
+                <div class="tips-grid" style="margin-top: 0; padding-top: 0; border-top: none; grid-template-columns: 1fr; gap: 2rem;">
+                    
+                    <!-- Combo 1 : Le Devoir Impossible -->
+                    <div style="background-color: var(--bg-color); border: 2px solid var(--primary-light-border); border-radius: var(--radius); padding: 1.5rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: var(--primary);"></div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+                            Le Combo "Gros Devoir Incompréhensible"
+                        </h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Quand le prof donne une consigne longue d'une page et que tu ne sais même pas par quoi commencer.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: var(--primary-light); color: var(--primary); padding: 0.5rem; border-radius: 50%; font-weight: bold;">1</span>
+                                <div><strong>Le Décodeur :</strong> Pour traduire la consigne floue en une liste d'étapes claires.</div>
+                            </div>
+                            <div style="display: flex; justify-content: center; color: var(--text-muted);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: var(--primary-light); color: var(--primary); padding: 0.5rem; border-radius: 50%; font-weight: bold;">2</span>
+                                <div><strong>Le Découpeur de Tâches :</strong> Pour transformer ces étapes en micro-actions de 15 minutes.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Combo 2 : La Page Blanche -->
+                    <div style="background-color: var(--bg-color); border: 2px solid rgba(244, 63, 94, 0.2); border-radius: var(--radius); padding: 1.5rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: #f43f5e;"></div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                            Le Combo "Syndrome de la Page Blanche"
+                        </h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Quand tu as les idées en tête, mais que la feuille reste désespérément vide car structurer un texte te demande trop d'énergie.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 0.5rem; border-radius: 50%; font-weight: bold;">1</span>
+                                <div><strong>L'Interview Inversée :</strong> L'IA te pose des questions, tu réponds à la voix avec ton micro, et elle te génère ton plan.</div>
+                            </div>
+                            <div style="display: flex; justify-content: center; color: var(--text-muted);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 0.5rem; border-radius: 50%; font-weight: bold;">2</span>
+                                <div><strong>Générateur d'amorces :</strong> Choisis un "tremplin" pour commencer l'introduction sans bloquer.</div>
+                            </div>
+                            <div style="display: flex; justify-content: center; color: var(--text-muted);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 0.5rem; border-radius: 50%; font-weight: bold;">3</span>
+                                <div><strong>Secrétaire Orthographique :</strong> Dicte le reste de tes paragraphes à l'oral, l'IA corrige tes fautes et met en forme à la fin.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Combo 3 : Le Cours Indigeste -->
+                    <div style="background-color: var(--bg-color); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: var(--radius); padding: 1.5rem; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: #8b5cf6;"></div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            Le Combo "Leçon Indigeste"
+                        </h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Quand le manuel scolaire ressemble à un gros pavé impossible à lire, et que le sujet t'endort totalement.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem; border-radius: 50%; font-weight: bold;">1</span>
+                                <div><strong>Nettoyeur de Texte :</strong> Pour purger le texte et le transformer en petites puces faciles à lire.</div>
+                            </div>
+                            <div style="display: flex; justify-content: center; color: var(--text-muted);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
+                                <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem; border-radius: 50%; font-weight: bold;">2</span>
+                                <div><strong>Le Tuteur Passion :</strong> Pour relier ces nouvelles notions simplifiées à un jeu vidéo ou une passion que tu adores.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button class="btn btn-primary" onclick="switchView('library')" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        Je vais choisir mes outils
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- VUE : QUIZ -->
         <div id="view-quiz" class="hidden fade-in" style="max-width: 700px; margin: 0 auto;">
             <button class="btn btn-ghost mb-4" onclick="switchView('intro')">
@@ -348,45 +577,56 @@
             </div>
         </div>
 
-        <!-- VUE : CONFIGURATEUR -->
+        <!-- VUE : CONFIGURATEUR (WIZARD) -->
         <div id="view-configurator" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
             <button class="btn btn-ghost mb-4" onclick="switchView('library')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                Retour à l'index
+                Changer d'outil
             </button>
             
             <div class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 2rem; border-bottom: 1px solid var(--card-border); background-color: var(--primary-light);">
+                <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--card-border); background-color: var(--primary-light);">
                     <div class="flex items-center gap-4">
                         <div id="config-icon" style="background: white; padding: 1rem; border-radius: 1rem; color: var(--primary); box-shadow: var(--shadow);">
                             <!-- Icon -->
                         </div>
                         <div>
                             <h2 id="config-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Titre</h2>
-                            <p id="config-desc" style="color: var(--text-muted);"></p>
+                            <p id="config-desc" style="color: var(--text-muted); font-size: 0.95rem;"></p>
                         </div>
                     </div>
                 </div>
 
                 <div style="padding: 2rem;">
+                    <!-- Barre de progression -->
+                    <div class="wizard-progress-bar">
+                        <div id="wizard-progress-fill" class="wizard-progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <div id="wizard-status" class="text-center mb-8 font-bold" style="color: var(--primary); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Étape 1 sur X
+                    </div>
+
                     <form id="config-form" onsubmit="event.preventDefault(); generatePrompt();">
                         <div id="config-fields">
-                            <!-- Champs générés par JS -->
+                            <!-- Les étapes (wizard-step) seront générées ici par JS -->
                         </div>
                         
-                        <div class="form-group" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
-                            <label class="form-label" for="output-format" style="color: var(--primary);">Format de sortie cognitif :</label>
-                            <select id="output-format" class="form-control" style="border-color: var(--primary-light-border); background-color: var(--primary-light);">
-                                <option value="text">Texte adapté (Aéré et structuré)</option>
-                                <option value="image">Image / Schéma visuel</option>
-                                <option value="podcast">Podcast / Audio à écouter</option>
-                                <option value="video">Script Vidéo (Stimulation dynamique)</option>
-                            </select>
+                        <!-- Navigation du Wizard -->
+                        <div class="flex justify-between gap-4 mt-8 pt-6" style="border-top: 1px solid var(--card-border);">
+                            <button type="button" id="btn-wizard-prev" class="btn btn-secondary" onclick="prevWizardStep()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                Précédent
+                            </button>
+                            
+                            <button type="button" id="btn-wizard-next" class="btn btn-primary" onclick="nextWizardStep()" style="flex-grow: 1; font-size: 1.1rem;">
+                                Suivant
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                            </button>
+                            
+                            <button type="submit" id="btn-wizard-submit" class="btn hidden" style="flex-grow: 1; background-color: var(--success); color: white; box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39); font-size: 1.1rem;">
+                                Compiler mon instruction magique ✨
+                            </button>
                         </div>
-
-                        <button type="submit" class="btn btn-primary w-full mt-4" style="font-size: 1.2rem; padding: 1rem;">
-                            Compiler l'instruction
-                        </button>
                     </form>
                 </div>
             </div>
@@ -399,16 +639,38 @@
                 Ajuster les variables
             </button>
 
+            <!-- Minuteur Visuel (Initialement masqué, affiché si outil Chunking) -->
+            <div id="timer-widget" class="timer-container hidden">
+                <svg class="timer-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="timer-bg" cx="50" cy="50" r="45"/>
+                    <circle id="timer-circle" class="timer-progress" cx="50" cy="50" r="45"/>
+                </svg>
+                <div class="timer-controls">
+                    <h3 style="margin-bottom: 0.25rem;">Minuteur de Concentration (15 min)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Idéal pour exécuter une micro-tâche sans s'épuiser.</p>
+                    <div class="flex gap-2">
+                        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="startTimer(15)">Démarrer</button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="stopTimer()">Stop</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="result-header">
                     <div class="flex items-center gap-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
                         <h2 style="font-size: 1.25rem;">Prompt compilé</h2>
                     </div>
-                    <button class="btn" id="btn-copy" onclick="copyPrompt()" style="background-color: rgba(255,255,255,0.1); color: white;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                        Copier
-                    </button>
+                    <div class="flex gap-2">
+                        <button class="btn" id="btn-tts" onclick="toggleTTS()" style="background-color: rgba(255,255,255,0.1); color: white;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            Écouter
+                        </button>
+                        <button class="btn" id="btn-copy" onclick="copyPrompt()" style="background-color: rgba(255,255,255,0.1); color: white;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            Copier
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="prompt-box" id="result-prompt-text">
@@ -430,6 +692,15 @@
                 <div class="flex items-center justify-between" style="padding: 1.5rem 2rem; background-color: var(--bg-color); border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
                     <p style="color: var(--text-muted); font-size: 0.95rem;">Colle le bloc texte ci-dessus dans l'interface de ton LLM (ChatGPT, Claude, etc.).</p>
                     <button class="btn btn-secondary" onclick="switchView('intro')">Retour Accueil</button>
+                </div>
+            </div>
+            
+            <!-- Zone interactive pour tester l'output (Simulation Checklists) -->
+            <div id="interactive-preview-zone" class="card mt-6 hidden">
+                <h3 class="mb-4" style="color: var(--primary);">Simulateur de Tâches (Brouillon)</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Si l'IA génère des listes à puces (comme pour le Découpeur de tâches), tu pourras les cocher ici pour suivre ton avancée.</p>
+                <div id="interactive-content" style="padding: 1rem; border: 1px dashed var(--card-border); border-radius: var(--radius); background: var(--bg-color);">
+                    <!-- Contenu parsé injecté ici pour test -->
                 </div>
             </div>
         </div>
@@ -461,8 +732,8 @@
                 description: "Macro-tâche décomposée en micro-actions opérationnelles (Chunking).",
                 forWho: "TDAH, TSA",
                 fields: [
-                    { id: 'devoir', label: 'Objectif de production (Consigne) :', type: 'textarea', placeholder: 'Ex: Rédiger une dissertation sur la Révolution Française...' },
-                    { id: 'energie', label: 'Capacité cognitive actuelle :', type: 'select', options: ['Optimale', 'Moyenne', 'Altérée (Fatigue)'] }
+                    { id: 'devoir', label: 'Qu\'est-ce que tu dois faire ? (Colle la consigne du prof)', type: 'textarea', placeholder: 'Ex: Faire une dissertation sur la Révolution...' },
+                    { id: 'energie', label: 'Comment te sens-tu pour travailler là tout de suite ?', type: 'select', options: ['Je pète la forme ! ⚡️', 'Ça va, moyen 😐', 'Je suis complètement KO / fatigué(e) 😴'] }
                 ],
                 generatePrompt: (data) => `Agis comme un partenaire d'organisation expert en fonctions exécutives. Face à la charge requise par cet objectif, le coût cognitif d'initiation est trop élevé. Applique une méthode de "Chunking".
 
@@ -470,7 +741,7 @@ Contraintes opératoires :
 1. Ne génère pas le contenu de la tâche. Fournis l'architecture d'exécution.
 2. Décompose la macro-tâche en une séquence de micro-actions chronologiques n'excédant pas 15-20 minutes chacune.
 3. Catégorise ces micro-tâches en deux spectres de charge : "Haute demande cognitive" et "Basse demande".
-4. Utilise une syntaxe atomique (listes à puces, phrasing direct).
+4. Utilise une syntaxe atomique (listes à puces simples "- ").
 
 Format de sortie attendu (Markdown) :
 * 🎯 Objectif global reformulé (1 ligne).
@@ -491,7 +762,7 @@ VARIABLES CONTEXTUELLES :
                 description: "Traduction des consignes ambiguës en étapes factuelles et séquentielles.",
                 forWho: "TSA, DYS",
                 fields: [
-                    { id: 'consigne', label: 'Consigne source (ambiguë) :', type: 'textarea', placeholder: 'Ex: Analysez ce document et faites-en la synthèse.' }
+                    { id: 'consigne', label: 'Quelle est la consigne que tu ne comprends pas trop ?', type: 'textarea', placeholder: 'Ex: Analysez ce document et faites-en la synthèse.' }
                 ],
                 generatePrompt: (data) => `Agis comme un tuteur expert en remédiation cognitive (spécialisation TSA). La consigne scolaire fournie contient des implicites ou requiert des fonctions d'inférence non maîtrisées.
 
@@ -518,7 +789,7 @@ VARIABLES CONTEXTUELLES :
                 description: "Propositions de tremplins syntaxiques pour contourner l'inhibition.",
                 forWho: "TDAH, DYS",
                 fields: [
-                    { id: 'sujet', label: 'Thématique ciblée :', type: 'text', placeholder: 'Ex: Raconter un souvenir d\'enfance' }
+                    { id: 'sujet', label: 'C\'est quoi le sujet exact de ton devoir ?', type: 'text', placeholder: 'Ex: Raconter un souvenir d\'enfance' }
                 ],
                 generatePrompt: (data) => `Agis comme un initiateur cognitif. Le processus de production écrite est inhibé (syndrome de la page blanche). J'ai besoin d'impulsions syntaxiques pour contourner le blocage initial.
 
@@ -545,7 +816,7 @@ VARIABLES CONTEXTUELLES :
                 description: "Simplification syntaxique et extraction des données clés (Lexique préservé).",
                 forWho: "DYS",
                 fields: [
-                    { id: 'texte', label: 'Bloc de texte à traiter :', type: 'textarea', placeholder: 'Colle le texte source ici...' }
+                    { id: 'texte', label: 'Colle le long texte ou la leçon que tu n\'arrives pas à lire ici :', type: 'textarea', placeholder: 'Colle le texte source ici...' }
                 ],
                 generatePrompt: (data) => `Agis comme un expert en accessibilité textuelle (FALC optimisé pour la dyslexie). La charge visuelle et syntaxique du texte source sature la mémoire de travail.
 
@@ -571,8 +842,8 @@ VARIABLES CONTEXTUELLES :
                 description: "Ancrage conceptuel d'une abstraction via un transfert analogique.",
                 forWho: "TSA, TDAH",
                 fields: [
-                    { id: 'concept', label: 'Concept abstrait à traiter :', type: 'text', placeholder: 'Ex: Le système immunitaire' },
-                    { id: 'passion', label: 'Domaine d\'intérêt spécifique :', type: 'text', placeholder: 'Ex: Architecture système, Minecraft, Astrophysique' }
+                    { id: 'concept', label: 'C\'est quoi le truc abstrait ou ennuyeux à apprendre ?', type: 'text', placeholder: 'Ex: Le système immunitaire' },
+                    { id: 'passion', label: 'C\'est quoi ta plus grande passion ou ton jeu vidéo préféré ?', type: 'text', placeholder: 'Ex: Minecraft, la mécanique, Roblox...' }
                 ],
                 generatePrompt: (data) => `Agis comme un tuteur expert en transfert analogique. Le concept cible souffre d'un déficit de saillance (abstrait/ennuyeux). Pour engager les réseaux attentionnels, tu dois créer un pont cognitif avec mon domaine d'intérêt spécifique.
 
@@ -600,9 +871,9 @@ VARIABLES CONTEXTUELLES :
                 description: "Corrige et structure un texte dicté à l'oral sans changer tes idées.",
                 forWho: "Dysorthographie, Dysgraphie",
                 fields: [
-                    { id: 'matiere', label: 'Matière ou Contexte :', type: 'text', placeholder: 'Ex: SVT / Histoire / Français' },
-                    { id: 'motsCles', label: 'Mots techniques à préserver absolument :', type: 'text', placeholder: 'Ex: Mitochondrie, Phagocytose' },
-                    { id: 'texte', label: 'Texte brut dicté (avec fautes/phonétique) :', type: 'textarea', placeholder: 'Colle ici ce que tu as dicté au microphone...' }
+                    { id: 'matiere', label: 'C\'est pour quelle matière ?', type: 'text', placeholder: 'Ex: SVT / Histoire / Français' },
+                    { id: 'motsCles', label: 'Y a-t-il des mots techniques importants à ne surtout pas changer ?', type: 'text', placeholder: 'Ex: Mitochondrie, Phagocytose' },
+                    { id: 'texte', label: 'Vas-y, dicte tes idées en vrac au micro (même si c\'est le bazar) :', type: 'textarea', placeholder: 'Clique sur le micro et parle...' }
                 ],
                 generatePrompt: (data) => `Agis comme un secrétaire orthographique bienveillant. Écrire à la main ou taper au clavier me fatigue énormément et j'angoisse de faire des fautes, alors j'ai dicté mes idées à l'oral. Le texte brut est un peu décousu ou écrit en phonétique.
 
@@ -630,8 +901,8 @@ VARIABLES CONTEXTUELLES :
                 description: "L'IA te pose 5 questions simples pour extraire tes idées et faire ton plan.",
                 forWho: "TDAH, Page blanche",
                 fields: [
-                    { id: 'sujet', label: 'Sujet exact du devoir :', type: 'textarea', placeholder: 'Ex: Dissertation sur le réchauffement climatique...' },
-                    { id: 'connaissances', label: 'Ce que je sais déjà (en vrac) :', type: 'text', placeholder: 'Ex: pollution, CO2, banquise...' }
+                    { id: 'sujet', label: 'Sur quoi porte ton devoir ?', type: 'textarea', placeholder: 'Ex: Dissertation sur le réchauffement climatique...' },
+                    { id: 'connaissances', label: 'Balance 2 ou 3 trucs que tu sais déjà dessus (en vrac) :', type: 'text', placeholder: 'Ex: pollution, CO2, banquise...' }
                 ],
                 generatePrompt: (data) => `Agis comme un journaliste partenaire de brainstorming. J'ai des idées en tête pour mon devoir, mais essayer de construire un plan directement à l'écrit me demande trop d'efforts et me bloque totalement. J'ai besoin que tu m'interviewes pour extraire mes idées et construire mon plan.
 
@@ -658,8 +929,8 @@ VARIABLES CONTEXTUELLES :
                 description: "Décode les intentions (ironie, reproche) d'un message reçu.",
                 forWho: "TSA",
                 fields: [
-                    { id: 'expediteur', label: 'Contexte (Qui a écrit ce message ?) :', type: 'text', placeholder: 'Ex: Un ami qui a annulé, un prof agacé...' },
-                    { id: 'message', label: 'Message exact reçu :', type: 'textarea', placeholder: 'Colle le message que tu n\'arrives pas à interpréter...' }
+                    { id: 'expediteur', label: 'Qui t\'a envoyé ça ?', type: 'text', placeholder: 'Ex: Un pote un peu agacé, une prof...' },
+                    { id: 'message', label: 'Colle le message bizarre ou stressant ici :', type: 'textarea', placeholder: 'Copie-colle le message que tu n\'arrives pas à interpréter...' }
                 ],
                 generatePrompt: (data) => `Agis comme un décodeur de codes sociaux. Les personnes neuroatypiques peuvent éprouver des difficultés à interpréter les intentions ou l'ironie dans la communication écrite. Je viens de lire un message et je n'arrive pas à deviner l'intention de la personne.
 
@@ -687,8 +958,8 @@ VARIABLES CONTEXTUELLES :
                 description: "Corrige tes erreurs avec douceur, une par une, sans pression.",
                 forWho: "Anxiété de perf, TDAH, TSA",
                 fields: [
-                    { id: 'besoin', label: 'Ce que j\'attends de toi :', type: 'text', placeholder: 'Ex: Vérifie mes calculs / Dis-moi si mon intro est claire' },
-                    { id: 'travail', label: 'Mon travail / brouillon :', type: 'textarea', placeholder: 'Colle ton travail ici...' }
+                    { id: 'besoin', label: 'En quoi je peux t\'aider ?', type: 'text', placeholder: 'Ex: Vérifie mes calculs / Dis-moi si mon intro est claire' },
+                    { id: 'travail', label: 'Colle ton brouillon ou ton exercice ici :', type: 'textarea', placeholder: 'Mets ton brouillon ici, on ne juge pas !' }
                 ],
                 generatePrompt: (data) => `Agis comme un tuteur à la patience infinie, spécialement formé pour accompagner les élèves très anxieux face à l'échec ou au regard des autres. Je veux comprendre une notion ou faire un exercice, mais j'ai besoin de me sentir en totale sécurité pour ne pas bloquer.
 
@@ -724,7 +995,7 @@ VARIABLES CONTEXTUELLES :
         let currentTool = null;
         let generatedText = "";
 
-        // --- GESTION DU THÈME ---
+        // --- GESTION DU THÈME ET ACCESSIBILITÉ ---
         const themeIconSun = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
         const themeIconMoon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
 
@@ -732,22 +1003,141 @@ VARIABLES CONTEXTUELLES :
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             document.getElementById('btn-theme').innerHTML = isDark ? themeIconSun : themeIconMoon;
+            saveState(); // Sauvegarde l'état du thème
+        }
+
+        function toggleAccessPanel() {
+            document.getElementById('access-panel').classList.toggle('open');
+        }
+
+        function setCssVar(variable, value, btnElement = null) {
+            document.documentElement.style.setProperty(variable, value);
+            if (btnElement) {
+                const group = btnElement.parentElement;
+                group.querySelectorAll('.access-btn').forEach(btn => btn.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+            saveState(); // Sauvegarde les préférences d'accessibilité
+        }
+
+        function toggleSepia() {
+            document.body.classList.toggle('sepia');
+            const btn = document.getElementById('btn-sepia');
+            if (document.body.classList.contains('sepia')) {
+                btn.classList.add('active');
+                btn.textContent = "Désactiver le fond Sépia";
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = "Activer le fond Sépia";
+            }
+            saveState();
+        }
+
+        // --- LOCAL STORAGE (PERSISTANCE D'ÉTAT) ---
+        function saveState() {
+            const state = {
+                themeDark: document.body.classList.contains('dark'),
+                themeSepia: document.body.classList.contains('sepia'),
+                cssVars: {
+                    fontFamily: document.documentElement.style.getPropertyValue('--font-family'),
+                    letterSpacing: document.documentElement.style.getPropertyValue('--letter-spacing'),
+                    lineHeight: document.documentElement.style.getPropertyValue('--line-height')
+                },
+                wizardData: {}
+            };
+
+            // Sauvegarde des champs de formulaire en cours
+            if (currentTool) {
+                state.currentToolId = currentTool.id;
+                state.currentWizardStep = currentWizardStep;
+                currentTool.fields.forEach(f => {
+                    const el = document.getElementById(`input-${f.id}`);
+                    if (el) state.wizardData[f.id] = el.value;
+                });
+                const fmtEl = document.getElementById('output-format');
+                if (fmtEl) state.wizardData['output-format'] = fmtEl.value;
+            }
+
+            localStorage.setItem('ia4neuro_state', JSON.stringify(state));
+        }
+
+        function restoreState() {
+            const savedStateStr = localStorage.getItem('ia4neuro_state');
+            if (!savedStateStr) return false;
+
+            try {
+                const state = JSON.parse(savedStateStr);
+                
+                // Restauration Thème
+                if (state.themeDark) document.body.classList.add('dark');
+                document.getElementById('btn-theme').innerHTML = document.body.classList.contains('dark') ? themeIconSun : themeIconMoon;
+                
+                // Restauration Accessibilité
+                if (state.themeSepia) {
+                    document.body.classList.add('sepia');
+                    document.getElementById('btn-sepia').classList.add('active');
+                    document.getElementById('btn-sepia').textContent = "Désactiver le fond Sépia";
+                }
+                if (state.cssVars.fontFamily) setCssVar('--font-family', state.cssVars.fontFamily);
+                if (state.cssVars.letterSpacing) setCssVar('--letter-spacing', state.cssVars.letterSpacing);
+                if (state.cssVars.lineHeight) setCssVar('--line-height', state.cssVars.lineHeight);
+
+                // Mise à jour visuelle des boutons d'accessibilité (approximation simple basée sur la présence de la valeur)
+                // Note: Une implémentation complète lierait l'état aux boutons spécifiques, ici on restaure la fonctionnalité CSS
+                
+                // Restauration Wizard
+                if (state.currentToolId) {
+                    selectTool(state.currentToolId, true); // true = no animation jump
+                    if (state.currentWizardStep !== undefined) {
+                        currentWizardStep = state.currentWizardStep;
+                        updateWizardUI();
+                    }
+                    // Restaurer les valeurs des champs
+                    for (const [key, value] of Object.entries(state.wizardData)) {
+                        const el = document.getElementById(key === 'output-format' ? key : `input-${key}`);
+                        if (el) el.value = value;
+                    }
+                    return true; // Retourne true si on a restauré une vue de configuration
+                }
+            } catch (e) {
+                console.error("Erreur restauration état", e);
+            }
+            return false;
         }
 
         // --- INITIALISATION ---
         window.onload = () => {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // Thème système par défaut si pas de sauvegarde
+            if (!localStorage.getItem('ia4neuro_state') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.body.classList.add('dark');
             }
             document.getElementById('btn-theme').innerHTML = document.body.classList.contains('dark') ? themeIconSun : themeIconMoon;
+            
             renderLibrary();
             renderQuiz();
+
+            const isRestored = restoreState();
+            // Si on n'a pas restauré le configurateur, on affiche l'intro
+            if (!isRestored) switchView('intro');
+            
+            // Attacher les écouteurs pour la sauvegarde automatique sur tout le document
+            document.addEventListener('input', (e) => {
+                if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') saveState();
+            });
+            document.addEventListener('change', (e) => {
+                if (e.target.tagName === 'SELECT') saveState();
+            });
         };
 
         // --- NAVIGATION ---
-        const VIEWS = ['view-intro', 'view-about-ai', 'view-quiz', 'view-library', 'view-configurator', 'view-result'];
+        const VIEWS = ['view-intro', 'view-about-ai', 'view-methodology', 'view-quiz', 'view-library', 'view-configurator', 'view-result'];
 
         function switchView(viewName) {
+            // Arrêter les API d'assistance lors de la navigation
+            if (isListening) toggleDictation(currentMicBtn, null);
+            if (isPlayingTTS) toggleTTS();
+            stopTimer();
+
             VIEWS.forEach(id => {
                 document.getElementById(id).classList.add('hidden');
                 document.getElementById(id).classList.remove('fade-in');
@@ -756,6 +1146,12 @@ VARIABLES CONTEXTUELLES :
             });
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             window.scrollTo(0, 0);
+
+            // Si on quitte le configurateur, on efface l'outil en cours pour la sauvegarde
+            if (viewName !== 'configurator' && viewName !== 'result') {
+                currentTool = null;
+                saveState();
+            }
         }
 
         // --- RENDUS DYNAMIQUES ---
@@ -790,7 +1186,11 @@ VARIABLES CONTEXTUELLES :
             });
         }
 
-        function selectTool(toolId) {
+        // --- GESTION DU WIZARD ---
+        let currentWizardStep = 0;
+        let totalWizardSteps = 0;
+
+        function selectTool(toolId, skipNav = false) {
             currentTool = TOOLS.find(t => t.id === toolId);
             if (!currentTool) return;
 
@@ -802,15 +1202,24 @@ VARIABLES CONTEXTUELLES :
             const formContainer = document.getElementById('config-fields');
             formContainer.innerHTML = '';
             
-            currentTool.fields.forEach(field => {
+            // Création des étapes une par une
+            currentTool.fields.forEach((field, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'wizard-step';
+                stepDiv.id = `wizard-step-${index}`;
+                
                 const group = document.createElement('div');
-                group.className = 'form-group';
+                group.className = 'form-group mb-0';
                 
                 const label = document.createElement('label');
                 label.className = 'form-label';
                 label.htmlFor = `input-${field.id}`;
                 label.textContent = field.label;
+                label.style = "color: var(--primary); font-size: 1.3rem; margin-bottom: 1rem; line-height: 1.3;";
                 group.appendChild(label);
+
+                const inputWrapper = document.createElement('div');
+                inputWrapper.className = 'input-wrapper mt-4';
 
                 let inputObj;
                 if (field.type === 'textarea') {
@@ -839,11 +1248,117 @@ VARIABLES CONTEXTUELLES :
                 if (field.placeholder) inputObj.placeholder = field.placeholder;
                 if (field.type !== 'select') inputObj.required = true;
                 
-                group.appendChild(inputObj);
-                formContainer.appendChild(group);
+                inputWrapper.appendChild(inputObj);
+
+                if (field.type === 'textarea' || field.type === 'text') {
+                    const micBtn = document.createElement('button');
+                    micBtn.type = 'button';
+                    micBtn.className = `mic-btn ${field.type === 'textarea' ? 'mic-btn-textarea' : 'mic-btn-input'}`;
+                    micBtn.title = "Dicter à la voix";
+                    micBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>';
+                    micBtn.onclick = (e) => toggleDictation(e.currentTarget, inputObj.id);
+                    inputWrapper.appendChild(micBtn);
+                    
+                    const micHint = document.createElement('p');
+                    micHint.style = "font-size: 0.9rem; color: var(--text-muted); margin-top: 0.75rem;";
+                    micHint.innerHTML = "💡 Astuce : Clique sur l'icône micro à droite pour utiliser ta voix au lieu de taper.";
+                    group.appendChild(inputWrapper);
+                    group.appendChild(micHint);
+                } else {
+                    group.appendChild(inputWrapper);
+                }
+
+                stepDiv.appendChild(group);
+                formContainer.appendChild(stepDiv);
             });
 
-            switchView('configurator');
+            // Étape finale : Le format de sortie
+            const finalStepDiv = document.createElement('div');
+            finalStepDiv.className = 'wizard-step';
+            finalStepDiv.id = `wizard-step-${currentTool.fields.length}`;
+            finalStepDiv.innerHTML = `
+                <div class="form-group mb-0">
+                    <label class="form-label" for="output-format" style="color: var(--primary); font-size: 1.3rem; margin-bottom: 1.5rem; line-height: 1.3;">
+                        Dernière étape : Sous quelle forme veux-tu la réponse de l'IA ?
+                    </label>
+                    <select id="output-format" class="form-control" style="border-color: var(--primary-light-border); background-color: var(--primary-light); font-size: 1.1rem; padding: 1.25rem;">
+                        <option value="text">Un texte court, aéré et facile à lire 📝</option>
+                        <option value="image">Une image ou un schéma pour mieux visualiser 🖼️</option>
+                        <option value="podcast">Un texte dynamique style Podcast/Radio 🎧</option>
+                        <option value="video">Un script façon vidéo TikTok/YouTube 🎬</option>
+                    </select>
+                </div>
+            `;
+            formContainer.appendChild(finalStepDiv);
+
+            totalWizardSteps = currentTool.fields.length + 1;
+            currentWizardStep = 0;
+            updateWizardUI();
+
+            if (!skipNav) switchView('configurator');
+            saveState();
+        }
+
+        function updateWizardUI() {
+            // Masquer toutes les étapes, afficher la courante
+            for (let i = 0; i < totalWizardSteps; i++) {
+                const step = document.getElementById(`wizard-step-${i}`);
+                if(step) step.classList.remove('active');
+            }
+            const activeStep = document.getElementById(`wizard-step-${currentWizardStep}`);
+            if (activeStep) activeStep.classList.add('active');
+
+            // Auto-focus sur le champ actif
+            setTimeout(() => {
+                if (activeStep) {
+                    const input = activeStep.querySelector('input, textarea, select');
+                    if (input) input.focus();
+                }
+            }, 100);
+
+            // Mise à jour de la progression
+            const progressPct = ((currentWizardStep + 1) / totalWizardSteps) * 100;
+            document.getElementById('wizard-progress-fill').style.width = `${progressPct}%`;
+            document.getElementById('wizard-status').textContent = `Étape ${currentWizardStep + 1} sur ${totalWizardSteps}`;
+
+            // Gestion des boutons
+            const btnPrev = document.getElementById('btn-wizard-prev');
+            const btnNext = document.getElementById('btn-wizard-next');
+            const btnSubmit = document.getElementById('btn-wizard-submit');
+
+            if(btnPrev) btnPrev.style.visibility = currentWizardStep === 0 ? 'hidden' : 'visible';
+            
+            if (currentWizardStep === totalWizardSteps - 1) {
+                if(btnNext) btnNext.classList.add('hidden');
+                if(btnSubmit) btnSubmit.classList.remove('hidden');
+            } else {
+                if(btnNext) btnNext.classList.remove('hidden');
+                if(btnSubmit) btnSubmit.classList.add('hidden');
+            }
+            saveState();
+        }
+
+        function nextWizardStep() {
+            if (currentWizardStep < totalWizardSteps - 1) {
+                // Validation basique
+                const activeStep = document.getElementById(`wizard-step-${currentWizardStep}`);
+                const input = activeStep.querySelector('input, textarea, select');
+                if (input && input.hasAttribute('required') && !input.value.trim()) {
+                    // Feedback visuel au lieu d'une alert bloquante
+                    input.style.borderColor = 'var(--danger)';
+                    setTimeout(() => input.style.borderColor = '', 1000);
+                    return;
+                }
+                currentWizardStep++;
+                updateWizardUI();
+            }
+        }
+
+        function prevWizardStep() {
+            if (currentWizardStep > 0) {
+                currentWizardStep--;
+                updateWizardUI();
+            }
         }
 
         // --- GÉNÉRATION & COPIE ---
@@ -877,6 +1392,17 @@ VARIABLES CONTEXTUELLES :
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                 <div>${formatInstructions[selectedFormat]}</div>
             `;
+
+            // Setup Minuteur si Chunking
+            const timerWidget = document.getElementById('timer-widget');
+            if (currentTool.id === 'chunking') {
+                timerWidget.classList.remove('hidden');
+                document.getElementById('interactive-preview-zone').classList.remove('hidden');
+                setupInteractiveMarkdown();
+            } else {
+                timerWidget.classList.add('hidden');
+                document.getElementById('interactive-preview-zone').classList.add('hidden');
+            }
 
             switchView('result');
             copyPrompt();
@@ -917,6 +1443,200 @@ VARIABLES CONTEXTUELLES :
                 btnElement.classList.remove('copy-success');
                 btnElement.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copier';
             }, 3000);
+        }
+
+        // --- INTERACTIF : MARKDOWN TO CHECKBOXES (Récompense Dopaminergique) ---
+        function setupInteractiveMarkdown() {
+            const container = document.getElementById('interactive-content');
+            // Simulation d'une réponse IA basée sur le découpeur de tâche
+            const mockMarkdown = `* 🎯 Objectif : Terminer la dissertation.
+* 🔋 Tâches Haute Énergie :
+- Trouver 3 idées pour le grand I.
+- Rédiger l'introduction au brouillon.
+* 🪫 Tâches Basse Énergie :
+- Souligner les mots clés de la consigne.
+- Recopier au propre l'introduction.`;
+
+            // Regex basique pour trouver les listes à puces Markdown ("- ") et les rendre interactives
+            const parsedHTML = mockMarkdown.replace(/^- (.*)$/gm, '<label class="md-checkbox-item"><input type="checkbox" onchange="this.parentElement.classList.toggle(\'checked\')"> <span>$1</span></label>');
+            container.innerHTML = parsedHTML.replace(/\n/g, '<br>');
+        }
+
+        // --- MINUTEUR VISUEL (TIME TIMER) ---
+        let timerInterval;
+        let timeLeft = 0;
+        let totalTime = 0;
+        const circle = document.getElementById('timer-circle');
+        const circumference = 2 * Math.PI * 45; // r=45
+
+        function startTimer(minutes) {
+            stopTimer(); // Reset si déjà en cours
+            totalTime = minutes * 60;
+            timeLeft = totalTime;
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = 0;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const offset = circumference - (timeLeft / totalTime) * circumference;
+                circle.style.strokeDashoffset = offset;
+
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    // Alerte douce ou son
+                    circle.style.strokeDashoffset = circumference;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            circle.style.strokeDashoffset = 0;
+        }
+
+        // --- API ASSISTANCE : DICTÉE VOCALE (SPEECH-TO-TEXT) ---
+        let recognition = null;
+        let isListening = false;
+        let currentMicBtn = null;
+
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return null;
+            const rec = new SpeechRecognition();
+            rec.lang = 'fr-FR';
+            rec.continuous = true;
+            rec.interimResults = false;
+            return rec;
+        }
+
+        function toggleDictation(btn, inputId) {
+            const inputEl = document.getElementById(inputId);
+            
+            if (isListening && currentMicBtn !== btn) {
+                recognition.stop();
+                resetMicBtn();
+            }
+
+            if (isListening && currentMicBtn === btn) {
+                recognition.stop();
+                isListening = false;
+                resetMicBtn();
+                return;
+            }
+
+            if (!recognition) recognition = initSpeechRecognition();
+            if (!recognition) {
+                alert("La dictée vocale n'est pas supportée par ce navigateur.");
+                return;
+            }
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' ';
+                }
+                
+                if (finalTranscript) {
+                    const startPos = inputEl.selectionStart;
+                    const endPos = inputEl.selectionEnd;
+                    const textBefore = inputEl.value.substring(0, startPos);
+                    const textAfter  = inputEl.value.substring(endPos, inputEl.value.length);
+                    inputEl.value = textBefore + finalTranscript + textAfter;
+                    inputEl.selectionStart = inputEl.selectionEnd = startPos + finalTranscript.length;
+                    inputEl.focus();
+                    saveState(); // Sauvegarde locale pendant la dictée
+                }
+            };
+
+            recognition.onerror = (e) => { console.error("Erreur micro:", e); resetMicBtn(); isListening = false; };
+            recognition.onend = () => { resetMicBtn(); isListening = false; };
+
+            recognition.start();
+            isListening = true;
+            currentMicBtn = btn;
+            btn.classList.add('listening');
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>';
+        }
+
+        function resetMicBtn() {
+            if (currentMicBtn) {
+                currentMicBtn.classList.remove('listening');
+                currentMicBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>';
+                currentMicBtn = null;
+            }
+        }
+
+        // --- API ASSISTANCE : LECTURE AUDIO (TEXT-TO-SPEECH) ---
+        let isPlayingTTS = false;
+        let synth = window.speechSynthesis;
+        let utterance = null;
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => synth.getVoices();
+        }
+
+        function setHighlightedText(text, container) {
+            let html = '';
+            let match;
+            let lastIndex = 0;
+            const regex = /\S+/g;
+            while ((match = regex.exec(text)) !== null) {
+                html += text.substring(lastIndex, match.index);
+                html += `<span data-index="${match.index}">${match[0]}</span>`;
+                lastIndex = regex.lastIndex;
+            }
+            html += text.substring(lastIndex);
+            container.innerHTML = html;
+        }
+
+        function toggleTTS() {
+            const btnTTS = document.getElementById('btn-tts');
+            const container = document.getElementById('result-prompt-text');
+            
+            if (isPlayingTTS) {
+                synth.cancel();
+                isPlayingTTS = false;
+                btnTTS.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Écouter';
+                container.querySelectorAll('span').forEach(el => el.classList.remove('tts-highlight'));
+                return;
+            }
+
+            if (!generatedText) return;
+
+            setHighlightedText(generatedText, container);
+
+            utterance = new SpeechSynthesisUtterance(generatedText);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 0.9;
+            
+            const voices = synth.getVoices();
+            const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('fr'));
+            if (frVoice) utterance.voice = frVoice;
+
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    container.querySelectorAll('span').forEach(el => el.classList.remove('tts-highlight'));
+                    const activeSpan = container.querySelector(`span[data-index="${event.charIndex}"]`);
+                    if (activeSpan) activeSpan.classList.add('tts-highlight');
+                }
+            };
+
+            utterance.onend = () => {
+                isPlayingTTS = false;
+                btnTTS.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Écouter';
+                container.querySelectorAll('span').forEach(el => el.classList.remove('tts-highlight'));
+                container.textContent = generatedText;
+            };
+            
+            utterance.onerror = () => {
+                isPlayingTTS = false;
+                btnTTS.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg> Écouter';
+            };
+
+            synth.speak(utterance);
+            isPlayingTTS = true;
+            btnTTS.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"/></svg> Arrêter';
         }
     </script>
 </body>
