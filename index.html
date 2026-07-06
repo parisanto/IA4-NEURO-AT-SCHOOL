@@ -719,7 +719,11 @@
             secretary: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
             interview: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>',
             judge: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
-            safespace: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>'
+            safespace: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+            retroplan: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            formalizer: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+            gamify: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4"/><path d="M8 10v4"/><path d="M15 13h.01"/><path d="M18 11h.01"/></svg>',
+            skeleton: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M2 18h10"/></svg>'
         };
 
         const TOOLS = [
@@ -977,19 +981,136 @@ Format de sortie attendu (Markdown) :
 VARIABLES CONTEXTUELLES :
 * Ce que j'attends de toi : ${data.besoin}
 * Mon travail : ${data.travail}`
+            },
+            {
+                id: 'retroplan',
+                title: 'Le Maître du Temps',
+                category: 'Secrétaire Exécutif',
+                iconSvg: SVGS.retroplan,
+                color: '#6366f1',
+                description: "Crée un planning inversé strict pour ne pas réviser à la dernière minute.",
+                forWho: "TDAH (Cécité temporelle)",
+                fields: [
+                    { id: 'objectif', label: 'Que dois-tu rendre ou réviser ?', type: 'text', placeholder: 'Ex: Contrôle d\'histoire sur la Révolution' },
+                    { id: 'date', label: 'C\'est pour quand ? (Date exacte)', type: 'text', placeholder: 'Ex: Jeudi matin à 8h' },
+                    { id: 'duree', label: 'Combien de temps peux-tu y passer par jour ?', type: 'select', options: ['15 minutes', '30 minutes', '45 minutes', '1 heure max'] }
+                ],
+                generatePrompt: (data) => `Agis comme un expert en planification pour profil TDAH. J'ai un déficit d'anticipation temporelle (cécité temporelle). J'ai besoin d'un rétroplanning exact et très strict, en partant de la date de rendu, pour m'éviter de tout faire la veille au soir.
+
+Contraintes opératoires :
+1. Fragmente mon travail en fonction du temps quotidien imposé.
+2. Insère des zones tampons (jours de "secours" où je ne prévois rien, en cas de retard).
+3. Utilise un format liste à puces strict avec des dates et des actions concrètes.
+
+Format de sortie attendu (Markdown) :
+* 🏁 La ligne d'arrivée : Rappel de l'échéance.
+* 📅 Mon Rétroplanning strict : La liste chronologique inversée (Jour J-1, Jour J-2, etc.) avec la micro-tâche de chaque jour.
+* 🛡️ Zones de sécurité : Où as-tu caché mes jours de secours ?
+
+VARIABLES CONTEXTUELLES :
+* Objectif final : ${data.objectif}
+* Date de l'échéance : ${data.date}
+* Temps maximum par jour : ${data.duree}`
+            },
+            {
+                id: 'formalizer',
+                title: 'Le Filtre Anti-Impulsivité',
+                category: 'Régulation Émotionnelle',
+                iconSvg: SVGS.formalizer,
+                color: '#ef4444',
+                description: "Traduit un message écrit sous la colère en un message diplomatique.",
+                forWho: "TDAH, TSA",
+                fields: [
+                    { id: 'destinataire', label: 'À qui écris-tu ce message ?', type: 'text', placeholder: 'Ex: Un prof, un ami, un parent...' },
+                    { id: 'emotion', label: 'Ce que tu veux VRAIMENT dire (vide ton sac) :', type: 'textarea', placeholder: 'Vas-y lâche toi, on corrigera après...' }
+                ],
+                generatePrompt: (data) => `Agis comme un assistant de communication et un coach en régulation émotionnelle. Sous le coup de l'impulsivité ou de la fatigue, j'ai écrit un message brut tel que je le pense, mais je sais que mon ton risque d'être perçu comme agressif ou inadapté.
+
+Contraintes opératoires :
+1. Ne me juge absolument pas sur mon message de départ.
+2. Reformule mon message en respectant l'objectif de ce que je veux dire, mais en adoptant un ton socialement acceptable et diplomate.
+3. Propose-moi 2 versions différentes de ce message.
+
+Format de sortie attendu (Markdown) :
+* 🛡️ Version 1 (Formelle) : Une version très polie et scolaire.
+* 🤝 Version 2 (Amicale/Neutre) : Une version plus détendue mais qui évite le conflit.
+* 💡 L'analyse : Explique-moi en une phrase pourquoi mon message d'origine aurait pu froisser la personne.
+
+VARIABLES CONTEXTUELLES :
+* Destinataire : ${data.destinataire}
+* Mon brouillon émotionnel : ${data.emotion}`
+            },
+            {
+                id: 'gamify',
+                title: 'Le Maître de Jeu',
+                category: 'Dopamine & Gamification',
+                iconSvg: SVGS.gamify,
+                color: '#eab308',
+                description: "Transforme tes devoirs ennuyeux en quête avec XP et niveaux.",
+                forWho: "TDAH",
+                fields: [
+                    { id: 'mission', label: 'C\'est quoi la corvée à faire ?', type: 'textarea', placeholder: 'Ex: Apprendre mes 15 mots de vocabulaire en anglais' },
+                    { id: 'univers', label: 'Choisis ton univers de jeu vidéo/film préféré :', type: 'text', placeholder: 'Ex: Harry Potter, Skyrim, Minecraft, Star Wars...' }
+                ],
+                generatePrompt: (data) => `Agis comme un Maître de Jeu de rôle (Game Master). Je n'arrive pas à trouver la dopamine nécessaire pour démarrer ce devoir. Transforme cette tâche en une quête épique dans mon univers préféré.
+
+Contraintes opératoires :
+1. Découpe mon travail en plusieurs "Niveaux". Je dois te dire quand j'ai validé un niveau pour que tu me donnes la suite.
+2. À chaque niveau validé, donne-moi des points d'expérience (XP) et affiche une barre de progression visuelle (avec des émojis 🟩🟩⬜⬜).
+3. Invente des récompenses virtuelles (objets de l'univers) à chaque étape.
+
+Format de sortie attendu (Markdown) :
+* 📜 Quête Principale : Le résumé épique de ma mission.
+* 🏆 Ton Statut : Mon niveau actuel (Niveau 1), mon XP (0), et ma barre de progression.
+* ⚔️ Niveau 1 : L'action précise que je dois accomplir maintenant. (Pose-moi une question pour savoir quand j'ai fini).
+
+VARIABLES CONTEXTUELLES :
+* La corvée scolaire : ${data.mission}
+* L'univers de la quête : ${data.univers}`
+            },
+            {
+                id: 'skeleton',
+                title: 'Le Squelette Logique',
+                category: 'Prothèse Scripturale',
+                iconSvg: SVGS.skeleton,
+                color: '#14b8a6',
+                description: "Génère un texte à trous avec les mots de liaison pour t'aider à rédiger.",
+                forWho: "DYS",
+                fields: [
+                    { id: 'matiere', label: 'Matière et sujet du texte à produire :', type: 'text', placeholder: 'Ex: SVT - Les causes du réchauffement climatique' },
+                    { id: 'idees', label: 'Tes idées en vrac (sans faire de phrases) :', type: 'textarea', placeholder: 'Ex: CO2, usines, fonte des glaces...' }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur expert en structuration de la pensée. J'ai les idées en tête, mais je n'arrive pas du tout à rédiger les phrases et à lier mes arguments avec des connecteurs logiques (dyslexie/dysorthographie). 
+
+Contraintes opératoires :
+1. Règle absolue : NE RÉDIGE PAS LE DEVOIR À MA PLACE.
+2. Fabrique-moi un "squelette logique" (un texte à trous).
+3. Rédige uniquement les connecteurs logiques (ex: Tout d'abord, Cependant, Par conséquent) et mets des gros [TROUS] avec une indication claire de l'idée que je dois y insérer.
+
+Format de sortie attendu (Markdown) :
+* 🏗️ L'architecture : Explique-moi la logique de ton plan en 1 ligne.
+* 🧩 Le Squelette à remplir : Le texte à trous avec les mots de liaison en gras.
+
+VARIABLES CONTEXTUELLES :
+* Sujet : ${data.matiere}
+* Mes idées en vrac : ${data.idees}`
             }
         ];
 
         const QUIZ_OPTIONS = [
             { text: "La consigne est trop floue, je ne comprends pas les attentes 'cachées' du prof.", toolId: 'decoder' },
             { text: "C'est une montagne de travail, je panique et je ne sais pas par où commencer.", toolId: 'chunking' },
-            { text: "Le syndrome de la page blanche : j'ai des idées mais je n'arrive pas à écrire la première phrase.", toolId: 'starter' },
+            { text: "Je n'arrive pas à m'organiser dans le temps pour un devoir à rendre dans plusieurs jours.", toolId: 'retroplan' },
+            { text: "Le syndrome de la page blanche : j'ai des idées mais impossible d'écrire la première phrase.", toolId: 'starter' },
+            { text: "Je sais ce que je veux dire, mais je n'arrive pas à lier mes phrases logiquement.", toolId: 'skeleton' },
             { text: "Le texte est trop long et dense, ça me fatigue les yeux et le cerveau.", toolId: 'cleaner' },
-            { text: "C'est beaucoup trop abstrait et ennuyeux, je n'arrive pas du tout à m'y intéresser.", toolId: 'passion' },
+            { text: "C'est tellement ennuyeux que je n'arrive pas à m'y mettre, j'aurais besoin que ça devienne un jeu.", toolId: 'gamify' },
+            { text: "C'est trop abstrait, je n'arrive pas du tout à m'y intéresser.", toolId: 'passion' },
             { text: "J'ai les idées en tête, mais écrire ou taper au clavier m'épuise (ou j'ai peur des fautes).", toolId: 'secretary' },
             { text: "J'ai plein d'idées en vrac, mais c'est le chaos et je n'arrive pas à construire un plan.", toolId: 'interview' },
-            { text: "Je viens de lire un message et je n'arrive pas à savoir si la personne est énervée, ironique ou sympa.", toolId: 'judge' },
-            { text: "J'ai tellement peur d'avoir faux que je bloque, j'ai besoin qu'on m'explique mes erreurs tout en douceur.", toolId: 'safespace' }
+            { text: "Je viens de lire un message et je n'arrive pas à savoir si la personne est énervée ou sympa.", toolId: 'judge' },
+            { text: "Je suis énervé(e) et j'ai peur d'envoyer un message trop agressif par impulsivité.", toolId: 'formalizer' },
+            { text: "J'ai tellement peur d'avoir faux que je bloque, j'ai besoin qu'on m'explique mes erreurs en douceur.", toolId: 'safespace' }
         ];
 
         let currentTool = null;
