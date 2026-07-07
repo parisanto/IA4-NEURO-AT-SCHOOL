@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA4-NEURO-AT-SCHOOL</title>
+    <title>IA4-NEURO-AT-SCHOOL — L'IA pour t'aider à l'école</title>
+    <meta name="description" content="Site 100% hors-ligne pour aider les collégiens et lycéens DYS, TDAH et TSA à utiliser l'IA dans leur scolarité.">
+    <meta name="theme-color" content="#2563eb">
     <style>
         /* --- VARIABLES & THÈME --- */
         :root {
@@ -35,7 +37,9 @@
             /* Accessibilité CSSOM Variables */
             --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --letter-spacing: normal;
-            --line-height: 1.5;
+            --word-spacing: normal;
+            --line-height: 1.6;
+            --font-scale: 1;
         }
 
         .dark {
@@ -68,9 +72,11 @@
 
         /* --- RESET & TYPOGRAPHIE --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: calc(100% * var(--font-scale)); }
         body {
             font-family: var(--font-family);
             letter-spacing: var(--letter-spacing);
+            word-spacing: var(--word-spacing);
             line-height: var(--line-height);
             background-color: var(--bg-color);
             color: var(--text-main);
@@ -96,13 +102,85 @@
         .gap-4 { gap: 1rem; }
         .gap-6 { gap: 1.5rem; }
         .w-full { width: 100%; }
+        .flex-col { flex-direction: column; }
+        .font-bold { font-weight: 700; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .pt-4 { padding-top: 1rem; }
+        .pt-6 { padding-top: 1.5rem; }
+        .mb-0 { margin-bottom: 0; }
+        .nav-label { display: none; }
+        @media (min-width: 640px) {
+            .nav-label { display: inline; }
+            .sm-flex-row { flex-direction: row; }
+        }
+
+        /* --- FILTRES DE LA BIBLIOTHÈQUE --- */
+        .filter-bar {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+            display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .filter-group { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .filter-group-label {
+            font-weight: 700; font-size: 0.9rem; color: var(--text-muted);
+            min-width: 4.5rem; text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .filter-chip {
+            padding: 0.5rem 1rem; border: 2px solid var(--card-border);
+            background: var(--bg-color); color: var(--text-main);
+            border-radius: 999px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
+            transition: var(--transition);
+        }
+        .filter-chip:hover { border-color: var(--primary); }
+        .filter-chip.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+        }
+        .filter-count { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; }
+        .library-empty {
+            grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;
+            color: var(--text-muted); background: var(--card-bg);
+            border: 1px dashed var(--card-border); border-radius: var(--radius);
+        }
+        .tool-who {
+            display: inline-block; font-size: 0.8rem; font-weight: 700;
+            color: var(--text-muted); background: var(--secondary);
+            padding: 0.2rem 0.6rem; border-radius: 999px; margin-left: 0.5rem;
+        }
+
+        /* Focus clavier bien visible (navigation sans souris) */
+        button:focus-visible, a:focus-visible, input:focus-visible,
+        textarea:focus-visible, select:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Règle de lecture (aide DYS : suit le doigt ou la souris) */
+        #reading-ruler {
+            position: fixed; left: 0; right: 0; height: 2.6em; top: 40vh;
+            pointer-events: none; z-index: 9999; display: none;
+            background: rgba(250, 204, 21, 0.16);
+            border-top: 2px solid rgba(217, 119, 6, 0.65);
+            border-bottom: 2px solid rgba(217, 119, 6, 0.65);
+        }
+        body.ruler-on #reading-ruler { display: block; }
+
+        /* Mode calme : coupe toutes les animations (TDAH / TSA) */
+        body.calm *, body.calm *::before, body.calm *::after {
+            transition: none !important;
+            animation: none !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { transition: none !important; animation: none !important; }
+        }
 
         /* --- HEADER --- */
         header {
             position: sticky;
             top: 0;
             z-index: 50;
-            background-color: rgba(var(--card-bg), 0.8);
+            background-color: var(--card-bg);
+            background-color: color-mix(in srgb, var(--card-bg) 85%, transparent);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--card-border);
             padding: 1rem 0;
@@ -282,19 +360,19 @@
         <div class="header-content">
             <div class="logo" onclick="switchView('intro')" title="Retour à l'accueil">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
-                IA4-NEURO-AT-SCHOOL
+                IA4-NEURO
             </div>
             <div class="flex items-center gap-4">
-                <button class="access-toggle" onclick="toggleAccessPanel()" title="Accessibilité (DYS)">
+                <button class="access-toggle" onclick="toggleAccessPanel()" title="Confort de lecture" aria-label="Ouvrir les réglages de confort de lecture">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>
                 </button>
                 <button class="btn btn-ghost" style="font-size: 0.9rem; padding: 0.5rem;" onclick="switchView('methodology')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    <span style="display: none; sm:display: inline;">Méthode (Combos)</span>
+                    <span class="nav-label">Les Combos</span>
                 </button>
                 <button class="btn btn-ghost" style="font-size: 0.9rem; padding: 0.5rem;" onclick="switchView('about-ai')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                    <span style="display: none; sm:display: inline;">Cours : IA</span>
+                    <span class="nav-label">Comprendre l'IA</span>
                 </button>
                 <button class="theme-toggle" onclick="toggleTheme()" id="btn-theme" aria-label="Changer le thème"></button>
             </div>
@@ -302,49 +380,64 @@
     </header>
 
     <!-- WIDGET ACCESSIBILITÉ -->
-    <div id="access-panel" class="access-panel">
+    <div id="access-panel" class="access-panel" role="dialog" aria-label="Réglages de confort de lecture">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold">Aides Visuelles (DYS)</h3>
-            <button onclick="toggleAccessPanel()" class="btn-ghost" style="padding:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+            <h3 class="font-bold">Confort de lecture</h3>
+            <button onclick="toggleAccessPanel()" class="btn-ghost" style="padding:0;" aria-label="Fermer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
-        
+
         <div class="access-row">
-            <span>Police</span>
+            <span>Taille du texte</span>
             <div class="access-btn-group">
-                <button class="access-btn active" onclick="setCssVar('--font-family', 'system-ui', this)">Standard</button>
-                <button class="access-btn" onclick="setCssVar('--font-family', '\'Comic Sans MS\', cursive, sans-serif', this)" title="Souvent plus lisible pour la dyslexie">Comic</button>
-            </div>
-        </div>
-        
-        <div class="access-row">
-            <span>Espacement</span>
-            <div class="access-btn-group">
-                <button class="access-btn active" onclick="setCssVar('--letter-spacing', 'normal'); setCssVar('--line-height', '1.5', this)">Normal</button>
-                <button class="access-btn" onclick="setCssVar('--letter-spacing', '0.05em'); setCssVar('--line-height', '2', this)">Aéré</button>
+                <button class="access-btn" data-pref="size" data-val="1" onclick="setPref('size','1',this)" title="Taille normale">A</button>
+                <button class="access-btn" data-pref="size" data-val="1.15" onclick="setPref('size','1.15',this)" title="Grand">A+</button>
+                <button class="access-btn" data-pref="size" data-val="1.3" onclick="setPref('size','1.3',this)" title="Très grand">A++</button>
             </div>
         </div>
 
-        <div class="access-row mt-4 pt-4" style="border-top: 1px solid var(--card-border);">
-            <span>Filtre Anti-Stress</span>
-            <button id="btn-sepia" class="access-btn w-full mt-2" onclick="toggleSepia()">Activer le fond Sépia</button>
+        <div class="access-row">
+            <span>Police</span>
+            <div class="access-btn-group">
+                <button class="access-btn" data-pref="font" data-val="standard" onclick="setPref('font','standard',this)">Standard</button>
+                <button class="access-btn" data-pref="font" data-val="verdana" onclick="setPref('font','verdana',this)" title="Lettres bien séparées, recommandée pour la dyslexie">Verdana</button>
+                <button class="access-btn" data-pref="font" data-val="comic" onclick="setPref('font','comic',this)" title="Souvent plus lisible pour la dyslexie">Comic</button>
+            </div>
+        </div>
+
+        <div class="access-row">
+            <span>Espacement</span>
+            <div class="access-btn-group">
+                <button class="access-btn" data-pref="spacing" data-val="normal" onclick="setPref('spacing','normal',this)">Normal</button>
+                <button class="access-btn" data-pref="spacing" data-val="aere" onclick="setPref('spacing','aere',this)">Aéré</button>
+                <button class="access-btn" data-pref="spacing" data-val="max" onclick="setPref('spacing','max',this)">Maxi</button>
+            </div>
+        </div>
+
+        <div class="access-row flex-col" style="align-items: stretch; gap: 0.5rem; border-top: 1px solid var(--card-border); padding-top: 1rem;">
+            <button id="btn-ruler" class="access-btn w-full" onclick="togglePref('ruler', this)" aria-pressed="false">📏 Règle de lecture : OFF</button>
+            <button id="btn-calm" class="access-btn w-full" onclick="togglePref('calm', this)" aria-pressed="false">🧘 Mode calme (sans animation) : OFF</button>
+            <button id="btn-sepia" class="access-btn w-full" onclick="togglePref('sepia', this)" aria-pressed="false">🟡 Fond Sépia anti-fatigue : OFF</button>
         </div>
     </div>
+
+    <!-- Règle de lecture (suit la souris ou le doigt) -->
+    <div id="reading-ruler" aria-hidden="true"></div>
 
     <main class="container">
         
         <!-- VUE : INTRO -->
         <div id="view-intro" class="fade-in">
             <div class="text-center">
-                <h1 class="title-gradient mb-4">L'IA comme Prothèse Cognitive</h1>
-                <p class="subtitle">Une IA n'est pas une machine à faire tes devoirs, c'est un moteur de probabilités. Utilise-la comme un assistant personnel pour surmonter l'angoisse de la page blanche, organiser ta charge de travail, ou décoder les consignes floues.</p>
+                <h1 class="title-gradient mb-4">L'IA, ton alliée pour l'école</h1>
+                <p class="subtitle">L'IA ne fait pas tes devoirs à ta place. C'est un assistant qui t'aide à démarrer quand tu bloques, à t'organiser, et à comprendre les consignes compliquées.</p>
                 
-                <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8" style="flex-wrap: wrap;">
+                <div class="flex flex-col sm-flex-row justify-center gap-4 mt-8" style="flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="switchView('quiz')" style="font-size: 1.1rem; padding: 1rem 2rem;">
-                        Identifier mon point de blocage
+                        Trouver ce qui me bloque
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </button>
                     <button class="btn btn-secondary" onclick="switchView('library')" style="font-size: 1.1rem; padding: 1rem 2rem;">
-                        Accéder aux modèles de Prompts
+                        Voir tous les outils
                     </button>
                 </div>
             </div>
@@ -355,8 +448,8 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
                     </div>
                     <div>
-                        <h3 class="mb-2">Friction Motrice Nulle</h3>
-                        <p style="color: var(--text-muted); font-size: 0.95rem;">Utilise exclusivement la dictée vocale native (clavier/OS) pour formuler tes instructions. Contourne l'effort scriptural.</p>
+                        <h3 class="mb-2">Parle au lieu de taper</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Utilise le micro de ton clavier (dictée vocale) pour donner tes instructions. C'est plus rapide et beaucoup moins fatigant que d'écrire.</p>
                     </div>
                 </div>
                 <div class="tip-card">
@@ -364,8 +457,8 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
                     </div>
                     <div>
-                        <h3 class="mb-2">Esprit Critique Requis</h3>
-                        <p style="color: var(--text-muted); font-size: 0.95rem;">L'IA hallucine statistiquement. Elle produit une syntaxe cohérente, pas une vérité absolue. Croise toujours les données générées avec ton support de cours.</p>
+                        <h3 class="mb-2">L'IA peut se tromper</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">L'IA invente parfois des choses fausses, avec beaucoup d'assurance. Vérifie toujours ses réponses avec ton cours ou avec ton prof.</p>
                     </div>
                 </div>
             </div>
@@ -455,7 +548,7 @@
             <div class="card" style="margin-bottom: 2rem;">
                 <span class="tool-tag" style="background-color: #8b5cf6; color: white;">Niveau Avancé</span>
                 <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--text-main); font-weight: 800; line-height: 1.2;">La Méthode des "Super-Combos"</h2>
-                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">Parfois, un seul outil ne suffit pas. Pour réussir un gros devoir, il faut souvent <strong>enchaîner plusieurs prothèses cognitives</strong> dans le bon ordre. Voici les meilleurs combos pour contourner tes blocages.</p>
+                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">Parfois, un seul outil ne suffit pas. Pour réussir un gros devoir, il faut souvent <strong>enchaîner plusieurs outils</strong> dans le bon ordre. Voici les meilleurs combos pour débloquer chaque situation.</p>
 
                 <div class="tips-grid" style="margin-top: 0; padding-top: 0; border-top: none; grid-template-columns: 1fr; gap: 2rem;">
                     
@@ -471,14 +564,14 @@
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
                                 <span style="background: var(--primary-light); color: var(--primary); padding: 0.5rem; border-radius: 50%; font-weight: bold;">1</span>
-                                <div><strong>Le Décodeur :</strong> Pour traduire la consigne floue en une liste d'étapes claires.</div>
+                                <div><strong>Le Décodeur de consignes :</strong> Pour traduire la consigne floue en une liste d'étapes claires.</div>
                             </div>
                             <div style="display: flex; justify-content: center; color: var(--text-muted);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
                                 <span style="background: var(--primary-light); color: var(--primary); padding: 0.5rem; border-radius: 50%; font-weight: bold;">2</span>
-                                <div><strong>Le Découpeur de Tâches :</strong> Pour transformer ces étapes en micro-actions de 15 minutes.</div>
+                                <div><strong>Le Découpeur de tâches :</strong> Pour transformer ces étapes en micro-actions de 15 minutes.</div>
                             </div>
                         </div>
                     </div>
@@ -502,14 +595,14 @@
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
                                 <span style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 0.5rem; border-radius: 50%; font-weight: bold;">2</span>
-                                <div><strong>Générateur d'amorces :</strong> Choisis un "tremplin" pour commencer l'introduction sans bloquer.</div>
+                                <div><strong>Le Démarreur de phrases :</strong> Choisis une première phrase toute prête pour lancer ton intro sans bloquer.</div>
                             </div>
                             <div style="display: flex; justify-content: center; color: var(--text-muted);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
                                 <span style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 0.5rem; border-radius: 50%; font-weight: bold;">3</span>
-                                <div><strong>Secrétaire Orthographique :</strong> Dicte le reste de tes paragraphes à l'oral, l'IA corrige tes fautes et met en forme à la fin.</div>
+                                <div><strong>Le Correcteur de fautes :</strong> Dicte le reste de tes paragraphes à l'oral, l'IA corrige les fautes et met en forme à la fin.</div>
                             </div>
                         </div>
                     </div>
@@ -526,14 +619,14 @@
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
                                 <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem; border-radius: 50%; font-weight: bold;">1</span>
-                                <div><strong>Nettoyeur de Texte :</strong> Pour purger le texte et le transformer en petites puces faciles à lire.</div>
+                                <div><strong>Le Nettoyeur de texte :</strong> Pour transformer le pavé en petites puces faciles à lire.</div>
                             </div>
                             <div style="display: flex; justify-content: center; color: var(--text-muted);">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--card-border);">
                                 <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem; border-radius: 50%; font-weight: bold;">2</span>
-                                <div><strong>Métaphores sur Mesure :</strong> Traduis ces nouveaux concepts compliqués dans ton univers ou jeu vidéo préféré pour comprendre la logique sans hors-sujet.</div>
+                                <div><strong>Explique avec ma passion :</strong> Traduis les concepts compliqués dans ton univers préféré (jeu vidéo, sport…) pour capter la logique.</div>
                             </div>
                         </div>
                     </div>
@@ -580,7 +673,7 @@
                 Retour
             </button>
             <div class="card">
-                <h2 class="mb-8" style="font-size: 1.5rem;" id="quiz-question-title">Diagnostic : Qu'est-ce qui te bloque le plus en ce moment face à ton travail ?</h2>
+                <h2 class="mb-8" style="font-size: 1.5rem;" id="quiz-question-title">Qu'est-ce qui te bloque le plus en ce moment ?</h2>
                 <div id="quiz-options">
                     <!-- Généré par JS -->
                 </div>
@@ -594,8 +687,26 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                     Retour
                 </button>
-                <h2 style="font-size: 1.5rem;">Modèles d'Instructions (Prompts)</h2>
+                <h2 style="font-size: 1.5rem;">Tous les outils</h2>
             </div>
+            <div class="filter-bar" role="group" aria-label="Filtrer les outils">
+                <div class="filter-group">
+                    <span class="filter-group-label">Profil</span>
+                    <button class="filter-chip active" data-filter="profile" data-val="all" onclick="setLibraryFilter('profile','all')">Tous</button>
+                    <button class="filter-chip" data-filter="profile" data-val="dys" onclick="setLibraryFilter('profile','dys')">DYS</button>
+                    <button class="filter-chip" data-filter="profile" data-val="tdah" onclick="setLibraryFilter('profile','tdah')">TDAH</button>
+                    <button class="filter-chip" data-filter="profile" data-val="tsa" onclick="setLibraryFilter('profile','tsa')">TSA</button>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-group-label">Besoin</span>
+                    <button class="filter-chip active" data-filter="need" data-val="all" onclick="setLibraryFilter('need','all')">Tous</button>
+                    <button class="filter-chip" data-filter="need" data-val="organiser" onclick="setLibraryFilter('need','organiser')">🧭 M'organiser</button>
+                    <button class="filter-chip" data-filter="need" data-val="ecrire" onclick="setLibraryFilter('need','ecrire')">✍️ Écrire</button>
+                    <button class="filter-chip" data-filter="need" data-val="lire" onclick="setLibraryFilter('need','lire')">📖 Apprendre</button>
+                    <button class="filter-chip" data-filter="need" data-val="emotions" onclick="setLibraryFilter('need','emotions')">💬 Émotions</button>
+                </div>
+            </div>
+            <p id="filter-count" class="filter-count" aria-live="polite"></p>
             <div class="bento-grid" id="library-grid">
                 <!-- Généré par JS -->
             </div>
@@ -648,7 +759,7 @@
                             </button>
                             
                             <button type="submit" id="btn-wizard-submit" class="btn hidden" style="flex-grow: 1; background-color: var(--success); color: white; box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39); font-size: 1.1rem;">
-                                Compiler mon instruction magique ✨
+                                Créer mon prompt magique ✨
                             </button>
                         </div>
                     </form>
@@ -660,21 +771,29 @@
         <div id="view-result" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
             <button class="btn btn-ghost mb-4" onclick="switchView('configurator')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                Ajuster les variables
+                Modifier mes réponses
             </button>
 
-            <!-- Minuteur Visuel (Initialement masqué, affiché si outil Chunking) -->
+            <!-- Minuteur Visuel (affiché pour les outils d'organisation) -->
             <div id="timer-widget" class="timer-container hidden">
-                <svg class="timer-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle class="timer-bg" cx="50" cy="50" r="45"/>
-                    <circle id="timer-circle" class="timer-progress" cx="50" cy="50" r="45"/>
-                </svg>
+                <div style="position: relative; width: 100px; height: 100px; flex-shrink: 0;">
+                    <svg class="timer-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+                        <circle class="timer-bg" cx="50" cy="50" r="45"/>
+                        <circle id="timer-circle" class="timer-progress" cx="50" cy="50" r="45"/>
+                    </svg>
+                    <div id="timer-time" aria-live="polite" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; font-variant-numeric: tabular-nums;">15:00</div>
+                </div>
                 <div class="timer-controls">
-                    <h3 style="margin-bottom: 0.25rem;">Minuteur de Concentration (15 min)</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Idéal pour exécuter une micro-tâche sans s'épuiser.</p>
-                    <div class="flex gap-2">
-                        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="startTimer(15)">Démarrer</button>
-                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="stopTimer()">Stop</button>
+                    <h3 style="margin-bottom: 0.25rem;">Minuteur de concentration</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Travaille sur UNE micro-tâche, puis fais une vraie pause.</p>
+                    <div class="flex gap-2 mb-2" style="flex-wrap: wrap;" role="group" aria-label="Choisir la durée">
+                        <button class="access-btn timer-dur" data-min="5" onclick="setTimerDuration(5, this)">5 min</button>
+                        <button class="access-btn timer-dur active" data-min="15" onclick="setTimerDuration(15, this)">15 min</button>
+                        <button class="access-btn timer-dur" data-min="25" onclick="setTimerDuration(25, this)">25 min</button>
+                    </div>
+                    <div class="flex gap-2" style="flex-wrap: wrap;">
+                        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" id="btn-timer-start" onclick="startPauseTimer()">▶ Démarrer</button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="stopTimer()">↺ Remettre à zéro</button>
                     </div>
                 </div>
             </div>
@@ -683,7 +802,7 @@
                 <div class="result-header">
                     <div class="flex items-center gap-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
-                        <h2 style="font-size: 1.25rem;">Prompt compilé</h2>
+                        <h2 style="font-size: 1.25rem;">Ton prompt est prêt !</h2>
                     </div>
                     <div class="flex gap-2">
                         <button class="btn" id="btn-tts" onclick="toggleTTS()" style="background-color: rgba(255,255,255,0.1); color: white;">
@@ -708,26 +827,27 @@
                 <div class="alert-warning" style="margin-bottom: 0; border-radius: 0; border-left: none; border-right: none;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
                     <div>
-                        <strong>Contrôle requis (Risque d'hallucination)</strong>
-                        <p style="margin-top: 0.25rem;">N'accepte jamais le retour de l'IA comme un fait validé. Vérifie la conformité des données générées par rapport aux ressources fournies par tes enseignants.</p>
+                        <strong>Vérifie toujours la réponse de l'IA</strong>
+                        <p style="margin-top: 0.25rem;">L'IA peut inventer des informations fausses sans prévenir. Compare toujours sa réponse avec ton cours, ou demande à ton prof en cas de doute.</p>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between" style="padding: 1.5rem 2rem; background-color: var(--bg-color); border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
-                    <p style="color: var(--text-muted); font-size: 0.95rem;">Colle le bloc texte ci-dessus dans l'interface de ton LLM (ChatGPT, Claude, etc.).</p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">✅ Le prompt est déjà copié ! Ouvre ton IA (ChatGPT, Claude, Gemini…) et colle-le (Ctrl+V, ou appui long → Coller).</p>
                     <button class="btn btn-secondary" onclick="switchView('intro')">Retour Accueil</button>
                 </div>
             </div>
             
-            <!-- Zone interactive pour tester l'output (Simulation Checklists) -->
+            <!-- Zone interactive : transformer la réponse de l'IA en liste à cocher -->
             <div id="interactive-preview-zone" class="card mt-6 hidden">
-                <h3 class="mb-4" style="color: var(--primary);">Simulateur de Tâches (Brouillon)</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Si l'IA génère des listes à puces (comme pour le Découpeur de tâches), tu pourras les cocher ici pour suivre ton avancée.</p>
-                <div id="interactive-content" style="padding: 1rem; border: 1px dashed var(--card-border); border-radius: var(--radius); background: var(--bg-color);">
-                    <!-- Contenu parsé injecté ici pour test -->
+                <h3 class="mb-4" style="color: var(--primary);">✅ Transforme la réponse de l'IA en liste à cocher</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem;">Quand l'IA t'a répondu, copie sa liste et colle-la ici. Chaque ligne devient une case à cocher : cocher une case fait du bien au cerveau 🧠✨ (et tout est sauvegardé, même sans Internet).</p>
+                <textarea id="checklist-input" class="form-control" rows="5" placeholder="Colle ici la liste donnée par l'IA (les lignes qui commencent par - ou * ou 1.)"></textarea>
+                <button class="btn btn-primary mt-4" onclick="buildChecklist()">Créer ma liste à cocher</button>
+                <p id="checklist-progress" class="font-bold mt-4 hidden" style="color: var(--success);"></p>
+                <div id="interactive-content" class="mt-4" style="padding: 1rem; border: 1px dashed var(--card-border); border-radius: var(--radius); background: var(--bg-color); display: none;">
                 </div>
             </div>
-        </div>
 
     </main>
 
@@ -753,12 +873,14 @@
         const TOOLS = [
             {
                 id: 'chunking',
-                title: 'Le Découpeur de devoirs',
+                title: 'Le Découpeur de tâches',
                 category: 'Organisation',
                 iconSvg: SVGS.chunking,
                 color: '#3b82f6',
-                description: "Découpe un énorme devoir en petites missions de 15 minutes pour éviter la panique.",
-                forWho: "TDAH, TSA",
+                description: "Transforme une montagne de devoirs en petites étapes de 15 minutes, faciles à commencer.",
+                forWho: "TDAH · TSA",
+                profiles: ['tdah','tsa'],
+                need: 'organiser',
                 fields: [
                     { id: 'devoir', label: 'Qu\'est-ce que tu dois faire ? (Colle la consigne du prof)', type: 'textarea', placeholder: 'Ex: Faire une dissertation sur la Révolution...' },
                     { id: 'energie', label: 'Comment te sens-tu pour travailler là tout de suite ?', type: 'select', options: ['Je pète la forme ! ⚡️', 'Ça va, moyen 😐', 'Je suis complètement KO / fatigué(e) 😴'] }
@@ -783,12 +905,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'decoder',
-                title: 'Le Décodeur de profs',
-                category: 'Décodeur',
+                title: 'Le Décodeur de consignes',
+                category: 'Consignes & lecture',
                 iconSvg: SVGS.decoder,
                 color: '#10b981',
-                description: "Traduit les consignes floues ('Analysez le document') en étapes super claires.",
-                forWho: "TSA, DYS",
+                description: "Traduit une consigne floue du prof en étapes claires : tu sais enfin quoi faire, et dans quel ordre.",
+                forWho: "TSA · DYS",
+                profiles: ['tsa','dys'],
+                need: 'organiser',
                 fields: [
                     { id: 'consigne', label: 'Quelle est la consigne que tu ne comprends pas trop ?', type: 'textarea', placeholder: 'Ex: Analysez ce document et faites-en la synthèse.' }
                 ],
@@ -810,12 +934,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'starter',
-                title: 'L\'Anti-Page Blanche',
-                category: 'Coup de pouce',
+                title: 'Le Démarreur de phrases',
+                category: 'Démarrage',
                 iconSvg: SVGS.starter,
                 color: '#f59e0b',
-                description: "Te donne 3 idées de premières phrases pour lancer ton texte quand tu es bloqué(e).",
-                forWho: "TDAH, DYS",
+                description: "Te propose 3 premières phrases pour lancer ton texte quand la page reste désespérément blanche.",
+                forWho: "TDAH · DYS",
+                profiles: ['tdah','dys'],
+                need: 'ecrire',
                 fields: [
                     { id: 'sujet', label: 'C\'est quoi le sujet exact de ton devoir ?', type: 'text', placeholder: 'Ex: Raconter un souvenir d\'enfance' }
                 ],
@@ -838,11 +964,13 @@ VARIABLES CONTEXTUELLES :
             {
                 id: 'cleaner',
                 title: 'Le Nettoyeur de texte',
-                category: 'Simplificateur',
+                category: 'Consignes & lecture',
                 iconSvg: SVGS.cleaner,
                 color: '#8b5cf6',
-                description: "Prend un cours hyper long et le transforme en petites listes faciles à lire.",
+                description: "Transforme un texte long et fatigant en phrases courtes et en listes, sans perdre les mots importants.",
                 forWho: "DYS",
+                profiles: ['dys'],
+                need: 'lire',
                 fields: [
                     { id: 'texte', label: 'Colle le long texte ou la leçon que tu n\'arrives pas à lire ici :', type: 'textarea', placeholder: 'Colle le texte source ici...' }
                 ],
@@ -863,12 +991,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'passion',
-                title: 'Le Prof Sur-Mesure',
-                category: 'Explications cool',
+                title: 'Explique avec ma passion',
+                category: 'Zéro jugement',
                 iconSvg: SVGS.passion,
                 color: '#ec4899',
-                description: "T'explique les cours ennuyeux en utilisant ton jeu ou ta passion préférée.",
-                forWho: "TSA, TDAH",
+                description: "T'explique une leçon compliquée avec des exemples tirés de ton univers préféré (jeux vidéo, foot, manga…).",
+                forWho: "TSA · TDAH",
+                profiles: ['tsa','tdah'],
+                need: 'lire',
                 fields: [
                     { id: 'concept', label: 'Quelle est la leçon abstraite ou ennuyeuse à comprendre ?', type: 'text', placeholder: 'Ex: Le système immunitaire, les fractions...' },
                     { id: 'passion', label: 'C\'est quoi ta plus grande passion ou ton univers préféré ?', type: 'text', placeholder: 'Ex: Les jeux vidéo (Zelda, Minecraft), la mécanique...' }
@@ -896,8 +1026,10 @@ VARIABLES CONTEXTUELLES :
                 category: 'Organisation',
                 iconSvg: SVGS.retroplan,
                 color: '#6366f1',
-                description: "Te fabrique un planning précis pour t'éviter de tout faire à la dernière minute.",
+                description: "Crée ton planning jour par jour pour éviter de tout faire la veille au soir en panique.",
                 forWho: "TDAH",
+                profiles: ['tdah'],
+                need: 'organiser',
                 fields: [
                     { id: 'objectif', label: 'Que dois-tu rendre ou réviser ?', type: 'text', placeholder: 'Ex: Contrôle d\'histoire sur la Révolution' },
                     { id: 'date', label: 'C\'est pour quand ? (Date exacte)', type: 'text', placeholder: 'Ex: Jeudi matin à 8h' },
@@ -922,12 +1054,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'formalizer',
-                title: 'Le Filtre Anti-Embrouilles',
-                category: 'Filtre Social',
+                title: 'Le Filtre Anti-Clash',
+                category: 'Messages & émotions',
                 iconSvg: SVGS.formalizer,
                 color: '#ef4444',
-                description: "Réécrit ton message énervé en une version polie pour éviter les conflits.",
-                forWho: "TDAH, TSA",
+                description: "Tu vides ton sac, il transforme ton message écrit sous la colère en message calme qui ne crée pas d'embrouille.",
+                forWho: "TDAH · TSA",
+                profiles: ['tdah','tsa'],
+                need: 'emotions',
                 fields: [
                     { id: 'destinataire', label: 'À qui écris-tu ce message ?', type: 'text', placeholder: 'Ex: Un prof, un ami, un parent...' },
                     { id: 'emotion', label: 'Ce que tu veux VRAIMENT dire (vide ton sac) :', type: 'textarea', placeholder: 'Vas-y lâche toi, on corrigera après...' }
@@ -950,12 +1084,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'gamify',
-                title: 'Le Transformateur en Jeu',
+                title: 'Le Maître de Jeu',
                 category: 'Motivation',
                 iconSvg: SVGS.gamify,
                 color: '#eab308',
-                description: "Transforme tes devoirs en une quête épique avec des niveaux et des points d'XP.",
+                description: "Transforme un devoir relou en quête de jeu vidéo, avec des niveaux, de l'XP et des récompenses.",
                 forWho: "TDAH",
+                profiles: ['tdah'],
+                need: 'lire',
                 fields: [
                     { id: 'mission', label: 'C\'est quoi la corvée à faire ?', type: 'textarea', placeholder: 'Ex: Apprendre mes 15 mots de vocabulaire en anglais' },
                     { id: 'univers', label: 'Choisis ton univers de jeu vidéo/film préféré :', type: 'text', placeholder: 'Ex: Harry Potter, Skyrim, Minecraft, Star Wars...' }
@@ -978,12 +1114,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'skeleton',
-                title: 'Le Squelette à remplir',
-                category: 'Aide rédaction',
+                title: 'Le Texte à trous',
+                category: 'Aide à l\'écriture',
                 iconSvg: SVGS.skeleton,
                 color: '#14b8a6',
-                description: "Te prépare un plan à trous avec les mots de liaison, glisses-y tes idées.",
+                description: "Prépare le plan et les mots de liaison (D'abord, Ensuite, Donc…) : toi, tu remplis juste avec tes idées.",
                 forWho: "DYS",
+                profiles: ['dys'],
+                need: 'ecrire',
                 fields: [
                     { id: 'matiere', label: 'Matière et sujet du texte à produire :', type: 'text', placeholder: 'Ex: SVT - Les causes du réchauffement climatique' },
                     { id: 'idees', label: 'Tes idées en vrac (sans faire de phrases) :', type: 'textarea', placeholder: 'Ex: CO2, usines, fonte des glaces...' }
@@ -1005,12 +1143,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'secretary',
-                title: 'Le Secrétaire Anti-Fautes',
-                category: 'Aide rédaction',
+                title: 'Le Correcteur de fautes',
+                category: 'Aide à l\'écriture',
                 iconSvg: SVGS.secretary,
                 color: '#0ea5e9',
-                description: "Dicte tes idées au micro, l'IA corrige tes fautes sans changer tes pensées.",
+                description: "Tu dictes tes idées au micro (même en vrac), il corrige les fautes et met tout au propre sans changer tes idées.",
                 forWho: "DYS",
+                profiles: ['dys'],
+                need: 'ecrire',
                 fields: [
                     { id: 'matiere', label: 'C\'est pour quelle matière ?', type: 'text', placeholder: 'Ex: SVT / Histoire / Français' },
                     { id: 'motsCles', label: 'Y a-t-il des mots techniques importants à ne surtout pas changer ?', type: 'text', placeholder: 'Ex: Mitochondrie, Phagocytose' },
@@ -1035,12 +1175,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'interview',
-                title: 'Le Trouveur d\'idées',
-                category: 'Coup de pouce',
+                title: 'L\'Interview Inversée',
+                category: 'Démarrage',
                 iconSvg: SVGS.interview,
                 color: '#f43f5e',
-                description: "L'IA te pose 5 questions simples pour t'aider à construire ton plan sans forcer.",
-                forWho: "TDAH",
+                description: "L'IA te pose 5 petites questions, tu réponds à l'oral, et hop : ton plan est construit.",
+                forWho: "TDAH · DYS",
+                profiles: ['tdah','dys'],
+                need: 'ecrire',
                 fields: [
                     { id: 'sujet', label: 'Sur quoi porte ton devoir ?', type: 'textarea', placeholder: 'Ex: Dissertation sur le réchauffement climatique...' },
                     { id: 'connaissances', label: 'Balance 2 ou 3 trucs que tu sais déjà dessus (en vrac) :', type: 'text', placeholder: 'Ex: pollution, CO2, banquise...' }
@@ -1063,12 +1205,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'judge',
-                title: 'Le Décodeur d\'émotions',
-                category: 'Décodeur',
+                title: 'Le Détecteur de ton',
+                category: 'Messages & émotions',
                 iconSvg: SVGS.judge,
                 color: '#64748b',
-                description: "T'aide à comprendre si un message reçu est ironique, énervé, ou sympa.",
+                description: "Tu as reçu un message bizarre ? Il te dit si la personne est sympa, ironique ou fâchée, et comment répondre.",
                 forWho: "TSA",
+                profiles: ['tsa'],
+                need: 'emotions',
                 fields: [
                     { id: 'expediteur', label: 'Qui t\'a envoyé ça ?', type: 'text', placeholder: 'Ex: Un pote un peu agacé, une prof...' },
                     { id: 'message', label: 'Colle le message bizarre ou stressant ici :', type: 'textarea', placeholder: 'Copie-colle le message que tu n\'arrives pas à interpréter...' }
@@ -1092,12 +1236,14 @@ VARIABLES CONTEXTUELLES :
             },
             {
                 id: 'safespace',
-                title: 'Le Tuteur Hyper Sympa',
-                category: 'Explications cool',
+                title: 'Le Tuteur Zéro Stress',
+                category: 'Zéro jugement',
                 iconSvg: SVGS.safespace,
                 color: '#14b8a6',
-                description: "T'explique tes erreurs en douceur, une par une, sans jamais te juger.",
-                forWho: "Anxiété, TSA",
+                description: "Corrige tes erreurs en douceur, une par une, sans jamais te juger. Parfait quand la peur de te tromper te bloque.",
+                forWho: "Tous profils",
+                profiles: ['dys','tdah','tsa'],
+                need: 'emotions',
                 fields: [
                     { id: 'besoin', label: 'En quoi je peux t\'aider ?', type: 'text', placeholder: 'Ex: Vérifie mes calculs / Dis-moi si mon intro est claire' },
                     { id: 'travail', label: 'Colle ton brouillon ou ton exercice ici :', type: 'textarea', placeholder: 'Mets ton brouillon ici, on ne juge pas !' }
@@ -1121,20 +1267,45 @@ VARIABLES CONTEXTUELLES :
             }
         ];
 
-        const QUIZ_OPTIONS = [
-            { text: "La consigne est trop floue, je ne comprends pas les attentes 'cachées' du prof.", toolId: 'decoder' },
-            { text: "C'est une montagne de travail, je panique et je ne sais pas par où commencer.", toolId: 'chunking' },
-            { text: "Je n'arrive pas à m'organiser dans le temps pour un devoir à rendre dans plusieurs jours.", toolId: 'retroplan' },
-            { text: "Le syndrome de la page blanche : j'ai des idées mais impossible d'écrire la première phrase.", toolId: 'starter' },
-            { text: "Je sais ce que je veux dire, mais je n'arrive pas à lier mes phrases logiquement.", toolId: 'skeleton' },
-            { text: "Le texte est trop long et dense, ça me fatigue les yeux et le cerveau.", toolId: 'cleaner' },
-            { text: "Je veux qu'on m'explique une leçon abstraite en utilisant des exemples tirés de ma passion.", toolId: 'passion' },
-            { text: "C'est tellement ennuyeux que je n'arrive pas à m'y mettre, il faudrait que ça devienne un jeu.", toolId: 'gamify' },
-            { text: "J'ai les idées en tête, mais écrire ou taper au clavier m'épuise (ou j'ai peur des fautes).", toolId: 'secretary' },
-            { text: "J'ai plein d'idées en vrac, mais c'est le chaos et je n'arrive pas à construire un plan.", toolId: 'interview' },
-            { text: "Je viens de lire un message et je n'arrive pas à savoir si la personne est énervée ou sympa.", toolId: 'judge' },
-            { text: "Je suis énervé(e) et j'ai peur d'envoyer un message trop agressif par impulsivité.", toolId: 'formalizer' },
-            { text: "J'ai tellement peur d'avoir faux que je bloque, j'ai besoin qu'on m'explique mes erreurs en douceur.", toolId: 'safespace' }
+        // Quiz en 2 étapes : d'abord une famille de blocage (4 choix max), puis le détail.
+        const QUIZ_CATEGORIES = [
+            {
+                icon: '🧭',
+                label: "M'organiser et comprendre ce qu'on me demande",
+                options: [
+                    { text: "La consigne est floue, je ne comprends pas ce que le prof attend vraiment.", toolId: 'decoder' },
+                    { text: "C'est une montagne de travail, je ne sais pas par où commencer.", toolId: 'chunking' },
+                    { text: "J'ai un devoir à rendre dans plusieurs jours et je vais tout faire la veille.", toolId: 'retroplan' }
+                ]
+            },
+            {
+                icon: '✍️',
+                label: "Écrire et rédiger",
+                options: [
+                    { text: "Page blanche : j'ai des idées mais impossible d'écrire la première phrase.", toolId: 'starter' },
+                    { text: "Je n'arrive pas à relier mes phrases et mes idées entre elles.", toolId: 'skeleton' },
+                    { text: "Écrire ou taper m'épuise, ou j'ai peur de faire des fautes.", toolId: 'secretary' },
+                    { text: "J'ai plein d'idées en vrac mais aucun plan ne sort.", toolId: 'interview' }
+                ]
+            },
+            {
+                icon: '📖',
+                label: "Lire et apprendre mes leçons",
+                options: [
+                    { text: "Le texte est trop long et trop dense, ça me fatigue les yeux et le cerveau.", toolId: 'cleaner' },
+                    { text: "Je veux qu'on m'explique la leçon avec des exemples tirés de ma passion.", toolId: 'passion' },
+                    { text: "C'est trop ennuyeux : il faudrait que ça devienne un jeu pour m'y mettre.", toolId: 'gamify' }
+                ]
+            },
+            {
+                icon: '💬',
+                label: "Gérer mes émotions et les messages",
+                options: [
+                    { text: "J'ai reçu un message et je ne sais pas si la personne est fâchée ou sympa.", toolId: 'judge' },
+                    { text: "Je suis énervé(e) et j'ai peur d'envoyer un message trop agressif.", toolId: 'formalizer' },
+                    { text: "J'ai tellement peur d'avoir faux que je bloque : j'ai besoin de douceur.", toolId: 'safespace' }
+                ]
+            }
         ];
 
         let currentTool = null;
@@ -1144,50 +1315,90 @@ VARIABLES CONTEXTUELLES :
         const themeIconSun = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
         const themeIconMoon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
 
+        // --- PRÉFÉRENCES DE CONFORT (police, taille, espacement, règle, calme, sépia) ---
+        const PREFS_DEFAULT = { size: '1', font: 'standard', spacing: 'normal', ruler: false, calm: false, sepia: false };
+        let prefs = Object.assign({}, PREFS_DEFAULT);
+
+        const FONTS = {
+            standard: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            verdana: "Verdana, Geneva, Tahoma, sans-serif",
+            comic: "'Comic Sans MS', 'Comic Sans', cursive, sans-serif"
+        };
+        const SPACINGS = {
+            normal: { ls: 'normal', ws: 'normal', lh: '1.6' },
+            aere:   { ls: '0.05em', ws: '0.16em', lh: '1.9' },
+            max:    { ls: '0.1em',  ws: '0.3em',  lh: '2.2' }
+        };
+
+        function applyPrefs() {
+            const root = document.documentElement;
+            root.style.setProperty('--font-scale', prefs.size);
+            root.style.setProperty('--font-family', FONTS[prefs.font] || FONTS.standard);
+            const sp = SPACINGS[prefs.spacing] || SPACINGS.normal;
+            root.style.setProperty('--letter-spacing', sp.ls);
+            root.style.setProperty('--word-spacing', sp.ws);
+            root.style.setProperty('--line-height', sp.lh);
+
+            document.body.classList.toggle('ruler-on', !!prefs.ruler);
+            document.body.classList.toggle('calm', !!prefs.calm);
+            document.body.classList.toggle('sepia', !!prefs.sepia);
+
+            // Boutons à choix multiples : marquer l'option active
+            document.querySelectorAll('.access-btn[data-pref]').forEach(btn => {
+                btn.classList.toggle('active', String(prefs[btn.dataset.pref]) === btn.dataset.val);
+            });
+            // Boutons interrupteurs : texte ON/OFF
+            const toggles = [
+                ['btn-ruler', 'ruler', '📏 Règle de lecture'],
+                ['btn-calm', 'calm', '🧘 Mode calme (sans animation)'],
+                ['btn-sepia', 'sepia', '🟡 Fond Sépia anti-fatigue']
+            ];
+            toggles.forEach(([id, key, label]) => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                const on = !!prefs[key];
+                btn.classList.toggle('active', on);
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                btn.textContent = `${label} : ${on ? 'ON' : 'OFF'}`;
+            });
+        }
+
+        function setPref(key, value) {
+            prefs[key] = value;
+            applyPrefs();
+            saveState();
+        }
+
+        function togglePref(key) {
+            prefs[key] = !prefs[key];
+            applyPrefs();
+            saveState();
+        }
+
+        // La règle de lecture suit la souris ou le doigt
+        (function initRuler() {
+            const ruler = document.getElementById('reading-ruler');
+            const move = (y) => { ruler.style.top = (y - ruler.offsetHeight / 2) + 'px'; };
+            document.addEventListener('pointermove', e => { if (prefs.ruler) move(e.clientY); }, { passive: true });
+            document.addEventListener('touchmove', e => { if (prefs.ruler && e.touches[0]) move(e.touches[0].clientY); }, { passive: true });
+        })();
+
         function toggleTheme() {
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             document.getElementById('btn-theme').innerHTML = isDark ? themeIconSun : themeIconMoon;
-            saveState(); // Sauvegarde l'état du thème
+            saveState();
         }
 
         function toggleAccessPanel() {
             document.getElementById('access-panel').classList.toggle('open');
         }
 
-        function setCssVar(variable, value, btnElement = null) {
-            document.documentElement.style.setProperty(variable, value);
-            if (btnElement) {
-                const group = btnElement.parentElement;
-                group.querySelectorAll('.access-btn').forEach(btn => btn.classList.remove('active'));
-                btnElement.classList.add('active');
-            }
-            saveState(); // Sauvegarde les préférences d'accessibilité
-        }
-
-        function toggleSepia() {
-            document.body.classList.toggle('sepia');
-            const btn = document.getElementById('btn-sepia');
-            if (document.body.classList.contains('sepia')) {
-                btn.classList.add('active');
-                btn.textContent = "Désactiver le fond Sépia";
-            } else {
-                btn.classList.remove('active');
-                btn.textContent = "Activer le fond Sépia";
-            }
-            saveState();
-        }
-
         // --- LOCAL STORAGE (PERSISTANCE D'ÉTAT) ---
         function saveState() {
             const state = {
                 themeDark: document.body.classList.contains('dark'),
-                themeSepia: document.body.classList.contains('sepia'),
-                cssVars: {
-                    fontFamily: document.documentElement.style.getPropertyValue('--font-family'),
-                    letterSpacing: document.documentElement.style.getPropertyValue('--letter-spacing'),
-                    lineHeight: document.documentElement.style.getPropertyValue('--line-height')
-                },
+                prefs: prefs,
                 wizardData: {}
             };
 
@@ -1217,19 +1428,10 @@ VARIABLES CONTEXTUELLES :
                 if (state.themeDark) document.body.classList.add('dark');
                 document.getElementById('btn-theme').innerHTML = document.body.classList.contains('dark') ? themeIconSun : themeIconMoon;
                 
-                // Restauration Accessibilité
-                if (state.themeSepia) {
-                    document.body.classList.add('sepia');
-                    document.getElementById('btn-sepia').classList.add('active');
-                    document.getElementById('btn-sepia').textContent = "Désactiver le fond Sépia";
-                }
-                if (state.cssVars.fontFamily) setCssVar('--font-family', state.cssVars.fontFamily);
-                if (state.cssVars.letterSpacing) setCssVar('--letter-spacing', state.cssVars.letterSpacing);
-                if (state.cssVars.lineHeight) setCssVar('--line-height', state.cssVars.lineHeight);
+                // Restauration des préférences de confort
+                if (state.prefs) prefs = Object.assign({}, PREFS_DEFAULT, state.prefs);
+                applyPrefs();
 
-                // Mise à jour visuelle des boutons d'accessibilité (approximation simple basée sur la présence de la valeur)
-                // Note: Une implémentation complète lierait l'état aux boutons spécifiques, ici on restaure la fonctionnalité CSS
-                
                 // Restauration Wizard
                 if (state.currentToolId) {
                     selectTool(state.currentToolId, true); // true = no animation jump
@@ -1260,6 +1462,7 @@ VARIABLES CONTEXTUELLES :
             
             renderLibrary();
             renderQuiz();
+            applyPrefs();
 
             const isRestored = restoreState();
             // Si on n'a pas restauré le configurateur, on affiche l'intro
@@ -1301,29 +1504,92 @@ VARIABLES CONTEXTUELLES :
 
         // --- RENDUS DYNAMIQUES ---
         function renderQuiz() {
+            // Étape 1 : seulement 4 grandes familles (moins de surcharge visuelle)
             const container = document.getElementById('quiz-options');
+            document.getElementById('quiz-question-title').textContent = "Qu'est-ce qui te bloque le plus en ce moment ?";
             container.innerHTML = '';
-            QUIZ_OPTIONS.forEach(opt => {
+            QUIZ_CATEGORIES.forEach((cat, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerHTML = `<span style="font-size:1.5rem; margin-right:0.75rem;">${cat.icon}</span> ${cat.label}`;
+                btn.onclick = () => renderQuizStep2(index);
+                container.appendChild(btn);
+            });
+        }
+
+        function renderQuizStep2(catIndex) {
+            // Étape 2 : le détail de la famille choisie
+            const cat = QUIZ_CATEGORIES[catIndex];
+            const container = document.getElementById('quiz-options');
+            document.getElementById('quiz-question-title').textContent = `${cat.icon} Précise un peu :`;
+            container.innerHTML = '';
+            cat.options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.className = 'quiz-option';
                 btn.textContent = opt.text;
                 btn.onclick = () => selectTool(opt.toolId);
                 container.appendChild(btn);
             });
+            const back = document.createElement('button');
+            back.className = 'btn btn-ghost mt-4';
+            back.innerHTML = '← Revenir aux 4 familles';
+            back.onclick = renderQuiz;
+            container.appendChild(back);
+        }
+
+        // --- FILTRES DE LA BIBLIOTHÈQUE ---
+        let libraryFilters = { profile: 'all', need: 'all' };
+
+        function setLibraryFilter(type, value) {
+            libraryFilters[type] = value;
+            document.querySelectorAll(`.filter-chip[data-filter="${type}"]`).forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.val === value);
+            });
+            renderLibrary();
         }
 
         function renderLibrary() {
             const grid = document.getElementById('library-grid');
             grid.innerHTML = '';
-            TOOLS.forEach(tool => {
+
+            const visible = TOOLS.filter(tool => {
+                const okProfile = libraryFilters.profile === 'all'
+                    || (tool.profiles || []).includes(libraryFilters.profile);
+                const okNeed = libraryFilters.need === 'all'
+                    || tool.need === libraryFilters.need;
+                return okProfile && okNeed;
+            });
+
+            const countEl = document.getElementById('filter-count');
+            if (countEl) {
+                countEl.textContent = visible.length === TOOLS.length
+                    ? `${TOOLS.length} outils disponibles`
+                    : `${visible.length} outil${visible.length > 1 ? 's' : ''} sur ${TOOLS.length} correspond${visible.length > 1 ? 'ent' : ''} à tes filtres`;
+            }
+
+            if (visible.length === 0) {
+                grid.innerHTML = `<div class="library-empty">
+                    <p style="font-size:1.1rem; margin-bottom:0.5rem;">Aucun outil ne correspond à cette combinaison 🤔</p>
+                    <p>Essaie d'enlever un des deux filtres.</p>
+                </div>`;
+                return;
+            }
+
+            visible.forEach(tool => {
                 const card = document.createElement('div');
                 card.className = 'card tool-card';
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
                 card.onclick = () => selectTool(tool.id);
+                card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTool(tool.id); } };
                 card.innerHTML = `
                     <div class="tool-icon-wrapper" style="color: ${tool.color}; background-color: ${tool.color}20;">
                         ${tool.iconSvg}
                     </div>
-                    <span class="tool-tag" style="color: ${tool.color}; background-color: ${tool.color}15;">${tool.category}</span>
+                    <div class="mb-2">
+                        <span class="tool-tag" style="color: ${tool.color}; background-color: ${tool.color}15;">${tool.category}</span>
+                        <span class="tool-who">${tool.forWho}</span>
+                    </div>
                     <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${tool.title}</h3>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1;">${tool.description}</p>
                 `;
@@ -1406,7 +1672,7 @@ VARIABLES CONTEXTUELLES :
                     
                     const micHint = document.createElement('p');
                     micHint.style = "font-size: 0.9rem; color: var(--text-muted); margin-top: 0.75rem;";
-                    micHint.innerHTML = "💡 Astuce : Clique sur l'icône micro à droite pour utiliser ta voix au lieu de taper.";
+                    micHint.innerHTML = "💡 Astuce : Clique sur le micro à droite pour dicter avec ta voix. Sans Internet, utilise plutôt le micro de ton clavier (il marche hors-ligne sur la plupart des téléphones).";
                     group.appendChild(inputWrapper);
                     group.appendChild(micHint);
                 } else {
@@ -1540,10 +1806,10 @@ VARIABLES CONTEXTUELLES :
 
             // Setup Minuteur si Chunking ou Retroplan
             const timerWidget = document.getElementById('timer-widget');
-            if (currentTool.id === 'chunking' || currentTool.id === 'retroplan') {
+            if (currentTool.id === 'chunking' || currentTool.id === 'retroplan' || currentTool.id === 'gamify') {
                 timerWidget.classList.remove('hidden');
                 document.getElementById('interactive-preview-zone').classList.remove('hidden');
-                setupInteractiveMarkdown();
+                restoreChecklist();
             } else {
                 timerWidget.classList.add('hidden');
                 document.getElementById('interactive-preview-zone').classList.add('hidden');
@@ -1590,54 +1856,171 @@ VARIABLES CONTEXTUELLES :
             }, 3000);
         }
 
-        // --- INTERACTIF : MARKDOWN TO CHECKBOXES (Récompense Dopaminergique) ---
-        function setupInteractiveMarkdown() {
+        // --- INTERACTIF : LA RÉPONSE DE L'IA DEVIENT UNE LISTE À COCHER ---
+        function buildChecklist(restoring = false) {
+            const rawText = document.getElementById('checklist-input').value;
             const container = document.getElementById('interactive-content');
-            // Simulation d'une réponse IA basée sur le découpeur de tâche
-            const mockMarkdown = `* 🎯 Objectif : Terminer la dissertation.
-* 🔋 Tâches Haute Énergie :
-- Trouver 3 idées pour le grand I.
-- Rédiger l'introduction au brouillon.
-* 🪫 Tâches Basse Énergie :
-- Souligner les mots clés de la consigne.
-- Recopier au propre l'introduction.`;
+            const lines = rawText.split('\n');
+            const items = [];
+            lines.forEach(line => {
+                const m = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/);
+                if (m) items.push(m[1].trim());
+            });
 
-            // Regex basique pour trouver les listes à puces Markdown ("- ") et les rendre interactives
-            const parsedHTML = mockMarkdown.replace(/^- (.*)$/gm, '<label class="md-checkbox-item"><input type="checkbox" onchange="this.parentElement.classList.toggle(\'checked\')"> <span>$1</span></label>');
-            container.innerHTML = parsedHTML.replace(/\n/g, '<br>');
+            container.innerHTML = '';
+            if (items.length === 0) {
+                container.style.display = 'block';
+                container.innerHTML = '<p style="color: var(--text-muted); margin:0;">Je n\'ai pas trouvé de liste. Vérifie que les lignes commencent par "-", "*" ou "1."</p>';
+                return;
+            }
+
+            const saved = restoring ? getSavedChecklist() : null;
+            items.forEach((text, i) => {
+                const label = document.createElement('label');
+                label.className = 'md-checkbox-item';
+                label.style = 'display:flex; gap:0.75rem; align-items:flex-start; padding:0.5rem 0; cursor:pointer;';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.style = 'width:1.3rem; height:1.3rem; margin-top:0.15rem; flex-shrink:0; accent-color: var(--success);';
+                if (saved && saved.checks && saved.checks[i]) { cb.checked = true; label.classList.add('checked'); }
+                cb.onchange = () => {
+                    label.classList.toggle('checked', cb.checked);
+                    label.style.opacity = cb.checked ? '0.55' : '1';
+                    label.style.textDecoration = cb.checked ? 'line-through' : 'none';
+                    updateChecklistProgress();
+                    saveChecklist();
+                };
+                if (cb.checked) { label.style.opacity = '0.55'; label.style.textDecoration = 'line-through'; }
+                const span = document.createElement('span');
+                span.textContent = text;
+                label.appendChild(cb);
+                label.appendChild(span);
+                container.appendChild(label);
+            });
+            container.style.display = 'block';
+            updateChecklistProgress();
+            if (!restoring) saveChecklist();
+        }
+
+        function updateChecklistProgress() {
+            const boxes = document.querySelectorAll('#interactive-content input[type="checkbox"]');
+            const done = [...boxes].filter(b => b.checked).length;
+            const p = document.getElementById('checklist-progress');
+            if (boxes.length === 0) { p.classList.add('hidden'); return; }
+            p.classList.remove('hidden');
+            p.textContent = done === boxes.length
+                ? `🎉 Bravo, tout est fait ! (${done}/${boxes.length})`
+                : `Avancement : ${done} / ${boxes.length} fait${done > 1 ? 's' : ''}`;
+        }
+
+        function saveChecklist() {
+            const boxes = document.querySelectorAll('#interactive-content input[type="checkbox"]');
+            const data = {
+                text: document.getElementById('checklist-input').value,
+                checks: [...boxes].map(b => b.checked)
+            };
+            try { localStorage.setItem('ia4neuro_checklist', JSON.stringify(data)); } catch (e) {}
+        }
+
+        function getSavedChecklist() {
+            try { return JSON.parse(localStorage.getItem('ia4neuro_checklist')); } catch (e) { return null; }
+        }
+
+        function restoreChecklist() {
+            const saved = getSavedChecklist();
+            if (saved && saved.text) {
+                document.getElementById('checklist-input').value = saved.text;
+                buildChecklist(true);
+            }
         }
 
         // --- MINUTEUR VISUEL (TIME TIMER) ---
-        let timerInterval;
-        let timeLeft = 0;
-        let totalTime = 0;
+        let timerInterval = null;
+        let timerRunning = false;
+        let timerMinutes = 15;
+        let timeLeft = 15 * 60;
+        let totalTime = 15 * 60;
         const circle = document.getElementById('timer-circle');
         const circumference = 2 * Math.PI * 45; // r=45
 
-        function startTimer(minutes) {
-            stopTimer(); // Reset si déjà en cours
-            totalTime = minutes * 60;
-            timeLeft = totalTime;
-            
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}:${String(s).padStart(2, '0')}`;
+        }
+
+        function renderTimer() {
+            document.getElementById('timer-time').textContent = formatTime(timeLeft);
             circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            circle.style.strokeDashoffset = 0;
-            
+            const offset = totalTime > 0 ? circumference - (timeLeft / totalTime) * circumference : 0;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function setTimerDuration(minutes, btn) {
+            timerMinutes = minutes;
+            document.querySelectorAll('.timer-dur').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            if (!timerRunning) {
+                totalTime = minutes * 60;
+                timeLeft = totalTime;
+                renderTimer();
+            }
+        }
+
+        function startPauseTimer() {
+            const btn = document.getElementById('btn-timer-start');
+            if (timerRunning) {
+                // Pause
+                clearInterval(timerInterval);
+                timerRunning = false;
+                btn.innerHTML = '▶ Reprendre';
+                return;
+            }
+            if (timeLeft <= 0) { totalTime = timerMinutes * 60; timeLeft = totalTime; }
+            if (timeLeft === timerMinutes * 60) { totalTime = timerMinutes * 60; }
+            timerRunning = true;
+            btn.innerHTML = '⏸ Pause';
             timerInterval = setInterval(() => {
                 timeLeft--;
-                const offset = circumference - (timeLeft / totalTime) * circumference;
-                circle.style.strokeDashoffset = offset;
-
+                renderTimer();
                 if (timeLeft <= 0) {
-                    stopTimer();
-                    // Alerte douce ou son
-                    circle.style.strokeDashoffset = circumference;
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    btn.innerHTML = '▶ Démarrer';
+                    document.getElementById('timer-time').textContent = 'Fini 🎉';
+                    playChime();
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                 }
             }, 1000);
         }
 
         function stopTimer() {
             clearInterval(timerInterval);
-            circle.style.strokeDashoffset = 0;
+            timerRunning = false;
+            timeLeft = timerMinutes * 60;
+            totalTime = timeLeft;
+            const btn = document.getElementById('btn-timer-start');
+            if (btn) btn.innerHTML = '▶ Démarrer';
+            if (circle) renderTimer();
+        }
+
+        // Carillon doux généré localement (fonctionne 100% hors-ligne, sans fichier audio)
+        function playChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                [523.25, 659.25, 783.99].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.18);
+                    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + i * 0.18 + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.18 + 0.9);
+                    osc.connect(gain).connect(ctx.destination);
+                    osc.start(ctx.currentTime + i * 0.18);
+                    osc.stop(ctx.currentTime + i * 0.18 + 1);
+                });
+            } catch (e) { /* audio non disponible : on ignore */ }
         }
 
         // --- API ASSISTANCE : DICTÉE VOCALE (SPEECH-TO-TEXT) ---
@@ -1672,7 +2055,7 @@ VARIABLES CONTEXTUELLES :
 
             if (!recognition) recognition = initSpeechRecognition();
             if (!recognition) {
-                alert("La dictée vocale n'est pas supportée par ce navigateur.");
+                showMicMessage(btn, "La dictée du site n'est pas disponible ici. Utilise le micro de ton clavier (il marche hors-ligne) 😉");
                 return;
             }
 
@@ -1694,7 +2077,15 @@ VARIABLES CONTEXTUELLES :
                 }
             };
 
-            recognition.onerror = (e) => { console.error("Erreur micro:", e); resetMicBtn(); isListening = false; };
+            recognition.onerror = (e) => {
+                console.error("Erreur micro:", e);
+                if (e.error === 'network') {
+                    showMicMessage(btn, "La dictée du site a besoin d'Internet sur ce navigateur. Astuce : utilise le micro de ton clavier, il marche hors-ligne !");
+                } else if (e.error === 'not-allowed') {
+                    showMicMessage(btn, "Le micro est bloqué. Autorise-le dans les réglages du navigateur, ou utilise le micro de ton clavier.");
+                }
+                resetMicBtn(); isListening = false;
+            };
             recognition.onend = () => { resetMicBtn(); isListening = false; };
 
             recognition.start();
@@ -1702,6 +2093,20 @@ VARIABLES CONTEXTUELLES :
             currentMicBtn = btn;
             btn.classList.add('listening');
             btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>';
+        }
+
+        function showMicMessage(btn, text) {
+            // Petit message non bloquant sous le champ (à la place d'une alerte stressante)
+            const wrapper = btn.closest('.form-group') || btn.parentElement;
+            let msg = wrapper.querySelector('.mic-message');
+            if (!msg) {
+                msg = document.createElement('p');
+                msg.className = 'mic-message';
+                msg.style = "font-size: 0.9rem; color: var(--warning-text); background: var(--warning-light); border: 1px solid var(--warning-border); padding: 0.75rem 1rem; border-radius: 0.5rem; margin-top: 0.75rem;";
+                wrapper.appendChild(msg);
+            }
+            msg.textContent = text;
+            setTimeout(() => msg.remove(), 8000);
         }
 
         function resetMicBtn() {
@@ -1756,7 +2161,9 @@ VARIABLES CONTEXTUELLES :
             utterance.rate = 0.9;
             
             const voices = synth.getVoices();
-            const frVoice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('fr'));
+            // On privilégie une voix installée sur l'appareil (fonctionne sans Internet)
+            const frVoice = voices.find(v => v.lang.startsWith('fr') && v.localService)
+                || voices.find(v => v.lang.startsWith('fr'));
             if (frVoice) utterance.voice = frVoice;
 
             utterance.onboundary = (event) => {
