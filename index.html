@@ -362,6 +362,48 @@
         }
         .timer-controls { display: flex; flex-direction: column; gap: 0.5rem; }
 
+        /* --- VUE PROGRAMME (parcours niveau/matière/thème/problématique) --- */
+        .prog-breadcrumb {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+            margin-bottom: 1.5rem; min-height: 2rem;
+        }
+        .prog-crumb {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: var(--primary-light); color: var(--primary);
+            border: 1px solid var(--primary-light-border);
+            padding: 0.35rem 0.9rem; border-radius: 999px;
+            font-size: 0.9rem; font-weight: 700;
+        }
+        .prog-crumb-sep { color: var(--text-muted); font-weight: 700; }
+        .prog-options { display: flex; flex-direction: column; gap: 0.75rem; }
+        .prog-option {
+            width: 100%; text-align: left; cursor: pointer;
+            padding: 1.1rem 1.4rem; border-radius: var(--radius);
+            border: 2px solid var(--card-border); background: var(--bg-color);
+            color: var(--text-main); font-size: 1.1rem; font-weight: 600;
+            font-family: inherit; line-height: 1.4;
+            transition: var(--transition);
+            display: flex; align-items: center; gap: 0.9rem;
+        }
+        .prog-option:hover { border-color: var(--primary); transform: translateX(4px); }
+        .prog-option .prog-emoji { font-size: 1.5rem; flex-shrink: 0; }
+        /* Choix multiple (problématiques) : case cochable */
+        .prog-option.selectable.selected {
+            border-color: var(--success); background: var(--success-light);
+        }
+        .prog-option .prog-check {
+            margin-left: auto; flex-shrink: 0; width: 26px; height: 26px;
+            border-radius: 999px; border: 2px solid var(--card-border);
+            display: grid; place-items: center; color: white;
+        }
+        .prog-option.selected .prog-check {
+            background: var(--success); border-color: var(--success);
+        }
+        .prog-tool-hint {
+            display: block; font-size: 0.85rem; font-weight: 500;
+            color: var(--text-muted); margin-top: 0.25rem;
+        }
+
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -451,6 +493,14 @@
                     <button class="btn btn-secondary" onclick="switchView('library')" style="font-size: 1.1rem; padding: 1rem 2rem;">
                         Voir tous les outils
                     </button>
+                </div>
+
+                <div class="mt-8">
+                    <button class="btn btn-primary" onclick="startProgramme()" style="font-size: 1.1rem; padding: 1rem 2rem; background: linear-gradient(135deg, #7c3aed, #2563eb);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>
+                        Partir de ma classe et de ma matière
+                    </button>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.75rem;">Choisis ta classe, ta matière et ta leçon : on trouve l'outil et le prompt pour toi.</p>
                 </div>
             </div>
 
@@ -724,6 +774,30 @@
             </div>
         </div>
 
+        <!-- VUE : PROGRAMME (NIVEAU → MATIÈRE → THÈME → PROBLÉMATIQUE) -->
+        <div id="view-programme" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
+            <div class="flex items-center justify-between mb-6">
+                <button class="btn btn-ghost" id="prog-back-btn" onclick="progBack()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    Retour
+                </button>
+                <h2 style="font-size: 1.5rem;">Mon programme scolaire</h2>
+            </div>
+
+            <!-- Fil d'Ariane (montre où on en est) -->
+            <div id="prog-breadcrumb" class="prog-breadcrumb" aria-live="polite"></div>
+
+            <div class="card" style="padding: 2rem;">
+                <p id="prog-question" class="font-bold mb-6" style="color: var(--primary); font-size: 1.3rem; line-height: 1.3;">Dans quelle classe es-tu ?</p>
+                <div id="prog-options" class="prog-options"></div>
+
+                <!-- Bouton de validation (seulement à l'étape problématiques, choix multiple) -->
+                <button id="prog-validate" class="btn hidden mt-8 w-full" style="background-color: var(--success); color: white; box-shadow: 0 4px 14px 0 rgba(34,197,94,0.39); font-size: 1.1rem;" onclick="progValidateProblems()">
+                    C'est parti, crée mon prompt ✨
+                </button>
+            </div>
+        </div>
+
         <!-- VUE : CONFIGURATEUR (WIZARD) -->
         <div id="view-configurator" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
             <button class="btn btn-ghost mb-4" onclick="switchView('library')">
@@ -841,6 +915,14 @@
                     <div>
                         <strong>Vérifie toujours la réponse de l'IA</strong>
                         <p style="margin-top: 0.25rem;">L'IA peut inventer des informations fausses sans prévenir. Compare toujours sa réponse avec ton cours, ou demande à ton prof en cas de doute.</p>
+                    </div>
+                </div>
+
+                <!-- Bandeau multi-prompts (parcours Programme avec plusieurs problématiques) -->
+                <div id="prog-next-banner" class="hidden" style="padding: 1.25rem 2rem; background: var(--primary-light); border-top: 1px solid var(--primary-light-border);">
+                    <div class="flex items-center justify-between gap-4" style="flex-wrap: wrap;">
+                        <p id="prog-next-text" class="font-bold" style="color: var(--primary); font-size: 0.95rem;"></p>
+                        <button class="btn btn-primary" onclick="progNextTool()">Prompt suivant →</button>
                     </div>
                 </div>
 
@@ -1280,6 +1362,265 @@ VARIABLES CONTEXTUELLES :
         ];
 
         // Quiz en 2 étapes : d'abord une famille de blocage (4 choix max), puis le détail.
+        // =========================================================
+        //  MODULE PROGRAMME SCOLAIRE  →  OUTIL  →  PROMPT
+        // =========================================================
+
+        // Problématiques en langage d'ado, chacune reliée à un outil existant
+        // (même procédé que le quiz : { text, toolId }).
+        // La leçon choisie sera injectée automatiquement dans le 1er champ de l'outil.
+        const PROBLEMATIQUES = [
+            { icon: '🧩', text: "Je ne comprends pas ce que le prof attend sur cette leçon.", toolId: 'decoder' },
+            { icon: '⛰️', text: "Cette leçon est une montagne, je ne sais pas par où commencer.", toolId: 'chunking' },
+            { icon: '📅', text: "J'ai un contrôle ou un devoir là-dessus, il faut que je m'organise.", toolId: 'retroplan' },
+            { icon: '📄', text: "Le texte de la leçon est trop long et me fatigue à lire.", toolId: 'cleaner' },
+            { icon: '🎮', text: "Je veux qu'on m'explique cette leçon avec ma passion.", toolId: 'passion' },
+            { icon: '🎲', text: "C'est trop ennuyeux : transforme cette leçon en jeu.", toolId: 'gamify' },
+            { icon: '✍️', text: "Je dois écrire un texte là-dessus mais j'ai la page blanche.", toolId: 'starter' },
+            { icon: '🪜', text: "J'ai des idées sur ce sujet mais je n'arrive pas à les relier.", toolId: 'skeleton' },
+            { icon: '🎤', text: "Je préfère dicter mes idées sur ce sujet à l'oral.", toolId: 'secretary' },
+            { icon: '🗺️', text: "J'ai des idées en vrac, aide-moi à faire un plan.", toolId: 'interview' },
+            { icon: '💚', text: "J'ai peur d'avoir faux sur cette leçon, j'ai besoin de douceur pour réviser.", toolId: 'safespace' }
+        ];
+
+        // Programme scolaire par niveau → matière (emoji) → thèmes (leçons).
+        // Les deux niveaux partagent aujourd'hui le même contenu ; la structure
+        // permet de les faire diverger plus tard sans toucher au reste du code.
+        const MATIERES_COMMUNES = [
+            { nom: 'Français', emoji: '📚', themes: [
+                "Le voyage et l'aventure",
+                "Vivre en société, participer à la société",
+                "Héros, héroïsmes, héroïnes",
+                "L'être humain est-il maître de la nature ?",
+                "La phrase complexe (propositions)",
+                "La conjugaison (les temps de l'indicatif)",
+                "L'orthographe (accords complexes)",
+                "Rédiger un texte (narratif, descriptif, explicatif)",
+                "S'initier à l'argumentation"
+            ]},
+            { nom: 'Mathématiques', emoji: '🔢', themes: [
+                "Les nombres relatifs (addition, soustraction)",
+                "Les fractions (comparaison, addition, soustraction)",
+                "Les priorités opératoires",
+                "La symétrie centrale",
+                "Les propriétés des triangles",
+                "Les parallélogrammes",
+                "Le repérage dans un repère orthogonal",
+                "Les aires (parallélogramme, triangle, disque)",
+                "Les volumes (prismes, cylindres)",
+                "La proportionnalité",
+                "Les statistiques (fréquence, moyenne)",
+                "Les probabilités",
+                "L'algorithmique et Scratch (variables, boucles)"
+            ]},
+            { nom: 'Histoire-Géo & EMC', emoji: '🌍', themes: [
+                "Byzance et l'Europe carolingienne",
+                "La naissance et l'expansion de l'islam",
+                "L'ordre seigneurial au Moyen-Âge",
+                "L'affirmation de l'État monarchique",
+                "Les Grandes découvertes et la Renaissance",
+                "La croissance démographique et ses effets",
+                "L'inégal développement et la pauvreté",
+                "La gestion des ressources (eau, énergie, alimentation)",
+                "La prévention des risques majeurs",
+                "EMC : l'égalité et la lutte contre les discriminations",
+                "EMC : la solidarité, la sécurité et les risques"
+            ]},
+            { nom: 'SVT', emoji: '🧬', themes: [
+                "La météo et le climat (masses d'eau et d'air)",
+                "Séismes, volcans et tectonique des plaques",
+                "Les besoins des animaux et des végétaux",
+                "Les écosystèmes et les populations",
+                "La reproduction sexuée et asexuée",
+                "La respiration et le cœur pendant l'effort",
+                "La digestion et la nutrition"
+            ]},
+            { nom: 'Physique-Chimie', emoji: '⚗️', themes: [
+                "Les états et changements d'état de la matière",
+                "La masse volumique",
+                "Mélanges et corps purs",
+                "Les sources et transferts d'énergie",
+                "Les circuits électriques (série et dérivation)",
+                "Le mouvement et la vitesse",
+                "La lumière et les ombres",
+                "Les signaux sonores"
+            ]},
+            { nom: 'Technologie', emoji: '⚙️', themes: [
+                "Le fonctionnement des objets techniques",
+                "Les propriétés des matériaux",
+                "Le pilotage de systèmes automatisés",
+                "La programmation par blocs",
+                "La transmission des données dans un réseau"
+            ]},
+            { nom: 'Langues vivantes', emoji: '🗣️', themes: [
+                "La vie quotidienne",
+                "L'environnement urbain",
+                "Repères historiques et géographiques du pays étudié",
+                "Comprendre l'oral et l'écrit (A1 → A2)",
+                "S'exprimer à l'oral et écrire des textes courts"
+            ]},
+            { nom: 'Arts & Musique', emoji: '🎨', themes: [
+                "Arts plastiques : la représentation visuelle",
+                "Arts plastiques : la matérialité de l'œuvre et l'espace",
+                "Musique : le chant choral",
+                "Musique : analyser une œuvre et son contexte"
+            ]},
+            { nom: 'EPS', emoji: '🤸', themes: [
+                "Réaliser une performance mesurable",
+                "S'adapter à des environnements variés",
+                "Réaliser une prestation artistique ou acrobatique",
+                "Mener un affrontement individuel ou collectif"
+            ]}
+        ];
+
+        const PROGRAMME = {
+            '5e':  { label: '5ème', emoji: '🎒', matieres: MATIERES_COMMUNES },
+            '2nde':{ label: '2nde', emoji: '🎓', matieres: MATIERES_COMMUNES }
+        };
+
+        // État courant du parcours programme
+        let progState = { niveau: null, matiere: null, theme: null, problems: [] };
+
+        function startProgramme() {
+            progState = { niveau: null, matiere: null, theme: null, problems: [] };
+            switchView('programme');
+            progRenderNiveau();
+        }
+
+        function progBreadcrumb() {
+            const el = document.getElementById('prog-breadcrumb');
+            const parts = [];
+            if (progState.niveau) parts.push(PROGRAMME[progState.niveau].label);
+            if (progState.matiere) parts.push(progState.matiere.nom);
+            if (progState.theme) parts.push(progState.theme);
+            el.innerHTML = parts.map(p =>
+                `<span class="prog-crumb">${p}</span>`
+            ).join('<span class="prog-crumb-sep">›</span>');
+        }
+
+        function progSetQuestion(txt) {
+            document.getElementById('prog-question').textContent = txt;
+        }
+
+        function progClearOptions() {
+            document.getElementById('prog-options').innerHTML = '';
+            document.getElementById('prog-validate').classList.add('hidden');
+        }
+
+        function progOptionBtn(emoji, label, onClick, hint) {
+            const btn = document.createElement('button');
+            btn.className = 'prog-option';
+            btn.type = 'button';
+            btn.innerHTML = `<span class="prog-emoji">${emoji}</span><span>${label}${hint ? `<span class="prog-tool-hint">${hint}</span>` : ''}</span>`;
+            btn.onclick = onClick;
+            document.getElementById('prog-options').appendChild(btn);
+            return btn;
+        }
+
+        // ÉTAPE 1 — Niveau
+        function progRenderNiveau() {
+            progState.matiere = null; progState.theme = null; progState.problems = [];
+            progBreadcrumb();
+            progSetQuestion('Dans quelle classe es-tu ?');
+            progClearOptions();
+            Object.keys(PROGRAMME).forEach(key => {
+                progOptionBtn(PROGRAMME[key].emoji, PROGRAMME[key].label, () => {
+                    progState.niveau = key;
+                    progRenderMatiere();
+                });
+            });
+        }
+
+        // ÉTAPE 2 — Matière
+        function progRenderMatiere() {
+            progState.theme = null; progState.problems = [];
+            progBreadcrumb();
+            progSetQuestion('Choisis ta matière :');
+            progClearOptions();
+            PROGRAMME[progState.niveau].matieres.forEach(mat => {
+                progOptionBtn(mat.emoji, mat.nom, () => {
+                    progState.matiere = mat;
+                    progRenderTheme();
+                });
+            });
+        }
+
+        // ÉTAPE 3 — Thème / leçon
+        function progRenderTheme() {
+            progState.problems = [];
+            progBreadcrumb();
+            progSetQuestion('Sur quelle leçon veux-tu travailler ?');
+            progClearOptions();
+            progState.matiere.themes.forEach(theme => {
+                progOptionBtn('•', theme, () => {
+                    progState.theme = theme;
+                    progRenderProblems();
+                });
+            });
+        }
+
+        // ÉTAPE 4 — Problématique(s) (choix multiple)
+        function progRenderProblems() {
+            progBreadcrumb();
+            progSetQuestion("Qu'est-ce qui te bloque sur cette leçon ? (tu peux en cocher plusieurs)");
+            progClearOptions();
+            PROBLEMATIQUES.forEach((pb, i) => {
+                const tool = TOOLS.find(t => t.id === pb.toolId);
+                const hint = tool ? `Outil : ${tool.title}` : '';
+                const btn = progOptionBtn(pb.icon, pb.text, () => progToggleProblem(i, btn), hint);
+                btn.classList.add('selectable');
+                const check = document.createElement('span');
+                check.className = 'prog-check';
+                check.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+                btn.appendChild(check);
+            });
+            document.getElementById('prog-validate').classList.remove('hidden');
+        }
+
+        function progToggleProblem(index, btn) {
+            const pos = progState.problems.indexOf(index);
+            if (pos === -1) { progState.problems.push(index); btn.classList.add('selected'); }
+            else { progState.problems.splice(pos, 1); btn.classList.remove('selected'); }
+        }
+
+        // Bouton retour contextuel : remonte d'une étape
+        function progBack() {
+            if (progState.problems.length || progState.theme) { progState.theme = null; progRenderTheme(); }
+            else if (progState.matiere) { progState.matiere = null; progRenderMatiere(); }
+            else if (progState.niveau) { progState.niveau = null; progRenderNiveau(); }
+            else { switchView('intro'); }
+        }
+
+        // VALIDATION — lance le wizard sur le 1er outil, en injectant le contexte scolaire
+        function progValidateProblems() {
+            if (!progState.problems.length) {
+                // Feedback doux : on met en avant le bouton
+                const v = document.getElementById('prog-validate');
+                v.textContent = "Coche au moins une case 👆";
+                setTimeout(() => v.textContent = "C'est parti, crée mon prompt ✨", 1600);
+                return;
+            }
+            // On construit le contexte scolaire réutilisé par generatePrompt()
+            const chosen = progState.problems.map(i => PROBLEMATIQUES[i]);
+            programmeContext = {
+                niveau: PROGRAMME[progState.niveau].label,
+                matiere: progState.matiere.nom,
+                theme: progState.theme,
+                // File d'attente des outils à traiter (un prompt par problématique)
+                queue: chosen.map(c => c.toolId),
+                queueIndex: 0
+            };
+            launchProgrammeTool();
+        }
+
+        // Contexte scolaire courant (null hors parcours programme)
+        let programmeContext = null;
+
+        function launchProgrammeTool() {
+            const toolId = programmeContext.queue[programmeContext.queueIndex];
+            selectTool(toolId); // ouvre le wizard ; le préremplissage se fait dans selectTool
+        }
+
         const QUIZ_CATEGORIES = [
             {
                 icon: '🧭',
@@ -1490,7 +1831,7 @@ VARIABLES CONTEXTUELLES :
         };
 
         // --- NAVIGATION ---
-        const VIEWS = ['view-intro', 'view-about-ai', 'view-methodology', 'view-quiz', 'view-library', 'view-configurator', 'view-result'];
+        const VIEWS = ['view-intro', 'view-about-ai', 'view-methodology', 'view-quiz', 'view-library', 'view-programme', 'view-configurator', 'view-result'];
 
         function switchView(viewName) {
             // Arrêter les API d'assistance lors de la navigation
@@ -1512,6 +1853,18 @@ VARIABLES CONTEXTUELLES :
                 currentTool = null;
                 saveState();
             }
+
+            // Le contexte scolaire ne vit que pendant le parcours Programme
+            // (programme → configurator → result). Toute autre destination le purge,
+            // pour ne pas polluer un usage normal via le quiz ou la bibliothèque.
+            if (!['programme', 'configurator', 'result'].includes(viewName)) {
+                programmeContext = null;
+            }
+        }
+
+        // Libellé de niveau court utilisé pour préremplir le champ de l'outil
+        function progLessonLabel() {
+            return programmeContext ? `${programmeContext.matiere} (${programmeContext.niveau})` : 'Leçon';
         }
 
         // --- RENDUS DYNAMIQUES ---
@@ -1718,6 +2071,16 @@ VARIABLES CONTEXTUELLES :
             currentWizardStep = 0;
             updateWizardUI();
 
+            // Si on arrive depuis le parcours PROGRAMME : la leçon pré-remplit
+            // le 1er champ texte de l'outil, pour que l'ado n'ait plus qu'à compléter.
+            if (programmeContext) {
+                const firstTextField = currentTool.fields.find(f => f.type === 'text' || f.type === 'textarea');
+                if (firstTextField) {
+                    const inp = document.getElementById(`input-${firstTextField.id}`);
+                    if (inp) inp.value = `${progLessonLabel()} : ${progState.theme}`;
+                }
+            }
+
             if (!skipNav) switchView('configurator');
             saveState();
         }
@@ -1801,7 +2164,13 @@ VARIABLES CONTEXTUELLES :
                 video: "\n\nCONTRAINTE DE FORMAT FINAL : Script de vidéo courte. Présente le contenu sous forme de double colonne : Visuel à l'écran (dynamique) d'un côté, et Voix-off (rythmée et accrocheuse) de l'autre."
             };
 
-            generatedText = currentTool.generatePrompt(data) + formatModifiers[selectedFormat];
+            // En-tête de contexte scolaire (uniquement depuis le parcours Programme)
+            let schoolHeader = "";
+            if (programmeContext) {
+                schoolHeader = `CONTEXTE SCOLAIRE : je suis un élève de ${programmeContext.niveau}. Matière : ${programmeContext.matiere}. Leçon : ${programmeContext.theme}. Adapte impérativement ton vocabulaire, tes exemples et ton niveau d'exigence à un élève de ${programmeContext.niveau}.\n\n`;
+            }
+
+            generatedText = schoolHeader + currentTool.generatePrompt(data) + formatModifiers[selectedFormat];
             document.getElementById('result-prompt-text').textContent = generatedText;
             
             const formatInstructions = {
@@ -1827,8 +2196,28 @@ VARIABLES CONTEXTUELLES :
                 document.getElementById('interactive-preview-zone').classList.add('hidden');
             }
 
+            // Bandeau "prompt suivant" si plusieurs problématiques ont été cochées
+            const banner = document.getElementById('prog-next-banner');
+            if (programmeContext && programmeContext.queueIndex < programmeContext.queue.length - 1) {
+                const remaining = programmeContext.queue.length - 1 - programmeContext.queueIndex;
+                document.getElementById('prog-next-text').textContent =
+                    `Tu avais coché plusieurs blocages : il reste ${remaining} prompt${remaining > 1 ? 's' : ''} à créer.`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+
             switchView('result');
             copyPrompt();
+        }
+
+        // Passe à la problématique suivante du parcours Programme
+        function progNextTool() {
+            if (!programmeContext) return;
+            programmeContext.queueIndex++;
+            if (programmeContext.queueIndex < programmeContext.queue.length) {
+                launchProgrammeTool();
+            }
         }
 
         function copyPrompt() {
