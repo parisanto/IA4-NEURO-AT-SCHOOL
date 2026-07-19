@@ -405,7 +405,8 @@
         background: linear-gradient(180deg, transparent 62%, rgba(76, 52, 20, 0.16));
     }
     @media (max-width: 900px) {
-        .view-2col { display: block !important; }
+        .view-2col:not(.hidden) { display: block; }
+        .view-2col > *:not(.figure-stage) { grid-column: auto; }
         .figure-stage { display: none; }
     }
 
@@ -562,6 +563,43 @@
     .prog-option.selected .prog-check { background: var(--success); border-color: var(--success); }
     .prog-tool-hint { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); margin-top: 0.25rem; }
 
+    /* ---------- MINUTEUR DE CONCENTRATION (PAGE FOCUS) ---------- */
+    .focus-wrap { text-align: center; max-width: 480px; margin: 0 auto; }
+    .focus-eyebrow { font-family: var(--font-serif); font-size: 1.7rem; font-weight: 700; color: var(--text-main); letter-spacing: -0.01em; }
+    .focus-sub { color: var(--text-muted); margin: 0.6rem auto 0; max-width: 30rem; }
+    .focus-timer { position: relative; width: min(300px, 74vw); aspect-ratio: 1; margin: 2rem auto 1.5rem; }
+    .focus-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .focus-svg .timer-bg { stroke: var(--secondary); stroke-width: 5; fill: none; }
+    .focus-svg .timer-progress { stroke: var(--primary); stroke-width: 5; fill: none; stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+    .focus-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: clamp(2.6rem, 11vw, 3.6rem); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; color: var(--text-main); }
+    .focus-durations { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .focus-durations .timer-dur { min-width: 3.6rem; flex: 0 0 auto; }
+    .focus-custom { display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin: 0.85rem auto 0; max-width: 260px; }
+    .focus-custom input { text-align: center; padding: 0.6rem; }
+    .focus-controls { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+    .focus-tip { color: var(--text-muted); margin-top: 1.5rem; font-size: 0.9rem; }
+
+    /* Réduction des distractions visuelles */
+    body.focus-mode .aurora { opacity: 0.12 !important; animation: none !important; }
+    body.focus-running header { display: none !important; }
+    body.focus-running .aurora { display: none !important; }
+    body.focus-running .focus-eyebrow,
+    body.focus-running .focus-sub,
+    body.focus-running .focus-durations,
+    body.focus-running .focus-custom,
+    body.focus-running .focus-tip,
+    body.focus-running #view-focus > .btn-ghost { display: none !important; }
+    body.focus-running .focus-timer { width: min(360px, 82vw); margin-top: 9vh; }
+
+    /* CTA « lance le minuteur » sur l'écran résultat */
+    .focus-cta {
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+        background: var(--glass-bg); -webkit-backdrop-filter: blur(var(--glass-blur)); backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 1.1rem 1.5rem; margin-bottom: 1.5rem;
+    }
+    .focus-cta strong { font-size: 1.05rem; }
+    .focus-cta p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.15rem; max-width: 34rem; }
+
     /* ---------- LISTE À COCHER v2 (hiérarchie + échéances) ---------- */
     .ck-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0.5rem; }
     .ck-list { display: flex; flex-direction: column; gap: 0.15rem; }
@@ -668,6 +706,10 @@
                 <button class="btn btn-ghost" style="font-size: 0.9rem; padding: 0.5rem;" onclick="switchView('about-ai')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                     <span class="nav-label">Comprendre l'IA</span>
+                </button>
+                <button class="btn btn-ghost" style="font-size: 0.9rem; padding: 0.5rem;" onclick="switchView('focus')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg>
+                    <span class="nav-label">Minuteur</span>
                 </button>
                 <button class="theme-toggle" onclick="toggleTheme()" id="btn-theme" aria-label="Changer le thème"></button>
             </div>
@@ -1123,28 +1165,13 @@
                 Modifier mes réponses
             </button>
 
-            <!-- Minuteur Visuel (affiché pour les outils d'organisation) -->
-            <div id="timer-widget" class="timer-container hidden">
-                <div style="position: relative; width: 100px; height: 100px; flex-shrink: 0;">
-                    <svg class="timer-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
-                        <circle class="timer-bg" cx="50" cy="50" r="45"/>
-                        <circle id="timer-circle" class="timer-progress" cx="50" cy="50" r="45"/>
-                    </svg>
-                    <div id="timer-time" aria-live="polite" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; font-variant-numeric: tabular-nums;">15:00</div>
+            <!-- Proposition du minuteur après la génération du prompt -->
+            <div class="focus-cta">
+                <div>
+                    <strong>🧘 Besoin de te concentrer pour te lancer ?</strong>
+                    <p>Ouvre le minuteur de concentration : une seule tâche à la fois, l'écran s'apaise et le reste disparaît.</p>
                 </div>
-                <div class="timer-controls">
-                    <h3 style="margin-bottom: 0.25rem;">Minuteur de concentration</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Travaille sur UNE micro-tâche, puis fais une vraie pause.</p>
-                    <div class="flex gap-2 mb-2" style="flex-wrap: wrap;" role="group" aria-label="Choisir la durée">
-                        <button class="access-btn timer-dur" data-min="5" onclick="setTimerDuration(5, this)">5 min</button>
-                        <button class="access-btn timer-dur active" data-min="15" onclick="setTimerDuration(15, this)">15 min</button>
-                        <button class="access-btn timer-dur" data-min="25" onclick="setTimerDuration(25, this)">25 min</button>
-                    </div>
-                    <div class="flex gap-2" style="flex-wrap: wrap;">
-                        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" id="btn-timer-start" onclick="startPauseTimer()">▶ Démarrer</button>
-                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="stopTimer()">↺ Remettre à zéro</button>
-                    </div>
-                </div>
+                <button class="btn btn-primary" onclick="switchView('focus')" style="white-space: nowrap;">Ouvrir le minuteur</button>
             </div>
 
             <div class="card">
@@ -1226,6 +1253,52 @@
                 <div id="interactive-content" class="mt-4" style="padding: 1rem 1.25rem; border: 1px dashed var(--card-border); border-radius: var(--radius); background: var(--bg-color); display: none;">
                 </div>
             </div>
+        </div>
+        <!-- fin VUE RÉSULTAT -->
+
+        <!-- VUE : MINUTEUR DE CONCENTRATION (page dédiée, sans distraction) -->
+        <div id="view-focus" class="hidden fade-in" style="max-width: 640px; margin: 0 auto;">
+            <button class="btn btn-ghost mb-6" onclick="switchView('intro')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Retour
+            </button>
+
+            <div class="focus-wrap">
+                <div class="focus-eyebrow">🧘 Minuteur de concentration</div>
+                <p class="focus-sub">Choisis une durée, lance, et travaille sur <strong>une seule chose</strong>. Pendant le compte à rebours, l'écran s'apaise pour t'aider à rester concentré·e.</p>
+
+                <div class="focus-timer">
+                    <svg class="focus-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="timer-bg" cx="50" cy="50" r="45"/>
+                        <circle id="timer-circle" class="timer-progress" cx="50" cy="50" r="45"/>
+                    </svg>
+                    <div id="timer-time" aria-live="polite" class="focus-time">15:00</div>
+                </div>
+
+                <div class="focus-durations" role="group" aria-label="Choisir la durée">
+                    <button class="access-btn timer-dur" data-min="5" onclick="setTimerDuration(5, this)">5 min</button>
+                    <button class="access-btn timer-dur" data-min="10" onclick="setTimerDuration(10, this)">10 min</button>
+                    <button class="access-btn timer-dur active" data-min="15" onclick="setTimerDuration(15, this)">15 min</button>
+                    <button class="access-btn timer-dur" data-min="20" onclick="setTimerDuration(20, this)">20 min</button>
+                    <button class="access-btn timer-dur" data-min="30" onclick="setTimerDuration(30, this)">30 min</button>
+                    <button class="access-btn timer-dur" data-min="45" onclick="setTimerDuration(45, this)">45 min</button>
+                    <button class="access-btn timer-dur" id="btn-timer-custom" onclick="toggleCustomDuration()">Perso…</button>
+                </div>
+
+                <div id="focus-custom-row" class="focus-custom hidden">
+                    <label for="focus-custom-input" class="font-bold" style="font-size:0.9rem;">Durée :</label>
+                    <input id="focus-custom-input" type="number" min="1" max="120" inputmode="numeric" class="form-control" placeholder="min" style="max-width:6rem;">
+                    <button class="btn btn-secondary" onclick="setCustomDuration()">OK</button>
+                </div>
+
+                <div class="focus-controls">
+                    <button class="btn btn-primary" id="btn-timer-start" onclick="startPauseTimer()" style="min-width: 9.5rem; font-size: 1.1rem;">▶ Démarrer</button>
+                    <button class="btn btn-secondary" onclick="stopTimer()">↺ Remettre à zéro</button>
+                </div>
+
+                <p class="focus-tip">Astuce : une micro-tâche à la fois. Quand ça sonne, fais une vraie pause 🌿</p>
+            </div>
+        </div>
 
     </main>
 
@@ -2118,7 +2191,7 @@ VARIABLES CONTEXTUELLES :
         };
 
         // --- NAVIGATION ---
-        const VIEWS = ['view-intro', 'view-about-ai', 'view-methodology', 'view-quiz', 'view-library', 'view-programme', 'view-configurator', 'view-result'];
+        const VIEWS = ['view-intro', 'view-about-ai', 'view-methodology', 'view-quiz', 'view-library', 'view-programme', 'view-configurator', 'view-result', 'view-focus'];
 
         function switchView(viewName) {
             // Arrêter les API d'assistance lors de la navigation
@@ -2134,6 +2207,11 @@ VARIABLES CONTEXTUELLES :
             });
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             window.scrollTo(0, 0);
+
+            // Page Focus : réduit les distractions + synchronise l'affichage du minuteur
+            document.body.classList.toggle('focus-mode', viewName === 'focus');
+            document.body.classList.remove('focus-running');
+            if (viewName === 'focus') renderTimer();
 
             // Si on quitte le configurateur, on efface l'outil en cours pour la sauvegarde
             if (viewName !== 'configurator' && viewName !== 'result') {
@@ -2472,14 +2550,11 @@ VARIABLES CONTEXTUELLES :
                 <div>${formatInstructions[selectedFormat]}</div>
             `;
 
-            // Setup Minuteur si Chunking ou Retroplan
-            const timerWidget = document.getElementById('timer-widget');
+            // Zone "plan de travail" pour les outils d'organisation
             if (currentTool.id === 'chunking' || currentTool.id === 'retroplan' || currentTool.id === 'gamify') {
-                timerWidget.classList.remove('hidden');
                 document.getElementById('interactive-preview-zone').classList.remove('hidden');
                 restoreChecklist();
             } else {
-                timerWidget.classList.add('hidden');
                 document.getElementById('interactive-preview-zone').classList.add('hidden');
             }
 
@@ -2860,6 +2935,8 @@ VARIABLES CONTEXTUELLES :
             timerMinutes = minutes;
             document.querySelectorAll('.timer-dur').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
+            const customBtn = document.getElementById('btn-timer-custom');
+            if (customBtn && btn !== customBtn) customBtn.textContent = 'Perso…';
             if (!timerRunning) {
                 totalTime = minutes * 60;
                 timeLeft = totalTime;
@@ -2874,19 +2951,22 @@ VARIABLES CONTEXTUELLES :
                 clearInterval(timerInterval);
                 timerRunning = false;
                 btn.innerHTML = '▶ Reprendre';
+                document.body.classList.remove('focus-running');
                 return;
             }
             if (timeLeft <= 0) { totalTime = timerMinutes * 60; timeLeft = totalTime; }
             if (timeLeft === timerMinutes * 60) { totalTime = timerMinutes * 60; }
             timerRunning = true;
             btn.innerHTML = '⏸ Pause';
+            document.body.classList.add('focus-running');
             timerInterval = setInterval(() => {
                 timeLeft--;
                 renderTimer();
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     timerRunning = false;
-                    btn.innerHTML = '▶ Démarrer';
+                    btn.innerHTML = '▶ Recommencer';
+                    document.body.classList.remove('focus-running');
                     document.getElementById('timer-time').textContent = 'Fini 🎉';
                     playChime();
                     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -2897,11 +2977,35 @@ VARIABLES CONTEXTUELLES :
         function stopTimer() {
             clearInterval(timerInterval);
             timerRunning = false;
+            document.body.classList.remove('focus-running');
             timeLeft = timerMinutes * 60;
             totalTime = timeLeft;
             const btn = document.getElementById('btn-timer-start');
             if (btn) btn.innerHTML = '▶ Démarrer';
             if (circle) renderTimer();
+        }
+
+        // Durée personnalisée
+        function toggleCustomDuration() {
+            const row = document.getElementById('focus-custom-row');
+            row.classList.toggle('hidden');
+            if (!row.classList.contains('hidden')) {
+                const inp = document.getElementById('focus-custom-input');
+                inp.value = inp.value || timerMinutes;
+                inp.focus();
+                inp.select();
+            }
+        }
+        function setCustomDuration() {
+            const inp = document.getElementById('focus-custom-input');
+            let v = Math.round(parseFloat(inp.value));
+            if (!v || v < 1) v = 1;
+            if (v > 120) v = 120;
+            inp.value = v;
+            const btn = document.getElementById('btn-timer-custom');
+            btn.textContent = 'Perso (' + v + ')';
+            setTimerDuration(v, btn);
+            document.getElementById('focus-custom-row').classList.add('hidden');
         }
 
         // Carillon doux généré localement (fonctionne 100% hors-ligne, sans fichier audio)
