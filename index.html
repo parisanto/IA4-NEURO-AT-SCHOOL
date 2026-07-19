@@ -459,6 +459,24 @@
     .tool-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--primary-light-border); }
     .tool-card h3 { font-family: var(--font-serif); }
     .tool-icon-wrapper { width: 3.5rem; height: 3.5rem; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+    /* Mascotte par outil */
+    .tool-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+    .tool-top .tool-icon-wrapper { margin-bottom: 0; }
+    .tool-mascot {
+        width: 76px; height: 76px; border-radius: 18px; flex-shrink: 0;
+        object-fit: cover; object-position: top center; background: #f2ead7;
+        border: 2px solid var(--card-border); box-shadow: var(--shadow);
+        transition: var(--transition);
+    }
+    .tool-card:hover .tool-mascot { transform: translateY(-2px) rotate(-2deg) scale(1.04); }
+    .config-mascot {
+        display: none; width: 84px; height: 84px; border-radius: 20px; flex-shrink: 0;
+        object-fit: cover; object-position: top center; background: #f2ead7;
+        border: 2px solid var(--glass-border); box-shadow: var(--shadow);
+    }
+    /* Sur mobile le panneau figure est masqué → on montre la mascotte compacte dans l'en-tête */
+    @media (max-width: 900px) { .config-mascot { display: block; } }
+    @media (max-width: 400px) { .config-mascot { display: none; } }
     .tool-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background-color: var(--primary-light); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 999px; margin-bottom: 1rem; }
     .tool-who { display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); background: var(--secondary); padding: 0.2rem 0.6rem; border-radius: 999px; margin-left: 0.5rem; }
 
@@ -1142,14 +1160,17 @@
             
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--card-border); background-color: var(--primary-light);">
-                    <div class="flex items-center gap-4">
-                        <div id="config-icon" style="background: white; padding: 1rem; border-radius: 1rem; color: var(--primary); box-shadow: var(--shadow);">
-                            <!-- Icon -->
+                    <div class="flex items-center gap-4" style="justify-content: space-between;">
+                        <div class="flex items-center gap-4">
+                            <div id="config-icon" style="background: white; padding: 1rem; border-radius: 1rem; color: var(--primary); box-shadow: var(--shadow);">
+                                <!-- Icon -->
+                            </div>
+                            <div>
+                                <h2 id="config-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Titre</h2>
+                                <p id="config-desc" style="color: var(--text-muted); font-size: 0.95rem;"></p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 id="config-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Titre</h2>
-                            <p id="config-desc" style="color: var(--text-muted); font-size: 0.95rem;"></p>
-                        </div>
+                        <img id="config-mascot" class="config-mascot" src="" alt="" aria-hidden="true" onerror="this.style.display='none'">
                     </div>
                 </div>
 
@@ -2352,8 +2373,11 @@ VARIABLES CONTEXTUELLES :
                 card.onclick = () => selectTool(tool.id);
                 card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTool(tool.id); } };
                 card.innerHTML = `
-                    <div class="tool-icon-wrapper" style="color: ${tool.color}; background-color: ${tool.color}20;">
-                        ${tool.iconSvg}
+                    <div class="tool-top">
+                        <div class="tool-icon-wrapper" style="color: ${tool.color}; background-color: ${tool.color}20;">
+                            ${tool.iconSvg}
+                        </div>
+                        <img class="tool-mascot" src="assets/mascot-${tool.id}.png" alt="" aria-hidden="true" style="border-color: ${tool.color}66;" onerror="this.style.display='none'">
                     </div>
                     <div class="mb-2">
                         <span class="tool-tag" style="color: ${tool.color}; background-color: ${tool.color}15;">${tool.category}</span>
@@ -2379,6 +2403,13 @@ VARIABLES CONTEXTUELLES :
             document.getElementById('config-icon').style.color = currentTool.color;
             document.getElementById('config-title').textContent = currentTool.title;
             document.getElementById('config-desc').textContent = currentTool.description;
+
+            // Mascotte de l'outil : grand personnage à gauche (desktop) + version compacte (mobile)
+            const mascotSrc = 'assets/mascot-' + currentTool.id + '.png';
+            const cfgMascot = document.getElementById('config-mascot');
+            if (cfgMascot) { cfgMascot.src = mascotSrc; cfgMascot.style.display = ''; }
+            const cfgFigure = document.querySelector('#view-configurator .figure-stage img');
+            if (cfgFigure) cfgFigure.src = mascotSrc;
 
             const formContainer = document.getElementById('config-fields');
             formContainer.innerHTML = '';
