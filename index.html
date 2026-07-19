@@ -562,6 +562,84 @@
     .prog-option.selected .prog-check { background: var(--success); border-color: var(--success); }
     .prog-tool-hint { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); margin-top: 0.25rem; }
 
+    /* ---------- LISTE À COCHER v2 (hiérarchie + échéances) ---------- */
+    .ck-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0.5rem; }
+    .ck-list { display: flex; flex-direction: column; gap: 0.15rem; }
+    .ck-section {
+        font-family: var(--font-serif); font-size: 1.05rem; font-weight: 700;
+        color: var(--primary); margin: 1rem 0 0.35rem; padding-bottom: 0.3rem;
+        border-bottom: 1px solid var(--primary-light-border); letter-spacing: -0.01em;
+    }
+    .ck-section:first-child { margin-top: 0; }
+    .ck-task {
+        display: flex; align-items: flex-start; gap: 0.7rem;
+        padding: 0.55rem 0.7rem; border-radius: 12px; cursor: pointer;
+        transition: background 0.15s ease; border: 1px solid transparent;
+    }
+    .ck-task:hover { background: var(--primary-light); }
+    .ck-box { width: 1.3rem; height: 1.3rem; margin-top: 0.1rem; flex-shrink: 0; cursor: pointer; accent-color: var(--success); }
+    .ck-body { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; flex: 1; min-width: 0; }
+    .ck-label { line-height: 1.4; }
+    .ck-task.done .ck-label { text-decoration: line-through; opacity: 0.5; }
+    .ck-task[data-level="1"] { margin-left: 1.6rem; }
+    .ck-task[data-level="2"] { margin-left: 3.2rem; }
+    .ck-task[data-level="3"] { margin-left: 4.8rem; }
+    .ck-task[data-level="1"] .ck-label::before,
+    .ck-task[data-level="2"] .ck-label::before,
+    .ck-task[data-level="3"] .ck-label::before { content: "↳ "; color: var(--text-muted); }
+    .ck-deadline {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        font-size: 0.78rem; font-weight: 700; white-space: nowrap;
+        color: var(--warning-text); background: var(--warning-light);
+        border: 1px solid var(--warning-border); padding: 0.15rem 0.55rem; border-radius: 999px;
+    }
+    .ck-empty { color: var(--text-muted); margin: 0; }
+
+    /* ---------- CARNET DE PROMPTS ---------- */
+    .carnet-bar {
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+        padding: 1rem 2rem; background: var(--primary-light); border-top: 1px solid var(--primary-light-border);
+    }
+    .carnet-bar .carnet-info { font-weight: 700; color: var(--primary); font-size: 0.95rem; }
+    .carnet-bar .carnet-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    /* ---------- DOCUMENT IMPRIMABLE / PDF ---------- */
+    #print-area { display: none; }
+    @media print {
+        @page { margin: 15mm; }
+        body > *:not(#print-area) { display: none !important; }
+        .aurora { display: none !important; }
+        #print-area { display: block !important; }
+        html, body { background: #ffffff !important; }
+    }
+    .pdoc { color: #241d12; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+    .pdoc + .pdoc { page-break-before: always; margin-top: 0; }
+    .pdoc-head { display: flex; align-items: center; gap: 0.75rem; border-bottom: 2px solid #b4884d; padding-bottom: 0.8rem; margin-bottom: 1.2rem; }
+    .pdoc-head img { width: 40px; height: 40px; border-radius: 9px; }
+    .pdoc-brand { font-family: ui-serif, Georgia, serif; font-weight: 700; font-size: 1.15rem; color: #241d12; }
+    .pdoc-brand span { color: #8a5a1e; }
+    .pdoc-kicker { margin-left: auto; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #8a5a1e; }
+    .pdoc h1 { font-family: ui-serif, Georgia, serif; font-size: 1.7rem; color: #241d12; margin: 0 0 0.3rem; }
+    .pdoc .pdoc-meta { color: #6f6047; font-size: 0.9rem; margin-bottom: 1.2rem; }
+    .pdoc .pdoc-meta b { color: #241d12; }
+    .pdoc-box {
+        background: #faf3e2 !important; border: 1px solid #e3c78f; border-left: 4px solid #b4884d;
+        border-radius: 10px; padding: 1rem 1.2rem; white-space: pre-wrap;
+        font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 0.9rem; color: #2c2418;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact; margin-bottom: 1.2rem;
+    }
+    .pdoc-h { font-family: ui-serif, Georgia, serif; font-weight: 700; font-size: 1.05rem; color: #8a5a1e; margin: 1.1rem 0 0.4rem; }
+    .pdoc-steps { margin: 0 0 1rem; padding-left: 1.2rem; color: #3a3020; }
+    .pdoc-steps li { margin-bottom: 0.3rem; }
+    .pdoc-note { background: #f7eccf !important; border: 1px solid #e7cf9d; border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.85rem; color: #6d4b12; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pdoc-tip { background: #f3e7cd !important; border: 1px solid #e3c78f; border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.85rem; color: #6b4a13; margin-bottom: 1rem; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pdoc-section { font-family: ui-serif, Georgia, serif; font-weight: 700; font-size: 1.05rem; color: #8a5a1e; margin: 1rem 0 0.4rem; border-bottom: 1px solid #e3c78f; padding-bottom: 0.2rem; }
+    .pdoc-task { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.28rem 0; font-size: 0.95rem; }
+    .pdoc-task .box { width: 14px; height: 14px; border: 1.5px solid #8a5a1e; border-radius: 3px; flex-shrink: 0; margin-top: 0.15rem; }
+    .pdoc-task .box.on { background: #8a5a1e; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pdoc-task.l1 { margin-left: 1.4rem; } .pdoc-task.l2 { margin-left: 2.8rem; } .pdoc-task.l3 { margin-left: 4.2rem; }
+    .pdoc-dl { font-size: 0.75rem; font-weight: 700; color: #6d4b12; background: #f7eccf !important; border: 1px solid #e7cf9d; padding: 0.05rem 0.45rem; border-radius: 999px; margin-left: 0.4rem; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
     /* ---------- RÉVÉLATIONS AU DÉFILEMENT ---------- */
     .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2,0.7,0.2,1); }
     .reveal.in { opacity: 1; transform: none; }
@@ -1084,6 +1162,14 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                             Copier
                         </button>
+                        <button class="btn" id="btn-pdf" onclick="exportPromptPDF()" style="background-color: rgba(255,255,255,0.1); color: white;" title="Enregistrer ce prompt en PDF pour l'exécuter plus tard (hors-ligne)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+                            PDF
+                        </button>
+                        <button class="btn" id="btn-carnet-add" onclick="addToCarnet()" style="background-color: rgba(255,255,255,0.1); color: white;" title="Garder ce prompt dans ton carnet pour l'exporter avec d'autres">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18l7-4 7 4V3z"/><path d="M12 8v6"/><path d="M9 11h6"/></svg>
+                            Carnet
+                        </button>
                     </div>
                 </div>
                 
@@ -1111,24 +1197,40 @@
                     </div>
                 </div>
 
+                <!-- Carnet de prompts (préparer plusieurs prompts hors-ligne) -->
+                <div id="carnet-bar" class="carnet-bar hidden">
+                    <span class="carnet-info" id="carnet-info">📘 Mon carnet : 0 prompt</span>
+                    <div class="carnet-actions">
+                        <button class="btn btn-primary" style="padding:0.5rem 1rem; font-size:0.9rem;" onclick="exportCarnetPDF()">📄 Exporter le carnet (PDF)</button>
+                        <button class="btn btn-secondary" style="padding:0.5rem 1rem; font-size:0.9rem;" onclick="clearCarnet()">Vider</button>
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between" style="padding: 1.5rem 2rem; background-color: var(--bg-color); border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
                     <p style="color: var(--text-muted); font-size: 0.95rem;">✅ Le prompt est déjà copié ! Ouvre ton IA (ChatGPT, Claude, Gemini…) et colle-le (Ctrl+V, ou appui long → Coller).</p>
                     <button class="btn btn-secondary" onclick="switchView('intro')">Retour Accueil</button>
                 </div>
             </div>
             
-            <!-- Zone interactive : transformer la réponse de l'IA en liste à cocher -->
+            <!-- Zone interactive : transformer la réponse de l'IA en plan de travail -->
             <div id="interactive-preview-zone" class="card mt-6 hidden">
-                <h3 class="mb-4" style="color: var(--primary);">✅ Transforme la réponse de l'IA en liste à cocher</h3>
-                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem;">Quand l'IA t'a répondu, copie sa liste et colle-la ici. Chaque ligne devient une case à cocher : cocher une case fait du bien au cerveau 🧠✨ (et tout est sauvegardé, même sans Internet).</p>
-                <textarea id="checklist-input" class="form-control" rows="5" placeholder="Colle ici la liste donnée par l'IA (les lignes qui commencent par - ou * ou 1.)"></textarea>
-                <button class="btn btn-primary mt-4" onclick="buildChecklist()">Créer ma liste à cocher</button>
+                <h3 class="mb-2" style="color: var(--primary);">✅ Transforme la réponse de l'IA en plan de travail</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem;">Quand l'IA t'a répondu, copie son plan et colle-le ici. Les titres deviennent des <strong>sections</strong>, les étapes des <strong>cases à cocher</strong> (avec sous-étapes), et les dates des <strong>badges d'échéance</strong> 📅. Tout est sauvegardé, même sans Internet.</p>
+                <textarea id="checklist-input" class="form-control" rows="6" placeholder="Colle ici le plan donné par l'IA.&#10;Exemple :&#10;Jour 1 :&#10;- Relire le chapitre 3 (avant vendredi)&#10;  - surligner les mots-clés&#10;- Faire 5 exercices"></textarea>
+                <div class="ck-toolbar">
+                    <button class="btn btn-primary" style="padding:0.6rem 1.2rem;" onclick="buildChecklist()">Créer mon plan à cocher</button>
+                    <button class="btn btn-secondary" id="btn-ck-csv" style="padding:0.6rem 1.2rem;" onclick="exportChecklistCSV()" title="Ouvrir dans Excel, Google Sheets ou Numbers">⬇️ Exporter (Excel / CSV)</button>
+                    <button class="btn btn-secondary" id="btn-ck-print" style="padding:0.6rem 1.2rem;" onclick="printChecklist()" title="Imprimer ou enregistrer en PDF pour cocher sur papier">🖨️ Imprimer / PDF</button>
+                </div>
                 <p id="checklist-progress" class="font-bold mt-4 hidden" style="color: var(--success);"></p>
-                <div id="interactive-content" class="mt-4" style="padding: 1rem; border: 1px dashed var(--card-border); border-radius: var(--radius); background: var(--bg-color); display: none;">
+                <div id="interactive-content" class="mt-4" style="padding: 1rem 1.25rem; border: 1px dashed var(--card-border); border-radius: var(--radius); background: var(--bg-color); display: none;">
                 </div>
             </div>
 
     </main>
+
+    <!-- Zone d'impression (fiches PDF générées à la volée) -->
+    <div id="print-area" aria-hidden="true"></div>
 
     <!-- --- JAVASCRIPT --- -->
     <script>
@@ -2393,6 +2495,7 @@ VARIABLES CONTEXTUELLES :
             }
 
             switchView('result');
+            renderCarnetBar();
             copyPrompt();
         }
 
@@ -2442,82 +2545,293 @@ VARIABLES CONTEXTUELLES :
             }, 3000);
         }
 
-        // --- INTERACTIF : LA RÉPONSE DE L'IA DEVIENT UNE LISTE À COCHER ---
+        // --- INTERACTIF : LA RÉPONSE DE L'IA DEVIENT UN PLAN DE TRAVAIL ---
+        // Détection des échéances / dates (rendues en badge, PAS en tâche)
+        const CK_DATE_RE = /(\b\d{1,2}[\/\-.]\d{1,2}(?:[\/\-.]\d{2,4})?\b|\bavant\b|\bd['’]ici\b|\béch[ée]ance\b|\bdeadline\b|\bau plus tard\b|\bpour le\b|\bJ-\s?\d+\b|\baujourd['’]hui\b|\bdemain\b|\bce soir\b|\bcette semaine\b|\bla semaine prochaine\b|\b\d{1,2}\s?h(?:\d{2})?\b|\b(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b|\b(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b)/i;
+        const CK_BULLET_RE = /^\s*(?:[-*•·–—▪◦]|\d+(?:\.\d+)+|\d+[.)]|[a-zA-Z][.)]|\([a-z0-9]+\))\s+/;
+
+        function ckStripMd(t) {
+            return t.replace(/\*\*(.+?)\*\*/g, '$1').replace(/__(.+?)__/g, '$1')
+                    .replace(/\*(.+?)\*/g, '$1').replace(/`(.+?)`/g, '$1').replace(/^#+\s*/, '').trim();
+        }
+        function ckDetectSection(line) {
+            const t = line.trim();
+            let m;
+            if (m = t.match(/^#{1,6}\s+(.+)$/)) return ckStripMd(m[1]);
+            if (m = t.match(/^\*\*(.+?)\*\*:?$/)) return m[1].trim();
+            if (/^(?:jour|semaine|étape|etape|phase|partie|séance|seance|module|chapitre)\s*\d+\s*:?$/i.test(t)) return t.replace(/:$/, '').trim();
+            if (/:$/.test(t) && t.length <= 80 && !CK_BULLET_RE.test(t)) return ckStripMd(t.replace(/:$/, '').trim());
+            if (/^[A-ZÀ-Ÿ0-9 '’\-]{3,60}$/.test(t) && /[A-ZÀ-Ÿ]{3,}/.test(t)) return t;
+            return null;
+        }
+        function ckExtractDeadline(text) {
+            if (!CK_DATE_RE.test(text)) return { text: text, deadline: null };
+            let deadline = null, label = text;
+            const parens = text.match(/\(([^)]*)\)/g);
+            if (parens) {
+                for (const p of parens) { if (CK_DATE_RE.test(p)) { deadline = p.replace(/[()]/g, '').trim(); label = text.replace(p, '').trim(); break; } }
+            }
+            if (!deadline) {
+                const parts = text.split(/\s+[—–\-:]\s+/);
+                if (parts.length > 1) {
+                    const last = parts[parts.length - 1];
+                    if (CK_DATE_RE.test(last) && last.length < 42) {
+                        deadline = last.trim();
+                        label = text.slice(0, text.lastIndexOf(last)).replace(/[\s—–\-:]+$/, '').trim();
+                    }
+                }
+            }
+            if (!deadline) { deadline = (text.match(CK_DATE_RE) || [''])[0].trim(); label = text; }
+            label = label.replace(/\s{2,}/g, ' ').trim() || text;
+            return { text: label, deadline: deadline };
+        }
+        function ckParse(raw) {
+            const lines = raw.split('\n');
+            const hasBullet = lines.some(l => CK_BULLET_RE.test(l));
+            const nodes = [];
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                const bm = line.match(CK_BULLET_RE);
+                if (bm) {
+                    const indent = (line.match(/^\s*/)[0] || '').replace(/\t/g, '  ').length;
+                    const marker = bm[0].trim();
+                    const dotLevel = /^\d+(?:\.\d+)+/.test(marker) ? (marker.match(/\./g) || []).length : 0;
+                    const indentLevel = indent >= 6 ? 3 : indent >= 4 ? 2 : indent >= 2 ? 1 : 0;
+                    const level = Math.min(3, Math.max(indentLevel, dotLevel));
+                    const dl = ckExtractDeadline(ckStripMd(line.replace(CK_BULLET_RE, '')));
+                    nodes.push({ type: 'task', level: level, text: dl.text, deadline: dl.deadline });
+                    continue;
+                }
+                const sec = ckDetectSection(line);
+                if (sec) { nodes.push({ type: 'section', text: sec }); continue; }
+                if (!hasBullet) {
+                    const dl = ckExtractDeadline(ckStripMd(line.trim()));
+                    nodes.push({ type: 'task', level: 0, text: dl.text, deadline: dl.deadline });
+                }
+                // sinon : ligne de prose (intro) → ignorée
+            }
+            return nodes;
+        }
+
+        let checklistModel = []; // pour l'export CSV / impression
         function buildChecklist(restoring = false) {
             const rawText = document.getElementById('checklist-input').value;
             const container = document.getElementById('interactive-content');
-            const lines = rawText.split('\n');
-            const items = [];
-            lines.forEach(line => {
-                const m = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/);
-                if (m) items.push(m[1].trim());
-            });
-
+            const nodes = ckParse(rawText);
+            checklistModel = [];
             container.innerHTML = '';
-            if (items.length === 0) {
-                container.style.display = 'block';
-                container.innerHTML = '<p style="color: var(--text-muted); margin:0;">Je n\'ai pas trouvé de liste. Vérifie que les lignes commencent par "-", "*" ou "1."</p>';
+            container.style.display = 'block';
+
+            if (!nodes.some(n => n.type === 'task')) {
+                container.innerHTML = '<p class="ck-empty">Je n\'ai pas trouvé d\'étapes. Colle le plan de l\'IA : des lignes avec « - », « * » ou « 1. », et des titres finissant par « : ».</p>';
+                updateChecklistProgress();
                 return;
             }
 
             const saved = restoring ? getSavedChecklist() : null;
-            items.forEach((text, i) => {
+            const list = document.createElement('div');
+            list.className = 'ck-list';
+            let taskIdx = 0, curSection = '';
+            nodes.forEach(node => {
+                if (node.type === 'section') {
+                    curSection = node.text;
+                    const h = document.createElement('div');
+                    h.className = 'ck-section';
+                    h.textContent = node.text;
+                    list.appendChild(h);
+                    return;
+                }
+                const idx = taskIdx++;
+                const checked = !!(saved && saved.checks && saved.checks[idx]);
+                checklistModel.push({ section: curSection, level: node.level, text: node.text, deadline: node.deadline || '', done: checked });
+
                 const label = document.createElement('label');
-                label.className = 'md-checkbox-item';
-                label.style = 'display:flex; gap:0.75rem; align-items:flex-start; padding:0.5rem 0; cursor:pointer;';
+                label.className = 'ck-task';
+                label.setAttribute('data-level', node.level);
                 const cb = document.createElement('input');
                 cb.type = 'checkbox';
-                cb.style = 'width:1.3rem; height:1.3rem; margin-top:0.15rem; flex-shrink:0; accent-color: var(--success);';
-                if (saved && saved.checks && saved.checks[i]) { cb.checked = true; label.classList.add('checked'); }
+                cb.className = 'ck-box';
+                cb.checked = checked;
+                if (checked) label.classList.add('done');
                 cb.onchange = () => {
-                    label.classList.toggle('checked', cb.checked);
-                    label.style.opacity = cb.checked ? '0.55' : '1';
-                    label.style.textDecoration = cb.checked ? 'line-through' : 'none';
+                    label.classList.toggle('done', cb.checked);
+                    if (checklistModel[idx]) checklistModel[idx].done = cb.checked;
                     updateChecklistProgress();
                     saveChecklist();
                 };
-                if (cb.checked) { label.style.opacity = '0.55'; label.style.textDecoration = 'line-through'; }
+                const body = document.createElement('div');
+                body.className = 'ck-body';
                 const span = document.createElement('span');
-                span.textContent = text;
+                span.className = 'ck-label';
+                span.textContent = node.text;
+                body.appendChild(span);
+                if (node.deadline) {
+                    const d = document.createElement('span');
+                    d.className = 'ck-deadline';
+                    d.textContent = '📅 ' + node.deadline;
+                    body.appendChild(d);
+                }
                 label.appendChild(cb);
-                label.appendChild(span);
-                container.appendChild(label);
+                label.appendChild(body);
+                list.appendChild(label);
             });
-            container.style.display = 'block';
+            container.appendChild(list);
             updateChecklistProgress();
             if (!restoring) saveChecklist();
         }
 
         function updateChecklistProgress() {
-            const boxes = document.querySelectorAll('#interactive-content input[type="checkbox"]');
+            const boxes = document.querySelectorAll('#interactive-content .ck-box');
             const done = [...boxes].filter(b => b.checked).length;
             const p = document.getElementById('checklist-progress');
             if (boxes.length === 0) { p.classList.add('hidden'); return; }
             p.classList.remove('hidden');
             p.textContent = done === boxes.length
                 ? `🎉 Bravo, tout est fait ! (${done}/${boxes.length})`
-                : `Avancement : ${done} / ${boxes.length} fait${done > 1 ? 's' : ''}`;
+                : `Avancement : ${done} / ${boxes.length} étape${done > 1 ? 's' : ''} faite${done > 1 ? 's' : ''}`;
         }
 
         function saveChecklist() {
-            const boxes = document.querySelectorAll('#interactive-content input[type="checkbox"]');
+            const boxes = document.querySelectorAll('#interactive-content .ck-box');
             const data = {
                 text: document.getElementById('checklist-input').value,
                 checks: [...boxes].map(b => b.checked)
             };
             try { localStorage.setItem('ia4neuro_checklist', JSON.stringify(data)); } catch (e) {}
         }
-
         function getSavedChecklist() {
             try { return JSON.parse(localStorage.getItem('ia4neuro_checklist')); } catch (e) { return null; }
         }
-
         function restoreChecklist() {
             const saved = getSavedChecklist();
             if (saved && saved.text) {
                 document.getElementById('checklist-input').value = saved.text;
                 buildChecklist(true);
             }
+        }
+
+        // --- EXPORT CSV (Excel / Sheets / Numbers) ---
+        function ckCsvCell(v) { v = String(v == null ? '' : v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+        function ckDownload(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 120);
+        }
+        function exportChecklistCSV() {
+            if (!checklistModel.length) buildChecklist();
+            if (!checklistModel.length) { alert('Crée d\'abord ton plan à cocher (bouton « Créer mon plan à cocher »).'); return; }
+            const boxes = [...document.querySelectorAll('#interactive-content .ck-box')];
+            const rows = [['Section', 'Tâche', 'Niveau', 'Échéance', 'Fait']];
+            checklistModel.forEach((t, i) => {
+                rows.push([t.section || '', t.text || '', String((t.level || 0) + 1), t.deadline || '', (boxes[i] && boxes[i].checked) ? 'x' : '']);
+            });
+            const csv = '﻿' + rows.map(r => r.map(ckCsvCell).join(';')).join('\r\n');
+            ckDownload(csv, 'ma-liste-ia4neuro.csv', 'text/csv;charset=utf-8');
+        }
+
+        // --- IMPRESSION / PDF (sans dépendance, hors-ligne) ---
+        function pEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function pNow() {
+            try { return new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }); }
+            catch (e) { return new Date().toLocaleDateString(); }
+        }
+        function pHead(kicker) {
+            return '<div class="pdoc-head"><img src="assets/logo.png" alt=""><span class="pdoc-brand">IA4-<span>NEURO</span></span><span class="pdoc-kicker">' + pEsc(kicker) + '</span></div>';
+        }
+        function openPrint(html) {
+            const area = document.getElementById('print-area');
+            area.innerHTML = html;
+            window.print();
+        }
+        window.addEventListener('afterprint', function () {
+            const area = document.getElementById('print-area');
+            if (area) area.innerHTML = '';
+        });
+
+        function currentPromptEntry() {
+            let context = '';
+            if (typeof programmeContext !== 'undefined' && programmeContext) {
+                context = programmeContext.niveau + ' · ' + programmeContext.matiere + ' · ' + programmeContext.theme;
+            }
+            return {
+                title: currentTool ? currentTool.title : 'Mon prompt',
+                tool: currentTool ? currentTool.category : '',
+                context: context,
+                text: generatedText,
+                date: Date.now()
+            };
+        }
+        function promptFicheHTML(entry) {
+            const tool = entry.tool ? '<div class="pdoc-meta"><b>Outil :</b> ' + pEsc(entry.title) + ' — ' + pEsc(entry.tool) + '</div>' : '';
+            const ctx = entry.context ? '<div class="pdoc-meta"><b>Contexte scolaire :</b> ' + pEsc(entry.context) + '</div>' : '';
+            return '<div class="pdoc">'
+                + pHead('Fiche prompt à exécuter')
+                + '<h1>' + pEsc(entry.title || 'Mon prompt') + '</h1>'
+                + '<div class="pdoc-meta">Préparé le ' + pNow() + '</div>'
+                + tool + ctx
+                + '<div class="pdoc-h">📋 Le prompt à copier dans l\'IA</div>'
+                + '<div class="pdoc-box">' + pEsc(entry.text) + '</div>'
+                + '<div class="pdoc-h">▶️ Comment l\'exécuter (quand tu auras Internet)</div>'
+                + '<ol class="pdoc-steps"><li>Ouvre une IA : ChatGPT, Claude ou Gemini.</li><li>Recopie (ou dicte avec le micro) le prompt ci-dessus.</li><li>Lis la réponse à ton rythme — puis compare-la à ton cours.</li></ol>'
+                + '<div class="pdoc-note"><b>⚠️ Vérifie toujours la réponse de l\'IA.</b> Elle peut inventer des informations fausses sans prévenir. Compare avec ton cours, ou demande à ton prof en cas de doute.</div>'
+                + '</div>';
+        }
+        function exportPromptPDF() {
+            if (!generatedText) return;
+            openPrint(promptFicheHTML(currentPromptEntry()));
+        }
+        function printChecklist() {
+            if (!checklistModel.length) buildChecklist();
+            if (!checklistModel.length) { alert('Crée d\'abord ton plan à cocher.'); return; }
+            const boxes = [...document.querySelectorAll('#interactive-content .ck-box')];
+            let html = '<div class="pdoc">' + pHead('Ma liste à cocher') + '<h1>Mon plan de travail</h1><div class="pdoc-meta">' + pNow() + '</div>';
+            let lastSec = null;
+            checklistModel.forEach((t, i) => {
+                if (t.section && t.section !== lastSec) { lastSec = t.section; html += '<div class="pdoc-section">' + pEsc(t.section) + '</div>'; }
+                const on = (boxes[i] && boxes[i].checked) ? ' on' : '';
+                const dl = t.deadline ? '<span class="pdoc-dl">📅 ' + pEsc(t.deadline) + '</span>' : '';
+                html += '<div class="pdoc-task l' + (t.level || 0) + '"><span class="box' + on + '"></span><span>' + pEsc(t.text) + dl + '</span></div>';
+            });
+            html += '</div>';
+            openPrint(html);
+        }
+
+        // --- CARNET DE PROMPTS (préparation hors-ligne) ---
+        function getCarnet() { try { return JSON.parse(localStorage.getItem('ia4neuro_carnet')) || []; } catch (e) { return []; } }
+        function saveCarnet(a) { try { localStorage.setItem('ia4neuro_carnet', JSON.stringify(a)); } catch (e) {} }
+        function renderCarnetBar() {
+            const bar = document.getElementById('carnet-bar');
+            if (!bar) return;
+            const a = getCarnet();
+            if (a.length === 0) { bar.classList.add('hidden'); return; }
+            bar.classList.remove('hidden');
+            document.getElementById('carnet-info').textContent = '📘 Mon carnet : ' + a.length + ' prompt' + (a.length > 1 ? 's' : '');
+        }
+        function addToCarnet() {
+            if (!generatedText) return;
+            const a = getCarnet();
+            a.push(currentPromptEntry());
+            saveCarnet(a);
+            renderCarnetBar();
+            const btn = document.getElementById('btn-carnet-add');
+            if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Ajouté';
+                btn.classList.add('copy-success');
+                setTimeout(() => { btn.innerHTML = old; btn.classList.remove('copy-success'); }, 1800);
+            }
+        }
+        function exportCarnetPDF() {
+            const a = getCarnet();
+            if (!a.length) { alert('Ton carnet est vide. Ajoute des prompts avec le bouton « Carnet ».'); return; }
+            openPrint(a.map(promptFicheHTML).join(''));
+        }
+        function clearCarnet() {
+            if (!getCarnet().length) return;
+            if (confirm('Vider ton carnet de prompts ?')) { saveCarnet([]); renderCarnetBar(); }
         }
 
         // --- MINUTEUR VISUEL (TIME TIMER) ---
