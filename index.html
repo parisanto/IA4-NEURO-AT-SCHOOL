@@ -388,18 +388,26 @@
     }
     @media (max-width: 1040px) { .hero-deco { display: none; } }
 
-    /* ---------- ILLUSTRATIONS D'AMBIANCE (identification élève) ---------- */
-    /* Portrait encadré posé dans la marge droite d'une vue (desktop) */
-    #view-about-ai, #view-methodology, #view-quiz, #view-programme, #view-configurator { position: relative; }
-    .view-aside {
-        position: absolute; top: 60px; right: -158px;
-        width: 170px; height: 214px; object-fit: cover; object-position: top center;
-        border-radius: 20px; border: 3px solid var(--card-bg);
-        box-shadow: var(--shadow-lg); z-index: 1; pointer-events: none;
-        animation: float 9s ease-in-out infinite;
+    /* ---------- ILLUSTRATIONS INTÉGRÉES (identification élève) ---------- */
+    /* Vue en 2 colonnes : panneau « figure » à gauche + contenu à droite */
+    .view-2col { max-width: 1060px !important; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 2.25rem; align-items: start; }
+    .view-2col > *:not(.figure-stage) { grid-column: 2; min-width: 0; }
+    .view-2col > .btn-ghost { justify-self: start; }
+    .figure-stage {
+        grid-column: 1; grid-row: 1 / span 50; align-self: start; position: sticky; top: 88px;
+        aspect-ratio: 3 / 4; border-radius: var(--radius-lg); overflow: hidden;
+        border: 1px solid var(--card-border); background: #f2ead7;
+        box-shadow: var(--shadow);
     }
-    .view-aside.left { right: auto; left: -158px; animation-delay: 0.8s; }
-    @media (max-width: 1180px) { .view-aside { display: none; } }
+    .figure-stage img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+    .figure-stage::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(180deg, transparent 62%, rgba(76, 52, 20, 0.16));
+    }
+    @media (max-width: 900px) {
+        .view-2col { display: block !important; }
+        .figure-stage { display: none; }
+    }
 
     /* Bandeau « communauté » de la bibliothèque (toujours visible) */
     .lib-banner {
@@ -698,8 +706,8 @@
         </div>
 
         <!-- VUE : COURS (COMPRENDRE L'IA) -->
-        <div id="view-about-ai" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
-            <img class="view-aside" src="assets/char-editorial.png" alt="" aria-hidden="true">
+        <div id="view-about-ai" class="hidden fade-in view-2col" style="max-width: 800px; margin: 0 auto;">
+            <aside class="figure-stage"><img src="assets/fig-boy-phone.png" alt="" aria-hidden="true"></aside>
             <button class="btn btn-ghost mb-6" onclick="switchView('intro')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 Retour
@@ -773,8 +781,8 @@
         </div>
 
         <!-- VUE : MÉTHODOLOGIE ET SÉQUENÇAGE -->
-        <div id="view-methodology" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
-            <img class="view-aside" src="assets/char-sit-read.png" alt="" aria-hidden="true">
+        <div id="view-methodology" class="hidden fade-in view-2col" style="max-width: 800px; margin: 0 auto;">
+            <aside class="figure-stage"><img src="assets/fig-girl-tablet.png" alt="" aria-hidden="true"></aside>
             <button class="btn btn-ghost mb-6" onclick="switchView('intro')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 Retour
@@ -902,8 +910,8 @@
         </div>
 
         <!-- VUE : QUIZ -->
-        <div id="view-quiz" class="hidden fade-in" style="max-width: 700px; margin: 0 auto;">
-            <img class="view-aside" src="assets/char-think.png" alt="" aria-hidden="true">
+        <div id="view-quiz" class="hidden fade-in view-2col" style="max-width: 700px; margin: 0 auto;">
+            <aside class="figure-stage"><img src="assets/char-think.png" alt="" aria-hidden="true"></aside>
             <button class="btn btn-ghost mb-4" onclick="switchView('intro')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 Retour
@@ -925,7 +933,7 @@
                 </button>
                 <h2 style="font-size: 1.5rem;">Tous les outils</h2>
             </div>
-            <div class="lib-banner"><img src="assets/char-group.png" alt="" aria-hidden="true"></div>
+            <div class="lib-banner"><img src="assets/group-sit.png" alt="" aria-hidden="true"></div>
             <div class="filter-bar" role="group" aria-label="Filtrer les outils">
                 <div class="filter-group">
                     <span class="filter-group-label">Profil</span>
@@ -950,8 +958,8 @@
         </div>
 
         <!-- VUE : PROGRAMME (NIVEAU → MATIÈRE → THÈME → PROBLÉMATIQUE) -->
-        <div id="view-programme" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
-            <img class="view-aside left" src="assets/char-walk.png" alt="" aria-hidden="true">
+        <div id="view-programme" class="hidden fade-in view-2col" style="max-width: 800px; margin: 0 auto;">
+            <aside class="figure-stage"><img src="assets/char-walk.png" alt="" aria-hidden="true"></aside>
             <div class="flex items-center justify-between mb-6">
                 <button class="btn btn-ghost" id="prog-back-btn" onclick="progBack()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -975,8 +983,8 @@
         </div>
 
         <!-- VUE : CONFIGURATEUR (WIZARD) -->
-        <div id="view-configurator" class="hidden fade-in" style="max-width: 800px; margin: 0 auto;">
-            <img class="view-aside" src="assets/char-tablet.png" alt="" aria-hidden="true">
+        <div id="view-configurator" class="hidden fade-in view-2col" style="max-width: 800px; margin: 0 auto;">
+            <aside class="figure-stage"><img src="assets/char-tablet.png" alt="" aria-hidden="true"></aside>
             <button class="btn btn-ghost mb-4" onclick="switchView('library')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 Changer d'outil
