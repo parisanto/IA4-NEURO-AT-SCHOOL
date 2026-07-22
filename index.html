@@ -691,6 +691,10 @@
 
     /* Bouton « Lancer ce combo » */
     .combo-launch { margin-bottom: 1.5rem; font-size: 1.05rem; }
+    /* Suggestion de combo après le quiz */
+    .combo-suggest { background: var(--primary-light); border: 1px solid var(--primary-light-border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; font-size: 1.05rem; line-height: 1.55; color: var(--text-main); }
+    .combo-suggest strong { color: var(--primary); }
+    .combo-suggest-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 
     /* Badge compteur dans le menu */
     .nav-count { display: inline-block; min-width: 1.25rem; text-align: center; background: var(--primary); color: var(--on-primary); border-radius: 999px; padding: 0 0.4rem; font-size: 0.72rem; font-weight: 800; margin-left: 0.35rem; vertical-align: middle; }
@@ -882,6 +886,10 @@
                         </button>
                         <button class="btn btn-secondary" onclick="switchView('library')" style="font-size: 1.1rem; padding: 1rem 2rem;">
                             Voir tous les outils
+                        </button>
+                        <button class="btn btn-secondary" onclick="switchView('methodology')" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                            Débloquer une situation
                         </button>
                     </div>
 
@@ -2408,6 +2416,46 @@ VARIABLES CONTEXTUELLES :
             });
         }
 
+        // Combos suggérés à la fin du quiz (situation → enchaînement d'outils)
+        const COMBOS = [
+            { title: 'Gros devoir incompréhensible', tools: ['decoder', 'chunking'], trigger: ['decoder', 'chunking'] },
+            { title: 'Syndrome de la page blanche', tools: ['interview', 'starter', 'secretary'], trigger: ['starter', 'interview'] },
+            { title: 'Leçon abstraite et ennuyeuse', tools: ['cleaner', 'passion'], trigger: ['cleaner'] },
+            { title: 'Contrôle la semaine prochaine', tools: ['retroplan', 'gamify'], trigger: ['retroplan'] }
+        ];
+        function comboForTool(toolId) { return COMBOS.find(c => c.trigger.indexOf(toolId) !== -1); }
+
+        // Après le quiz : si la situation correspond à un combo, on le propose
+        function chooseQuizTool(toolId) {
+            const combo = comboForTool(toolId);
+            if (!combo) { selectTool(toolId); return; }
+            const tool = TOOLS.find(t => t.id === toolId);
+            const container = document.getElementById('quiz-options');
+            document.getElementById('quiz-question-title').textContent = '💡 On peut aller plus loin !';
+            container.innerHTML = '';
+
+            const card = document.createElement('div');
+            card.className = 'combo-suggest';
+            card.innerHTML = 'Ta situation ressemble au combo <strong>« ' + combo.title + ' »</strong>. Au lieu d\'un seul outil, on peut <strong>enchaîner ' + combo.tools.length + ' outils</strong> dans le bon ordre pour t\'en sortir complètement — tu te laisses guider d\'un prompt au suivant.';
+            container.appendChild(card);
+
+            const actions = document.createElement('div');
+            actions.className = 'combo-suggest-actions';
+            const launch = document.createElement('button');
+            launch.className = 'btn btn-primary'; launch.innerHTML = '🚀 Lancer le combo (conseillé)';
+            launch.onclick = () => launchCombo(combo.tools, combo.title);
+            const single = document.createElement('button');
+            single.className = 'btn btn-secondary'; single.textContent = 'Juste « ' + (tool ? tool.title : 'cet outil') + ' »';
+            single.onclick = () => selectTool(toolId);
+            actions.appendChild(launch); actions.appendChild(single);
+            container.appendChild(actions);
+
+            const back = document.createElement('button');
+            back.className = 'btn btn-ghost mt-4'; back.innerHTML = '← Revenir';
+            back.onclick = renderQuiz;
+            container.appendChild(back);
+        }
+
         function renderQuizStep2(catIndex) {
             // Étape 2 : le détail de la famille choisie
             const cat = QUIZ_CATEGORIES[catIndex];
@@ -2418,7 +2466,7 @@ VARIABLES CONTEXTUELLES :
                 const btn = document.createElement('button');
                 btn.className = 'quiz-option';
                 btn.textContent = opt.text;
-                btn.onclick = () => selectTool(opt.toolId);
+                btn.onclick = () => chooseQuizTool(opt.toolId);
                 container.appendChild(btn);
             });
             const back = document.createElement('button');
