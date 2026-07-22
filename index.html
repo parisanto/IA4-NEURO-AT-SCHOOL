@@ -717,6 +717,27 @@
         line-height: 1.5; color: var(--text-muted); white-space: pre-wrap; max-height: 8.5rem; overflow: auto;
     }
     .carnet-empty { text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: var(--card-bg); border: 1px dashed var(--card-border); border-radius: var(--radius); }
+    .carnet-progress { font-weight: 700; color: var(--success); margin-bottom: 1rem; }
+    .carnet-check { display: flex; align-items: center; flex-shrink: 0; cursor: pointer; padding-top: 0.15rem; }
+    .carnet-check input { width: 1.4rem; height: 1.4rem; cursor: pointer; accent-color: var(--success); }
+    .carnet-titleblock { flex: 1; min-width: 0; }
+    .carnet-item-head { align-items: flex-start; gap: 0.85rem; }
+    .carnet-step { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+    .carnet-item.done { opacity: 0.62; }
+    .carnet-item.done .carnet-item-title { text-decoration: line-through; }
+    .carnet-icon-btn.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+    .carnet-icon-btn.primary:hover { filter: brightness(1.06); border-color: var(--primary); }
+    .carnet-inputs { margin-top: 1rem; background: var(--bg-color); border: 1px solid var(--card-border); border-radius: 12px; padding: 1rem 1.1rem; }
+    .carnet-inputs-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.6rem; }
+    .carnet-inputs ol { margin: 0; padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.55rem; }
+    .carnet-inputs li { line-height: 1.45; }
+    .carnet-inputs .ci-label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
+    .carnet-inputs .ci-val { display: block; color: var(--text-main); white-space: pre-wrap; word-break: break-word; }
+    .carnet-format { margin-top: 0.7rem; font-size: 0.88rem; color: var(--text-muted); }
+    .carnet-fold { margin-top: 0.9rem; }
+    .carnet-fold > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--primary); list-style-position: inside; }
+    .carnet-fold > summary:hover { text-decoration: underline; }
+    .carnet-fold .carnet-preview { margin-top: 0.7rem; }
 
     /* ---------- DOCUMENT IMPRIMABLE / PDF ---------- */
     #print-area { display: none; }
@@ -1408,6 +1429,7 @@
                 <button class="btn btn-primary" onclick="exportCarnetPDF()">📄 Exporter tout le carnet (PDF)</button>
                 <button class="btn btn-secondary" onclick="clearCarnet()">🗑 Vider le carnet</button>
             </div>
+            <p id="carnet-progress" class="carnet-progress"></p>
 
             <div id="carnet-list" class="carnet-list"></div>
 
@@ -3052,27 +3074,64 @@ VARIABLES CONTEXTUELLES :
             if (area) area.innerHTML = '';
         });
 
+        const NEED_LABELS = { organiser: "🧭 M'organiser", ecrire: "✍️ Écrire", lire: "📖 Apprendre / comprendre", emotions: "💬 Gérer mes émotions" };
         function currentPromptEntry() {
-            let context = '';
+            let niveau = '', matiere = '', theme = '';
             if (typeof programmeContext !== 'undefined' && programmeContext) {
-                context = programmeContext.niveau + ' · ' + programmeContext.matiere + ' · ' + programmeContext.theme;
+                niveau = programmeContext.niveau || '';
+                matiere = programmeContext.matiere || '';
+                theme = programmeContext.theme || '';
             }
+            // Saisies de l'élève, dans l'ordre des champs
+            const inputs = [];
+            if (currentTool && currentTool.fields) {
+                currentTool.fields.forEach(f => {
+                    const el = document.getElementById('input-' + f.id);
+                    let v = el ? (el.value || '') : '';
+                    v = v.replace(ATTACH_MARK_RE_G, '').trim();
+                    if (!matiere && f.id === 'matiere' && v) matiere = v;
+                    if (v) inputs.push({ label: (f.label || '').trim(), value: v });
+                });
+            }
+            const fmtEl = document.getElementById('output-format');
+            const format = (fmtEl && fmtEl.selectedIndex >= 0 && fmtEl.options[fmtEl.selectedIndex]) ? fmtEl.options[fmtEl.selectedIndex].textContent.trim() : '';
+            const need = currentTool ? currentTool.need : '';
             return {
+                need: need,
+                needLabel: NEED_LABELS[need] || '',
+                category: currentTool ? currentTool.category : '',
+                toolTitle: currentTool ? currentTool.title : 'Mon prompt',
+                niveau: niveau, matiere: matiere, theme: theme,
+                format: format,
+                inputs: inputs,
+                text: generatedText,
+                done: false,
+                date: Date.now(),
+                // rétro-compatibilité (fiches PDF déjà en carnet)
                 title: currentTool ? currentTool.title : 'Mon prompt',
                 tool: currentTool ? currentTool.category : '',
-                context: context,
-                text: generatedText,
-                date: Date.now()
+                context: [niveau, matiere, theme].filter(Boolean).join(' · ')
             };
         }
         function promptFicheHTML(entry) {
-            const tool = entry.tool ? '<div class="pdoc-meta"><b>Outil :</b> ' + pEsc(entry.title) + ' — ' + pEsc(entry.tool) + '</div>' : '';
-            const ctx = entry.context ? '<div class="pdoc-meta"><b>Contexte scolaire :</b> ' + pEsc(entry.context) + '</div>' : '';
+            const need = entry.needLabel || entry.category || entry.tool || '';
+            const heading = (need || 'Mon prompt') + (entry.matiere ? ' · ' + entry.matiere : '');
+            const tool = (entry.toolTitle || entry.title) ? '<div class="pdoc-meta"><b>Outil :</b> ' + pEsc(entry.toolTitle || entry.title) + '</div>' : '';
+            const ctxParts = [entry.niveau, entry.theme].filter(Boolean);
+            const ctx = ctxParts.length ? '<div class="pdoc-meta"><b>Contexte :</b> ' + pEsc(ctxParts.join(' · ')) + '</div>'
+                       : (entry.context ? '<div class="pdoc-meta"><b>Contexte scolaire :</b> ' + pEsc(entry.context) + '</div>' : '');
+            let saisies = '';
+            if (entry.inputs && entry.inputs.length) {
+                saisies = '<div class="pdoc-h">📝 Ce que tu as saisi</div><ol class="pdoc-steps">'
+                    + entry.inputs.map(inp => '<li><b>' + pEsc(inp.label) + '</b><br>' + pEsc(inp.value) + '</li>').join('')
+                    + '</ol>';
+            }
             return '<div class="pdoc">'
                 + pHead('Fiche prompt à exécuter')
-                + '<h1>' + pEsc(entry.title || 'Mon prompt') + '</h1>'
+                + '<h1>' + pEsc(heading) + '</h1>'
                 + '<div class="pdoc-meta">Préparé le ' + pNow() + '</div>'
                 + tool + ctx
+                + saisies
                 + '<div class="pdoc-h">📋 Le prompt à copier dans l\'IA</div>'
                 + '<div class="pdoc-box">' + pEsc(entry.text) + '</div>'
                 + '<div class="pdoc-h">▶️ Comment l\'exécuter (quand tu auras Internet)</div>'
@@ -3127,6 +3186,42 @@ VARIABLES CONTEXTUELLES :
             }
         }
 
+        // Copie de texte réutilisable (avec repli hors contexte sécurisé)
+        function fallbackCopyText(text, cb) {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            try { document.execCommand('copy'); cb && cb(true); } catch (e) { cb && cb(false); }
+            document.body.removeChild(ta);
+        }
+        function copyTextToClipboard(text, btn) {
+            const done = () => {
+                if (!btn) return;
+                const o = btn.getAttribute('data-label') || btn.innerHTML;
+                btn.setAttribute('data-label', o);
+                btn.classList.add('copy-success');
+                btn.innerHTML = '✓ Copié';
+                setTimeout(() => { btn.classList.remove('copy-success'); btn.innerHTML = o; }, 1800);
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopyText(text, done));
+            } else { fallbackCopyText(text, done); }
+        }
+        function copyCarnet(i, btn) { const a = getCarnet(); if (a[i]) copyTextToClipboard(a[i].text || '', btn); }
+        function toggleCarnetDone(i, checked, itemEl) {
+            const a = getCarnet();
+            if (a[i]) { a[i].done = checked; saveCarnet(a); }
+            if (itemEl) itemEl.classList.toggle('done', checked);
+            updateCarnetProgress();
+        }
+        function updateCarnetProgress() {
+            const el = document.getElementById('carnet-progress');
+            if (!el) return;
+            const a = getCarnet();
+            const done = a.filter(e => e.done).length;
+            el.textContent = a.length ? (done === a.length ? '🎉 Tout est fait ! (' + done + '/' + a.length + ')' : 'Avancement : ' + done + ' / ' + a.length + ' fait' + (done > 1 ? 's' : '')) : '';
+        }
+
         function renderCarnetView() {
             const list = document.getElementById('carnet-list');
             if (!list) return;
@@ -3137,28 +3232,50 @@ VARIABLES CONTEXTUELLES :
             if (a.length === 0) {
                 empty.classList.remove('hidden');
                 toolbar.classList.add('hidden');
+                updateCarnetProgress();
                 return;
             }
             empty.classList.add('hidden');
             toolbar.classList.remove('hidden');
+
             a.forEach((entry, i) => {
-                const meta = [entry.tool ? pEsc(entry.tool) : '', entry.context ? pEsc(entry.context) : '', carnetDate(entry.date)].filter(Boolean).join(' · ');
+                const need = entry.needLabel || entry.category || entry.tool || '';
+                const primary = need + (entry.matiere ? ' · ' + entry.matiere : '');
+                const metaParts = [entry.toolTitle || entry.title, entry.theme, entry.niveau, carnetDate(entry.date)].filter(Boolean);
                 const item = document.createElement('div');
-                item.className = 'carnet-item';
+                item.className = 'carnet-item' + (entry.done ? ' done' : '');
+
+                let inputsHTML = '';
+                if (entry.inputs && entry.inputs.length) {
+                    inputsHTML = '<div class="carnet-inputs"><p class="carnet-inputs-title">📝 Ce que tu as saisi, dans l\'ordre :</p><ol>'
+                        + entry.inputs.map(inp => '<li><span class="ci-label">' + pEsc(inp.label) + '</span><span class="ci-val">' + pEsc(inp.value) + '</span></li>').join('')
+                        + '</ol>' + (entry.format ? '<p class="carnet-format">🎁 Format demandé : <b>' + pEsc(entry.format) + '</b></p>' : '') + '</div>';
+                }
+
                 item.innerHTML =
                     '<div class="carnet-item-head">'
-                    + '<div style="min-width:0;"><span class="carnet-item-title">' + pEsc(entry.title || 'Mon prompt') + '</span>'
-                    + '<div class="carnet-meta">' + meta + '</div></div>'
+                    + '<label class="carnet-check" title="Marquer comme fait"><input type="checkbox" ' + (entry.done ? 'checked' : '') + '></label>'
+                    + '<div class="carnet-titleblock">'
+                    + '<div class="carnet-step">Étape ' + (i + 1) + '</div>'
+                    + '<div class="carnet-item-title">' + (pEsc(primary) || 'Mon prompt') + '</div>'
+                    + '<div class="carnet-meta">' + metaParts.map(pEsc).join(' · ') + '</div>'
+                    + '</div>'
                     + '<div class="carnet-item-actions">'
-                    + '<button type="button" class="carnet-icon-btn" title="Exporter ce prompt en PDF" data-act="pdf" data-i="' + i + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>'
-                    + '<button type="button" class="carnet-icon-btn danger" title="Supprimer ce prompt" data-act="del" data-i="' + i + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>'
+                    + '<button type="button" class="carnet-icon-btn primary" data-act="copy" title="Copier le prompt"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copier</button>'
+                    + '<button type="button" class="carnet-icon-btn" data-act="pdf" title="Exporter ce prompt en PDF"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>'
+                    + '<button type="button" class="carnet-icon-btn danger" data-act="del" title="Supprimer ce prompt"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>'
                     + '</div></div>'
-                    + '<div class="carnet-preview"></div>';
+                    + inputsHTML
+                    + '<details class="carnet-fold"><summary>Voir le prompt complet à coller dans l\'IA</summary><div class="carnet-preview"></div></details>';
+
                 item.querySelector('.carnet-preview').textContent = entry.text || '';
+                item.querySelector('.carnet-check input').onchange = (e) => toggleCarnetDone(i, e.target.checked, item);
+                item.querySelector('[data-act="copy"]').onclick = (e) => copyCarnet(i, e.currentTarget);
                 item.querySelector('[data-act="pdf"]').onclick = () => exportOneCarnet(i);
                 item.querySelector('[data-act="del"]').onclick = () => removeCarnet(i);
                 list.appendChild(item);
             });
+            updateCarnetProgress();
         }
 
         function addToCarnet() {
