@@ -1185,6 +1185,7 @@
                     <button class="filter-chip" data-filter="need" data-val="organiser" onclick="setLibraryFilter('need','organiser')">🧭 M'organiser</button>
                     <button class="filter-chip" data-filter="need" data-val="ecrire" onclick="setLibraryFilter('need','ecrire')">✍️ Écrire</button>
                     <button class="filter-chip" data-filter="need" data-val="lire" onclick="setLibraryFilter('need','lire')">📖 Apprendre</button>
+                    <button class="filter-chip" data-filter="need" data-val="reviser" onclick="setLibraryFilter('need','reviser')">📚 Réviser</button>
                     <button class="filter-chip" data-filter="need" data-val="emotions" onclick="setLibraryFilter('need','emotions')">💬 Émotions</button>
                 </div>
             </div>
@@ -1476,7 +1477,16 @@
             retroplan: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
             formalizer: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
             gamify: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4"/><path d="M8 10v4"/><path d="M15 13h.01"/><path d="M18 11h.01"/></svg>',
-            skeleton: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M2 18h10"/></svg>'
+            skeleton: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M2 18h10"/></svg>',
+            summary: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="8" y1="9" x2="11" y2="9"/></svg>',
+            exercises: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>',
+            revision: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M15 2v20"/></svg>',
+            mindmap: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 8v3"/><path d="m10.5 11-4 5"/><path d="m13.5 11 4 5"/></svg>',
+            timeline: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>',
+            diagram: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>',
+            flashcards: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 8 4-8 4-8-4 8-4Z"/><path d="m4 12 8 4 8-4"/><path d="m4 16 8 4 8-4"/></svg>',
+            essayplan: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10.4 12.6a2 2 0 1 1 3 3L8 21l-4 1 1-4Z"/></svg>',
+            analogy: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.1 14c.2-1 .7-1.7 1.4-2.5A4.7 4.7 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.8 1.2 1.5 1.4 2.5"/></svg>'
         };
 
         const TOOLS = [
@@ -1873,6 +1883,253 @@ Format de sortie attendu (Markdown) :
 VARIABLES CONTEXTUELLES :
 * Ce que j'attends de toi : ${data.besoin}
 * Mon travail : ${data.travail}`
+            },
+            {
+                id: 'summary',
+                title: 'Le Résumeur de leçon',
+                category: 'Réviser',
+                iconSvg: SVGS.summary,
+                color: '#0ea5e9',
+                description: "Transforme un long cours en 3 à 6 idées clés à retenir, écrites simplement.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'lecon', label: 'Colle la leçon / le cours à résumer :', type: 'textarea', placeholder: 'Colle ton cours ici...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur particulier bienveillant pour un élève de ${data.niveau}. Résume la leçon ci-dessous en gardant UNIQUEMENT les concepts clés à retenir.
+
+Règles :
+- Va à l'essentiel, phrases courtes, vocabulaire adapté à un élève de ${data.niveau}.
+- Structure : 3 à 6 idées clés maximum, chacune en une phrase simple, avec le mot le plus important en **gras**.
+- Termine par une partie "À retenir absolument" : les 3 informations les plus importantes.
+- Reste fidèle au texte, n'invente rien qui n'y soit pas.
+
+Leçon à résumer :
+${data.lecon}`
+            },
+            {
+                id: 'exercises',
+                title: "Le Générateur d'exercices",
+                category: "S'entraîner",
+                iconSvg: SVGS.exercises,
+                color: '#22c55e',
+                description: "Crée des QCM ou des questions pour t'entraîner sur un chapitre, avec le corrigé à la fin.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'type', label: "Quel type d'exercices ?", type: 'select', options: ['QCM (choix multiples)', 'Questions ouvertes', 'Mélange QCM + questions', "Exercices d'application"] },
+                    { id: 'sujet', label: 'Sur quel chapitre / quelle leçon ?', type: 'textarea', placeholder: 'Ex: les fractions ; la Première Guerre mondiale ; le présent des verbes...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur qui prépare un entraînement pour un élève de ${data.niveau}.
+Crée 8 à 10 exercices de type "${data.type}" sur le sujet ci-dessous, avec une difficulté progressive (du plus facile au plus difficile).
+
+Consignes :
+- Numérote les questions.
+- Pour un QCM : propose 4 réponses (A, B, C, D) avec une seule bonne réponse.
+- NE DONNE PAS les réponses tout de suite : place-les dans une partie "✅ Corrigé" à la toute fin, avec une explication courte pour chaque.
+- Adapte le vocabulaire et la difficulté au niveau ${data.niveau}.
+
+Sujet / leçon :
+${data.sujet}`
+            },
+            {
+                id: 'revision',
+                title: 'La Fiche de révision',
+                category: 'Réviser',
+                iconSvg: SVGS.revision,
+                color: '#f59e0b',
+                description: "Fabrique une fiche claire (définitions, idées clés, dates, pièges) prête à apprendre.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'lecon', label: 'Colle le cours à transformer en fiche :', type: 'textarea', placeholder: 'Colle ton cours ici...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur qui crée une fiche de révision claire et efficace pour un élève de ${data.niveau}.
+À partir du cours ci-dessous, produis une FICHE DE RÉVISION prête à apprendre, avec ces parties :
+
+- **Titre du chapitre**
+- **Définitions à connaître** : chaque mot-clé + sa définition en une phrase.
+- **Les idées essentielles** : 4 à 6 points (listes à puces), le mot important en **gras**.
+- **Dates / formules / repères** (seulement si c'est pertinent).
+- **⚠️ Le piège à éviter** : l'erreur classique sur ce chapitre.
+- **Question type qui peut tomber au contrôle** + la réponse attendue en 2 lignes.
+
+Reste fidèle au cours, n'invente pas. Utilise un vocabulaire adapté au niveau ${data.niveau}.
+
+Cours :
+${data.lecon}`
+            },
+            {
+                id: 'mindmap',
+                title: 'La Carte mentale',
+                category: 'Mémoriser',
+                iconSvg: SVGS.mindmap,
+                color: '#8b5cf6',
+                description: "Organise une leçon en carte mentale (mindmap) pour mieux la visualiser et la retenir.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'sujet', label: 'La leçon / le thème à mettre en carte mentale :', type: 'textarea', placeholder: 'Colle ta leçon, ou écris le thème (ex: le cycle de l\'eau)...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un expert des cartes mentales (mind maps) qui aide un élève de ${data.niveau} à mémoriser.
+Transforme le thème ci-dessous en carte mentale, en deux versions :
+
+1) **Version à recopier à la main** : une liste imbriquée (avec indentation). Un thème central, 4 à 6 branches principales, et 2 à 3 sous-branches par branche. Utilise des mots-clés courts, PAS des phrases.
+
+2) **Version Mermaid** : la même carte dans un bloc de code au format Mermaid "mindmap", pour que je puisse la coller dans un outil de carte mentale.
+
+Reste simple, clair et fidèle au contenu. Adapte le vocabulaire au niveau ${data.niveau}.
+
+Thème :
+${data.sujet}`
+            },
+            {
+                id: 'timeline',
+                title: 'La Frise chronologique',
+                category: 'Réviser',
+                iconSvg: SVGS.timeline,
+                color: '#ec4899',
+                description: "Range les événements dans l'ordre pour comprendre et retenir une période (Histoire...).",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'sujet', label: 'La période / les événements à mettre en frise :', type: 'textarea', placeholder: 'Colle ta leçon, ou écris la période (ex: la Révolution française)...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur d'histoire pour un élève de ${data.niveau}.
+Crée une FRISE CHRONOLOGIQUE claire à partir des informations ci-dessous.
+
+Format :
+- Une liste chronologique, du plus ancien au plus récent. Chaque ligne : **Date** — événement en une phrase courte — pourquoi c'est important.
+- Regroupe en grandes périodes si c'est pertinent (avec un titre de période).
+- Termine par "📌 Les 3 dates à retenir absolument".
+
+Si une date n'est pas dans mon texte, indique-le clairement au lieu de l'inventer. Adapte le vocabulaire au niveau ${data.niveau}.
+
+Contenu :
+${data.sujet}`
+            },
+            {
+                id: 'diagram',
+                title: 'Le Schéma explicatif',
+                category: 'Comprendre',
+                iconSvg: SVGS.diagram,
+                color: '#14b8a6',
+                description: "Explique un mécanisme (SVT, physique...) sous forme de schéma avec des flèches.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'concept', label: 'Le concept / mécanisme à schématiser :', type: 'textarea', placeholder: 'Ex: la digestion, le circuit électrique, le cycle de l\'eau...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur qui explique avec des schémas, pour un élève de ${data.niveau}.
+Explique le concept ci-dessous à l'aide d'un SCHÉMA.
+
+Format :
+1) **Le schéma expliqué** étape par étape en texte clair, en montrant les liens avec des flèches (ex : "A → B : ...").
+2) **Version Mermaid** : le même schéma dans un bloc de code Mermaid ("flowchart TD") pour que je puisse le visualiser.
+3) **En résumé** : une phrase de synthèse.
+
+Utilise un vocabulaire adapté au niveau ${data.niveau} et reste fidèle au concept.
+
+Concept à schématiser :
+${data.concept}`
+            },
+            {
+                id: 'flashcards',
+                title: 'Les Flashcards',
+                category: 'Mémoriser',
+                iconSvg: SVGS.flashcards,
+                color: '#f97316',
+                description: "Transforme une leçon en cartes question/réponse pour t'interroger et bien mémoriser.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'lecon', label: 'Colle la leçon à transformer en flashcards :', type: 'textarea', placeholder: 'Colle ton cours ici...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un coach de mémorisation pour un élève de ${data.niveau}.
+Transforme la leçon ci-dessous en 15 flashcards question/réponse pour réviser par rappel actif.
+
+Format :
+- Une flashcard par ligne, sous la forme : **Q :** ... **| R :** ...
+- Questions courtes et précises, réponses en une phrase.
+- Commence par les points les plus importants.
+- Ajoute à la fin 3 questions "pièges" un peu plus difficiles.
+
+Reste fidèle au cours, n'invente pas. Adapte le vocabulaire au niveau ${data.niveau}.
+
+Leçon :
+${data.lecon}`
+            },
+            {
+                id: 'essayplan',
+                title: 'Le Plan de rédaction',
+                category: 'Rédiger',
+                iconSvg: SVGS.essayplan,
+                color: '#6366f1',
+                description: "Te donne un plan structuré (sans rédiger à ta place) pour une dissertation ou une rédaction.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'ecrire',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'type', label: 'Quel type de travail ?', type: 'select', options: ['Dissertation', 'Rédaction / récit', 'Commentaire de texte', 'Argumentation / débat'] },
+                    { id: 'sujet', label: 'Le sujet exact :', type: 'textarea', placeholder: 'Colle le sujet donné par ton prof...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur de méthodologie pour un élève de ${data.niveau}.
+Propose un PLAN détaillé pour ce travail de type "${data.type}", SANS rédiger à ma place : tu me donnes la structure, c'est moi qui rédige.
+
+Format :
+- **Le sujet reformulé** en une phrase (ce qu'on attend vraiment de moi).
+- **Une idée d'accroche** possible pour l'introduction.
+- **2 ou 3 grandes parties**, chacune avec 2 sous-idées et un exemple à chercher.
+- **Une piste de conclusion** (avec une ouverture).
+- **3 conseils** pour éviter le hors-sujet.
+
+Adapte les exigences au niveau ${data.niveau}.
+
+Sujet :
+${data.sujet}`
+            },
+            {
+                id: 'analogy',
+                title: 'Explique-moi simplement',
+                category: 'Comprendre',
+                iconSvg: SVGS.analogy,
+                color: '#eab308',
+                description: "Une notion incompréhensible expliquée en mots simples, avec une image du quotidien.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'lire',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'concept', label: "Qu'est-ce que tu ne comprends pas ? (une notion, une phrase du cours...)", type: 'textarea', placeholder: 'Ex: le théorème de Pythagore ; ce que veut dire "photosynthèse"...', attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur très pédagogue et patient pour un élève de ${data.niveau}.
+Explique-moi la notion ci-dessous en 3 temps :
+
+1) **En une phrase toute simple** (comme si je découvrais pour la première fois).
+2) **Avec une image de la vie de tous les jours** (une analogie concrète et parlante).
+3) **Version pour mon niveau** (${data.niveau}) avec le vocabulaire exact à connaître (mots-clés en **gras**).
+
+Puis pose-moi UNE petite question pour vérifier que j'ai compris, et donne la bonne réponse juste en dessous après la mention "Réponse :".
+
+Reste fidèle et n'invente pas.
+
+Notion à expliquer :
+${data.concept}`
             }
         ];
 
@@ -2558,7 +2815,10 @@ VARIABLES CONTEXTUELLES :
             const cfgMascot = document.getElementById('config-mascot');
             if (cfgMascot) { cfgMascot.src = mascotSrc; cfgMascot.style.display = ''; }
             const cfgFigure = document.querySelector('#view-configurator .figure-stage img');
-            if (cfgFigure) cfgFigure.src = mascotSrc;
+            if (cfgFigure) {
+                cfgFigure.onerror = function () { this.onerror = null; this.src = 'assets/char-tablet.png'; };
+                cfgFigure.src = mascotSrc;
+            }
 
             const formContainer = document.getElementById('config-fields');
             formContainer.innerHTML = '';
