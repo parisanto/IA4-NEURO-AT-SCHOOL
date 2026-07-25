@@ -758,6 +758,17 @@
     .carnet-empty { text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: var(--card-bg); border: 1px dashed var(--card-border); border-radius: var(--radius); }
     .empty-illus { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; object-position: top center; background: #f2ead7; border: 2px solid var(--card-border); margin: 0 auto 1.25rem; display: block; }
 
+    /* ---------- RELANCES (après la réponse de l'IA) ---------- */
+    .relance-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.7rem; }
+    .relance-btn {
+        display: flex; align-items: center; gap: 0.65rem; text-align: left; cursor: pointer;
+        padding: 0.8rem 1rem; border: 1px solid var(--card-border); background: var(--bg-color);
+        color: var(--text-main); border-radius: 14px; font-size: 0.97rem; font-weight: 600;
+        font-family: inherit; line-height: 1.35; transition: var(--transition);
+    }
+    .relance-btn:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
+    .relance-emoji { font-size: 1.25rem; flex-shrink: 0; }
+
     /* ---------- VISITE GUIDÉE (onboarding) ---------- */
     .onb-overlay { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 1.25rem;
         background: rgba(18, 22, 27, 0.55); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); animation: fadeIn 0.3s ease-out; }
@@ -1402,6 +1413,7 @@
                     <div>
                         <strong>Vérifie toujours la réponse de l'IA</strong>
                         <p style="margin-top: 0.25rem;">L'IA peut inventer des informations fausses sans prévenir. Compare toujours sa réponse avec ton cours, ou demande à ton prof en cas de doute.</p>
+                        <button class="btn btn-secondary mt-2" style="padding: 0.45rem 0.9rem; font-size: 0.9rem;" onclick="selectTool('factcheck')">🛡️ M'aider à vérifier sa réponse</button>
                     </div>
                 </div>
 
@@ -1427,6 +1439,13 @@
                 </div>
             </div>
             
+            <!-- Relances : quoi répondre quand la réponse de l'IA ne convient pas -->
+            <div class="card mt-6">
+                <h3 class="mb-2" style="color: var(--primary);">💬 Et après ? Si la réponse ne te va pas</h3>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.25rem;">L'IA a répondu, mais c'est encore flou, trop long, ou elle a fait le travail à ta place ? Clique sur une relance : elle est <strong>copiée</strong>, tu n'as plus qu'à la coller dans la même conversation.</p>
+                <div id="relance-list" class="relance-list"></div>
+            </div>
+
             <!-- Zone interactive : transformer la réponse de l'IA en plan de travail -->
             <div id="interactive-preview-zone" class="card mt-6 hidden">
                 <h3 class="mb-2" style="color: var(--primary);">✅ Transforme la réponse de l'IA en plan de travail</h3>
@@ -1581,7 +1600,8 @@
             diagram: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>',
             flashcards: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 8 4-8 4-8-4 8-4Z"/><path d="m4 12 8 4 8-4"/><path d="m4 16 8 4 8-4"/></svg>',
             essayplan: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M10.4 12.6a2 2 0 1 1 3 3L8 21l-4 1 1-4Z"/></svg>',
-            analogy: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.1 14c.2-1 .7-1.7 1.4-2.5A4.7 4.7 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.8 1.2 1.5 1.4 2.5"/></svg>'
+            analogy: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.1 14c.2-1 .7-1.7 1.4-2.5A4.7 4.7 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.8 1.2 1.5 1.4 2.5"/></svg>',
+            factcheck: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>'
         };
 
         const TOOLS = [
@@ -2225,6 +2245,40 @@ Reste fidèle et n'invente pas.
 
 Notion à expliquer :
 ${data.concept}`
+            },
+            {
+                id: 'factcheck',
+                title: "Le Vérificateur d'IA",
+                category: 'Esprit critique',
+                iconSvg: SVGS.factcheck,
+                color: '#0d9488',
+                description: "L'IA t'a répondu ? Cet outil t'aide à repérer ce qui est douteux et à vérifier avant de recopier.",
+                forWho: "Tous",
+                profiles: ['dys','tdah','tsa'],
+                need: 'reviser',
+                fields: [
+                    { id: 'niveau', label: 'Tu es en quelle classe ?', type: 'select', options: ['6e','5e','4e','3e','2nde','1re','Terminale'] },
+                    { id: 'reponse', label: "Colle ici la réponse de l'IA que tu veux vérifier :", type: 'textarea', placeholder: "Copie-colle ce que l'IA t'a répondu...", attach: true }
+                ],
+                generatePrompt: (data) => `Agis comme un professeur qui m'apprend l'esprit critique, pour un élève de ${data.niveau}.
+Je vais te donner une réponse produite par une intelligence artificielle. Ton rôle n'est PAS de la refaire, mais de m'aider à la VÉRIFIER moi-même.
+
+Analyse-la et réponds avec ces parties :
+
+**✅ Ce qui est fiable** : les affirmations solides, qu'on retrouve dans n'importe quel cours.
+
+**⚠️ Ce qui est à vérifier** : la liste précise des affirmations douteuses, imprécises, ou trop belles pour être vraies (dates, chiffres, noms propres, citations, formules). Pour chacune, dis en une phrase POURQUOI elle mérite d'être vérifiée.
+
+**❌ Ce qui semble faux** : les erreurs que tu repères, avec la correction.
+
+**🔎 Comment je vérifie** : pour les 3 points les plus importants, dis-moi exactement où regarder (quelle partie de mon cours, quel type de source fiable) et quelle question poser à mon prof.
+
+**🧭 Le réflexe à retenir** : une phrase pour m'aider à repérer ce genre de piège la prochaine fois.
+
+Sois honnête : si tu n'es pas sûr, dis-le clairement plutôt que d'inventer.
+
+Réponse de l'IA à vérifier :
+${data.reponse}`
             }
         ];
 
@@ -2253,96 +2307,440 @@ ${data.concept}`
         // Programme scolaire par niveau → matière (emoji) → thèmes (leçons).
         // Les deux niveaux partagent aujourd'hui le même contenu ; la structure
         // permet de les faire diverger plus tard sans toucher au reste du code.
-        const MATIERES_COMMUNES = [
-            { nom: 'Français', emoji: '📚', themes: [
-                "Le voyage et l'aventure",
-                "Vivre en société, participer à la société",
-                "Héros, héroïsmes, héroïnes",
-                "L'être humain est-il maître de la nature ?",
-                "La phrase complexe (propositions)",
-                "La conjugaison (les temps de l'indicatif)",
-                "L'orthographe (accords complexes)",
-                "Rédiger un texte (narratif, descriptif, explicatif)",
-                "S'initier à l'argumentation"
-            ]},
-            { nom: 'Mathématiques', emoji: '🔢', themes: [
-                "Les nombres relatifs (addition, soustraction)",
-                "Les fractions (comparaison, addition, soustraction)",
-                "Les priorités opératoires",
-                "La symétrie centrale",
-                "Les propriétés des triangles",
-                "Les parallélogrammes",
-                "Le repérage dans un repère orthogonal",
-                "Les aires (parallélogramme, triangle, disque)",
-                "Les volumes (prismes, cylindres)",
-                "La proportionnalité",
-                "Les statistiques (fréquence, moyenne)",
-                "Les probabilités",
-                "L'algorithmique et Scratch (variables, boucles)"
-            ]},
-            { nom: 'Histoire-Géo & EMC', emoji: '🌍', themes: [
-                "Byzance et l'Europe carolingienne",
-                "La naissance et l'expansion de l'islam",
-                "L'ordre seigneurial au Moyen-Âge",
-                "L'affirmation de l'État monarchique",
-                "Les Grandes découvertes et la Renaissance",
-                "La croissance démographique et ses effets",
-                "L'inégal développement et la pauvreté",
-                "La gestion des ressources (eau, énergie, alimentation)",
-                "La prévention des risques majeurs",
-                "EMC : l'égalité et la lutte contre les discriminations",
-                "EMC : la solidarité, la sécurité et les risques"
-            ]},
-            { nom: 'SVT', emoji: '🧬', themes: [
-                "La météo et le climat (masses d'eau et d'air)",
-                "Séismes, volcans et tectonique des plaques",
-                "Les besoins des animaux et des végétaux",
-                "Les écosystèmes et les populations",
-                "La reproduction sexuée et asexuée",
-                "La respiration et le cœur pendant l'effort",
-                "La digestion et la nutrition"
-            ]},
-            { nom: 'Physique-Chimie', emoji: '⚗️', themes: [
-                "Les états et changements d'état de la matière",
-                "La masse volumique",
-                "Mélanges et corps purs",
-                "Les sources et transferts d'énergie",
-                "Les circuits électriques (série et dérivation)",
-                "Le mouvement et la vitesse",
-                "La lumière et les ombres",
-                "Les signaux sonores"
-            ]},
-            { nom: 'Technologie', emoji: '⚙️', themes: [
-                "Le fonctionnement des objets techniques",
-                "Les propriétés des matériaux",
-                "Le pilotage de systèmes automatisés",
-                "La programmation par blocs",
-                "La transmission des données dans un réseau"
-            ]},
-            { nom: 'Langues vivantes', emoji: '🗣️', themes: [
-                "La vie quotidienne",
-                "L'environnement urbain",
-                "Repères historiques et géographiques du pays étudié",
-                "Comprendre l'oral et l'écrit (A1 → A2)",
-                "S'exprimer à l'oral et écrire des textes courts"
-            ]},
-            { nom: 'Arts & Musique', emoji: '🎨', themes: [
-                "Arts plastiques : la représentation visuelle",
-                "Arts plastiques : la matérialité de l'œuvre et l'espace",
-                "Musique : le chant choral",
-                "Musique : analyser une œuvre et son contexte"
-            ]},
-            { nom: 'EPS', emoji: '🤸', themes: [
-                "Réaliser une performance mesurable",
-                "S'adapter à des environnements variés",
-                "Réaliser une prestation artistique ou acrobatique",
-                "Mener un affrontement individuel ou collectif"
-            ]}
-        ];
+        // --- PROGRAMMES SCOLAIRES (France) : collège 6e→3e et lycée 2nde→Terminale ---
+        const M = (nom, emoji, themes) => ({ nom, emoji, themes });
+
+        // Matières transverses (réutilisées d'un niveau à l'autre)
+        const LV_COLLEGE = M('Langues vivantes', '🗣️', [
+            "La vie quotidienne et l'école",
+            "Se présenter, parler de soi et de sa famille",
+            "Repères culturels du pays étudié",
+            "Comprendre l'oral et l'écrit",
+            "S'exprimer à l'oral (dialogue, exposé court)",
+            "Écrire un texte court (mail, récit, description)",
+            "Le vocabulaire et les verbes irréguliers"
+        ]);
+        const LV_LYCEE = M('Langues vivantes', '🗣️', [
+            "Identités et échanges",
+            "Espace privé et espace public",
+            "Art et pouvoir",
+            "Citoyenneté et mondes virtuels",
+            "Fictions et réalités",
+            "Innovations scientifiques et responsabilité",
+            "Compréhension et expression orales (niveau B1-B2)"
+        ]);
+        const ARTS = M('Arts & Musique', '🎨', [
+            "Arts plastiques : la représentation visuelle",
+            "Arts plastiques : la matérialité de l'œuvre et l'espace",
+            "Musique : le chant choral",
+            "Musique : analyser une œuvre et son contexte",
+            "Histoire des arts : présenter une œuvre"
+        ]);
+        const EPS = M('EPS', '🤸', [
+            "Réaliser une performance mesurable",
+            "S'adapter à des environnements variés",
+            "Réaliser une prestation artistique ou acrobatique",
+            "Mener un affrontement individuel ou collectif"
+        ]);
 
         const PROGRAMME = {
-            '5e':  { label: '5ème', emoji: '🎒', matieres: MATIERES_COMMUNES },
-            '2nde':{ label: '2nde', emoji: '🎓', matieres: MATIERES_COMMUNES }
+            '6e': { label: '6ème', emoji: '🎒', matieres: [
+                M('Français', '📚', [
+                    "Le monstre, aux limites de l'humain",
+                    "Récits d'aventures",
+                    "Récits de création ; création poétique",
+                    "Résister au plus fort : ruses, mensonges et masques",
+                    "La phrase simple et les classes de mots",
+                    "Le présent, l'imparfait et le passé simple",
+                    "Les accords (sujet-verbe, groupe nominal)",
+                    "Rédiger un récit"
+                ]),
+                M('Mathématiques', '🔢', [
+                    "Les nombres décimaux",
+                    "Les fractions (découverte)",
+                    "Addition, soustraction, multiplication, division",
+                    "La proportionnalité (découverte)",
+                    "La symétrie axiale",
+                    "Périmètres, aires et angles",
+                    "Les solides et leurs patrons",
+                    "Algorithmique et Scratch (découverte)"
+                ]),
+                M('Histoire-Géo & EMC', '🌍', [
+                    "La longue histoire de l'humanité et des migrations",
+                    "Récits fondateurs, croyances et citoyenneté en Méditerranée",
+                    "L'empire romain dans le monde antique",
+                    "Habiter une métropole",
+                    "Habiter un espace de faible densité",
+                    "Habiter les littoraux",
+                    "EMC : le respect d'autrui et les règles de la vie collective"
+                ]),
+                M('Sciences et technologie', '🔬', [
+                    "Matière, mouvement, énergie, information",
+                    "Le vivant, sa diversité et ses fonctions",
+                    "Matériaux et objets techniques",
+                    "La planète Terre et les êtres vivants",
+                    "L'alimentation et la digestion",
+                    "Les besoins des plantes"
+                ]),
+                LV_COLLEGE, ARTS, EPS
+            ]},
+            '5e': { label: '5ème', emoji: '🎒', matieres: [
+                M('Français', '📚', [
+                    "Le voyage et l'aventure",
+                    "Vivre en société, participer à la société",
+                    "Héros, héroïsmes, héroïnes",
+                    "L'être humain est-il maître de la nature ?",
+                    "La phrase complexe (les propositions)",
+                    "La conjugaison (les temps de l'indicatif)",
+                    "L'orthographe (accords complexes)",
+                    "Rédiger un texte (narratif, descriptif, explicatif)",
+                    "S'initier à l'argumentation"
+                ]),
+                M('Mathématiques', '🔢', [
+                    "Les nombres relatifs (addition, soustraction)",
+                    "Les fractions (comparaison, addition, soustraction)",
+                    "Les priorités opératoires",
+                    "La symétrie centrale",
+                    "Les propriétés des triangles",
+                    "Les parallélogrammes",
+                    "Le repérage dans un repère orthogonal",
+                    "Les aires (parallélogramme, triangle, disque)",
+                    "Les volumes (prismes, cylindres)",
+                    "La proportionnalité",
+                    "Les statistiques (fréquence, moyenne)",
+                    "Les probabilités",
+                    "L'algorithmique et Scratch (variables, boucles)"
+                ]),
+                M('Histoire-Géo & EMC', '🌍', [
+                    "Byzance et l'Europe carolingienne",
+                    "La naissance et l'expansion de l'islam",
+                    "L'ordre seigneurial au Moyen-Âge",
+                    "L'affirmation de l'État monarchique",
+                    "Les Grandes découvertes et la Renaissance",
+                    "La croissance démographique et ses effets",
+                    "L'inégal développement et la pauvreté",
+                    "EMC : l'égalité et les discriminations"
+                ]),
+                M('SVT', '🌱', [
+                    "La respiration et la circulation sanguine",
+                    "La nutrition des organes",
+                    "Les besoins des plantes et la photosynthèse",
+                    "Le climat et la météo",
+                    "L'érosion et les paysages",
+                    "Les micro-organismes et l'hygiène"
+                ]),
+                M('Physique-Chimie', '⚗️', [
+                    "Les états de la matière et les changements d'état",
+                    "Les mélanges et les solutions",
+                    "Les circuits électriques simples",
+                    "La lumière et les sources lumineuses",
+                    "Le mouvement et la vitesse"
+                ]),
+                M('Technologie', '⚙️', [
+                    "L'objet technique et ses fonctions",
+                    "Les matériaux et leurs propriétés",
+                    "La programmation (Scratch)",
+                    "La transmission des données dans un réseau"
+                ]),
+                LV_COLLEGE, ARTS, EPS
+            ]},
+            '4e': { label: '4ème', emoji: '🎒', matieres: [
+                M('Français', '📚', [
+                    "Dire l'amour (la poésie lyrique)",
+                    "Individu et société : confrontations de valeurs",
+                    "La fiction pour interroger le réel",
+                    "Informer, s'informer, déformer",
+                    "Le discours direct et indirect",
+                    "La concordance des temps",
+                    "Les figures de style",
+                    "Rédiger un texte argumentatif"
+                ]),
+                M('Mathématiques', '🔢', [
+                    "Le théorème de Pythagore",
+                    "Le théorème de Thalès (découverte)",
+                    "Les puissances",
+                    "Le calcul littéral et la distributivité",
+                    "Les équations du premier degré",
+                    "Les fractions (multiplication, division)",
+                    "Les translations",
+                    "Les probabilités",
+                    "Les statistiques (médiane, étendue)"
+                ]),
+                M('Histoire-Géo & EMC', '🌍', [
+                    "Bourgeoisies marchandes et négoces internationaux (XVIIIe)",
+                    "L'Europe des Lumières",
+                    "La Révolution française et l'Empire",
+                    "L'Europe de la révolution industrielle",
+                    "Conquêtes et sociétés coloniales",
+                    "L'urbanisation du monde",
+                    "Les mobilités humaines transnationales",
+                    "EMC : la liberté et les libertés"
+                ]),
+                M('SVT', '🌱', [
+                    "La reproduction sexuée et la puberté",
+                    "Les séismes et les volcans",
+                    "La tectonique des plaques",
+                    "Le système nerveux et les réflexes",
+                    "La respiration et l'occupation des milieux"
+                ]),
+                M('Physique-Chimie', '⚗️', [
+                    "Les atomes et les molécules",
+                    "La masse volumique",
+                    "La lumière et sa propagation",
+                    "Les circuits électriques (tension, intensité)",
+                    "Les transformations chimiques"
+                ]),
+                M('Technologie', '⚙️', [
+                    "L'analyse et la conception d'un objet technique",
+                    "La programmation (Scratch, initiation Python)",
+                    "Les réseaux informatiques et Internet",
+                    "Le développement durable et le cycle de vie"
+                ]),
+                LV_COLLEGE, ARTS, EPS
+            ]},
+            '3e': { label: '3ème (brevet)', promptLabel: '3ème', emoji: '🎓', matieres: [
+                M('Français', '📚', [
+                    "Se raconter, se représenter (autobiographie)",
+                    "Dénoncer les travers de la société",
+                    "Visions poétiques du monde",
+                    "Agir dans la cité : individu et pouvoir",
+                    "Progrès et rêves scientifiques",
+                    "Brevet : le sujet de réflexion",
+                    "Brevet : la dictée et la réécriture",
+                    "Brevet : les questions sur le texte"
+                ]),
+                M('Mathématiques', '🔢', [
+                    "Le théorème de Thalès",
+                    "La trigonométrie dans le triangle rectangle",
+                    "Les fonctions (linéaires et affines)",
+                    "Le calcul littéral (développer, factoriser)",
+                    "Les identités remarquables",
+                    "Les équations produit",
+                    "L'arithmétique (PGCD, nombres premiers)",
+                    "Les homothéties et agrandissements",
+                    "Les probabilités et les statistiques",
+                    "L'algorithmique et la programmation"
+                ]),
+                M('Histoire-Géo & EMC', '🌍', [
+                    "Civils et militaires dans la Première Guerre mondiale",
+                    "Démocraties fragilisées et expériences totalitaires",
+                    "La Seconde Guerre mondiale",
+                    "Indépendances et construction de nouveaux États",
+                    "Enjeux et conflits dans le monde après 1989",
+                    "Françaises et Français dans une République repensée",
+                    "Les aires urbaines et les espaces productifs en France",
+                    "La France et l'Union européenne",
+                    "EMC : la République et la citoyenneté"
+                ]),
+                M('SVT', '🌱', [
+                    "La génétique (chromosomes, ADN, gènes)",
+                    "La reproduction et l'hérédité",
+                    "L'évolution des êtres vivants",
+                    "Le système immunitaire",
+                    "La contraception et la santé sexuelle",
+                    "Les risques naturels et technologiques",
+                    "Le climat et l'effet de serre"
+                ]),
+                M('Physique-Chimie', '⚗️', [
+                    "Les ions et le pH",
+                    "Les réactions chimiques et leur équation",
+                    "L'énergie (formes et conversions)",
+                    "La gravitation et le poids",
+                    "Le son et sa propagation",
+                    "L'électricité (loi d'Ohm, puissance)",
+                    "Les signaux et la lumière"
+                ]),
+                M('Technologie', '⚙️', [
+                    "Le projet technologique",
+                    "La programmation (Python, objets connectés)",
+                    "Les réseaux et la cybersécurité",
+                    "L'impact environnemental des objets"
+                ]),
+                LV_COLLEGE, ARTS, EPS
+            ]},
+            '2nde': { label: '2nde', emoji: '🏫', matieres: [
+                M('Français', '📚', [
+                    "Le roman et le récit du XVIIIe au XXIe siècle",
+                    "Le théâtre du XVIIe au XXIe siècle",
+                    "La poésie du XIXe au XXIe siècle",
+                    "La littérature d'idées et la presse",
+                    "Le commentaire de texte (méthode)",
+                    "La dissertation (initiation)",
+                    "L'écriture d'invention et l'argumentation"
+                ]),
+                M('Mathématiques', '🔢', [
+                    "Les ensembles de nombres et les intervalles",
+                    "Les équations et inéquations",
+                    "Les fonctions de référence (carré, inverse, racine)",
+                    "Les vecteurs",
+                    "La géométrie repérée (droites, équations)",
+                    "Les statistiques descriptives",
+                    "Les probabilités et l'échantillonnage",
+                    "L'algorithmique et Python"
+                ]),
+                M('Histoire-Géo & EMC', '🌍', [
+                    "L'expansion du monde connu (XVe-XVIe siècle)",
+                    "La Méditerranée médiévale : contacts entre civilisations",
+                    "L'affirmation de l'État dans le royaume de France",
+                    "Sociétés et environnements : des équilibres fragiles",
+                    "Territoires, populations et développement",
+                    "Des mobilités généralisées",
+                    "EMC : la liberté, les libertés"
+                ]),
+                M('SVT', '🌱', [
+                    "La Terre, la vie et l'organisation du vivant",
+                    "La biodiversité et son évolution",
+                    "Les enjeux contemporains de la planète",
+                    "Corps humain et santé : nutrition et microbiote",
+                    "L'agrosystème et la production alimentaire"
+                ]),
+                M('Physique-Chimie', '⚗️', [
+                    "Constitution et transformations de la matière",
+                    "Les solutions et les concentrations",
+                    "Mouvement et interactions (forces)",
+                    "Ondes et signaux (lumière, son)",
+                    "L'énergie : conversions et rendement"
+                ]),
+                M('SES', '📈', [
+                    "Comment les économistes raisonnent-ils ?",
+                    "Comment crée-t-on des richesses ?",
+                    "Comment se forment les prix sur un marché ?",
+                    "La monnaie et le financement",
+                    "Comment devenons-nous des acteurs sociaux ?",
+                    "Comment s'organise la vie politique ?"
+                ]),
+                LV_LYCEE, ARTS, EPS
+            ]},
+            '1re': { label: '1ère', emoji: '🎓', matieres: [
+                M('Français (bac)', '📚', [
+                    "La poésie du XIXe au XXIe siècle",
+                    "La littérature d'idées du XVIe au XVIIIe siècle",
+                    "Le roman et le récit du XVIIIe au XXIe siècle",
+                    "Le théâtre du XVIIe au XXIe siècle",
+                    "Le commentaire composé (méthode)",
+                    "La dissertation littéraire (méthode)",
+                    "L'oral du bac : présenter une œuvre",
+                    "L'oral du bac : la question de grammaire"
+                ]),
+                M('Mathématiques', '🔢', [
+                    "Le second degré",
+                    "Les suites numériques",
+                    "La dérivation",
+                    "La fonction exponentielle",
+                    "La trigonométrie et le cercle trigonométrique",
+                    "Le produit scalaire",
+                    "Les probabilités conditionnelles",
+                    "Les variables aléatoires",
+                    "L'algorithmique et Python"
+                ]),
+                M('Histoire-Géo', '🌍', [
+                    "L'Europe face aux révolutions",
+                    "La France dans l'Europe des nationalités",
+                    "La Troisième République et la construction démocratique",
+                    "La Première Guerre mondiale et ses conséquences",
+                    "La métropolisation : un processus mondial",
+                    "Une diversification des espaces productifs",
+                    "Les espaces ruraux : multifonctionnalité et conflits"
+                ]),
+                M('SVT (spécialité)', '🌱', [
+                    "La transmission et la variation du patrimoine génétique",
+                    "La dynamique interne de la Terre",
+                    "L'écosystème et son fonctionnement",
+                    "Corps humain et santé : le système immunitaire",
+                    "Les mutations et la variabilité génétique"
+                ]),
+                M('Physique-Chimie (spécialité)', '⚗️', [
+                    "Constitution et transformations de la matière",
+                    "Les réactions acide-base et oxydoréduction",
+                    "Mouvement et interactions",
+                    "L'énergie : conversions et transferts",
+                    "Ondes et signaux : lentilles et images"
+                ]),
+                M('SES (spécialité)', '📈', [
+                    "Les sources de la croissance économique",
+                    "Le commerce international et la mondialisation",
+                    "Le fonctionnement des marchés concurrentiels",
+                    "La monnaie et le financement de l'économie",
+                    "La socialisation et les liens sociaux",
+                    "La déviance et le contrôle social",
+                    "L'opinion publique et le vote"
+                ]),
+                M('Philosophie (découverte)', '🤔', [
+                    "Qu'est-ce que philosopher ?",
+                    "La méthode de la dissertation",
+                    "L'explication de texte"
+                ]),
+                LV_LYCEE, ARTS, EPS
+            ]},
+            'terminale': { label: 'Terminale (bac)', promptLabel: 'Terminale', emoji: '🎓', matieres: [
+                M('Philosophie', '🤔', [
+                    "La conscience et l'inconscient",
+                    "Le désir et le bonheur",
+                    "La liberté",
+                    "La vérité",
+                    "L'art",
+                    "Le travail et la technique",
+                    "La justice et l'État",
+                    "La nature",
+                    "Le langage",
+                    "Le temps",
+                    "Méthode : la dissertation de philosophie",
+                    "Méthode : l'explication de texte"
+                ]),
+                M('Mathématiques (spécialité)', '🔢', [
+                    "Les suites et les limites",
+                    "Les limites de fonctions et la continuité",
+                    "La dérivation et la convexité",
+                    "La fonction logarithme népérien",
+                    "La fonction exponentielle",
+                    "Le calcul intégral",
+                    "La géométrie dans l'espace (vecteurs, droites, plans)",
+                    "Les probabilités conditionnelles et la loi binomiale",
+                    "La loi des grands nombres et l'échantillonnage"
+                ]),
+                M('Histoire-Géo', '🌍', [
+                    "Fragilités des démocraties et totalitarismes (1929-1945)",
+                    "La Seconde Guerre mondiale et l'extermination",
+                    "La multiplication des acteurs internationaux (1945-1970)",
+                    "Les chemins de la puissance (États-Unis, Chine)",
+                    "La France de 1945 à nos jours",
+                    "Mers et océans : au cœur de la mondialisation",
+                    "Dynamiques territoriales et coopérations"
+                ]),
+                M('SVT (spécialité)', '🌱', [
+                    "La génétique et l'évolution",
+                    "À la recherche du passé géologique de notre planète",
+                    "Le fonctionnement du système immunitaire",
+                    "Comportements, mouvement et système nerveux",
+                    "Climat et enjeux planétaires contemporains",
+                    "La domestication du vivant"
+                ]),
+                M('Physique-Chimie (spécialité)', '⚗️', [
+                    "La cinétique et les équilibres chimiques",
+                    "Les titrages et le suivi de transformation",
+                    "Les lois de Newton et le mouvement",
+                    "L'énergie : travail et conversions",
+                    "Ondes et signaux : interférences et lunette astronomique",
+                    "La modélisation en physique (Python)"
+                ]),
+                M('SES (spécialité)', '📈', [
+                    "Croissance, innovation et changement technologique",
+                    "Le commerce international et ses déséquilibres",
+                    "Les politiques économiques et le chômage",
+                    "L'instabilité financière et les crises",
+                    "Les classes sociales et la structure sociale",
+                    "L'école, la mobilité sociale et les inégalités",
+                    "L'engagement politique",
+                    "La gestion des risques et la protection sociale"
+                ]),
+                M('Français / Grand oral', '🎤', [
+                    "Préparer les 2 questions du Grand oral",
+                    "Structurer un exposé de 10 minutes",
+                    "Relier sa question à son projet d'orientation",
+                    "Gérer le stress et la prise de parole"
+                ]),
+                LV_LYCEE, EPS
+            ]}
         };
 
         // État courant du parcours programme
@@ -2470,7 +2868,7 @@ ${data.concept}`
             // On construit le contexte scolaire réutilisé par generatePrompt()
             const chosen = progState.problems.map(i => PROBLEMATIQUES[i]);
             programmeContext = {
-                niveau: PROGRAMME[progState.niveau].label,
+                niveau: PROGRAMME[progState.niveau].promptLabel || PROGRAMME[progState.niveau].label,
                 matiere: progState.matiere.nom,
                 theme: progState.theme,
                 // File d'attente des outils à traiter (un prompt par problématique)
@@ -2545,7 +2943,8 @@ ${data.concept}`
                     { text: "Je veux une fiche de révision prête à apprendre.", toolId: 'revision' },
                     { text: "Je veux m'entraîner avec des exercices ou un QCM.", toolId: 'exercises' },
                     { text: "Je veux mémoriser avec des flashcards (question / réponse).", toolId: 'flashcards' },
-                    { text: "Je ne comprends pas une notion, qu'on me l'explique simplement.", toolId: 'analogy' }
+                    { text: "Je ne comprends pas une notion, qu'on me l'explique simplement.", toolId: 'analogy' },
+                    { text: "L'IA m'a répondu et je veux vérifier si c'est vrai avant de recopier.", toolId: 'factcheck' }
                 ]
             }
         ];
@@ -2706,6 +3105,7 @@ ${data.concept}`
             
             renderLibrary();
             renderQuiz();
+            renderRelances();
             applyPrefs();
             renderCarnetBar();
 
@@ -3235,6 +3635,32 @@ ${data.concept}`
                 v += (v ? '\n\n' : '') + '[📎 Documents fournis avec ce message : ' + files.join(', ') + ']';
             }
             inputObj.value = v;
+        }
+
+        // --- RELANCES : quoi renvoyer à l'IA quand sa réponse ne convient pas ---
+        const RELANCES = [
+            { emoji: '🧩', label: "Je n'ai pas compris", text: "Je n'ai pas compris ta réponse. Réexplique-la beaucoup plus simplement, comme si je découvrais le sujet : phrases courtes, mots simples, et une idée par phrase." },
+            { emoji: '🔍', label: 'Donne un exemple', text: "Donne-moi un exemple concret et détaillé qui illustre ce que tu viens d'expliquer. Prends un exemple de la vie de tous les jours." },
+            { emoji: '✂️', label: "C'est trop long", text: "C'est trop long pour moi. Résume ta réponse en 5 points maximum, avec une liste à puces et les mots importants en gras." },
+            { emoji: '🪜', label: 'Étape par étape', text: "Reprends ta réponse sous forme d'étapes numérotées, dans l'ordre, avec une seule action par étape. Ne saute aucune étape, même celles qui te paraissent évidentes." },
+            { emoji: '🎯', label: 'Guide-moi (sans la réponse)', text: "Ne me donne pas la réponse : je veux la trouver moi-même. Pose-moi des questions une par une pour me guider, et attends ma réponse avant de continuer." },
+            { emoji: '❓', label: 'Interroge-moi', text: "Pose-moi 5 questions pour vérifier que j'ai bien compris. Pose-les une par une, attends ma réponse, puis dis-moi si c'est juste et pourquoi." },
+            { emoji: '🧠', label: 'Aide-moi à retenir', text: "Aide-moi à mémoriser ça : donne-moi un moyen mnémotechnique, puis 5 questions/réponses courtes pour m'auto-interroger." },
+            { emoji: '⚠️', label: 'Es-tu sûr ?', text: "Es-tu sûr de cette réponse ? Indique-moi précisément ce qui est certain, ce qui est incertain, et ce que je dois absolument vérifier dans mon cours." }
+        ];
+
+        function renderRelances() {
+            const box = document.getElementById('relance-list');
+            if (!box || box.childElementCount) return; // rendu une seule fois
+            RELANCES.forEach(r => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'relance-btn';
+                btn.title = r.text;
+                btn.innerHTML = '<span class="relance-emoji">' + r.emoji + '</span><span>' + r.label + '</span>';
+                btn.onclick = (e) => copyTextToClipboard(r.text, e.currentTarget);
+                box.appendChild(btn);
+            });
         }
 
         function generatePrompt() {
