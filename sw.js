@@ -1,8 +1,10 @@
 /* IA4-NEURO — Service Worker (hors-ligne)
    - Navigation (HTML) : réseau d'abord (toujours à jour), repli sur le cache.
    - Assets statiques   : cache d'abord, mise à jour en arrière-plan.
-   Bump CACHE à chaque déploiement pour purger les anciens caches. */
-const CACHE = 'ia4neuro-v1';
+   La version du cache est estampillée automatiquement au déploiement
+   (le jeton __BUILD__ est remplacé par le hash du commit via GitHub Actions),
+   ce qui purge les anciens caches et met à jour les utilisateurs installés. */
+const CACHE = 'ia4neuro-__BUILD__';
 
 // Coquille minimale préchargée à l'installation (le reste se met en cache à l'usage).
 const CORE = [
