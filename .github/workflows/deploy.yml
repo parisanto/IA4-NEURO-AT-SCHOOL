@@ -1,0 +1,45 @@
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions nécessaires au déploiement Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul déploiement à la fois
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Estamper la version du service worker (hash du commit)
+        run: |
+          SHORT_SHA="${GITHUB_SHA::8}"
+          echo "Version SW = ia4neuro-$SHORT_SHA"
+          sed -i "s/__BUILD__/$SHORT_SHA/g" sw.js
+
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaqueter le site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Déployer
+        id: deployment
+        uses: actions/deploy-pages@v4
