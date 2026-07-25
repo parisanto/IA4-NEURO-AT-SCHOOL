@@ -501,7 +501,11 @@
     @media (max-width: 900px) { .config-mascot { display: block; } }
     @media (max-width: 400px) { .config-mascot { display: none; } }
     .tool-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background-color: var(--primary-light); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 999px; margin-bottom: 1rem; }
-    .tool-who { display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); background: var(--secondary); padding: 0.2rem 0.6rem; border-radius: 999px; margin-left: 0.5rem; }
+    .tool-who { display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); background: var(--secondary); padding: 0.2rem 0.6rem; border-radius: 999px; }
+    .tool-cardmeta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .tool-fav { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0.3rem; border-radius: 9px; line-height: 0; transition: var(--transition); }
+    .tool-fav:hover { color: var(--accent-bronze); background: var(--secondary); transform: scale(1.1); }
+    .tool-fav.on { color: var(--accent-bronze); }
 
     /* ---------- FILTRES BIBLIOTHÈQUE ---------- */
     .filter-bar {
@@ -753,6 +757,23 @@
     }
     .carnet-empty { text-align: center; padding: 3rem 1rem; color: var(--text-muted); background: var(--card-bg); border: 1px dashed var(--card-border); border-radius: var(--radius); }
     .empty-illus { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; object-position: top center; background: #f2ead7; border: 2px solid var(--card-border); margin: 0 auto 1.25rem; display: block; }
+
+    /* ---------- VISITE GUIDÉE (onboarding) ---------- */
+    .onb-overlay { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 1.25rem;
+        background: rgba(18, 22, 27, 0.55); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); animation: fadeIn 0.3s ease-out; }
+    .onb-card { position: relative; width: min(460px, 100%); background: var(--card-bg); border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 2.5rem 1.75rem 1.5rem; text-align: center; }
+    .onb-skip { position: absolute; top: 0.9rem; right: 1rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-weight: 600; font-family: inherit; font-size: 0.9rem; }
+    .onb-skip:hover { color: var(--text-main); }
+    .onb-slide { display: none; }
+    .onb-slide.active { display: block; animation: fadeIn 0.35s ease-out; }
+    .onb-emoji { font-size: 3rem; line-height: 1; margin-bottom: 0.6rem; }
+    .onb-card h2 { font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 0.75rem; }
+    .onb-card p { color: var(--text-muted); line-height: 1.6; max-width: 26rem; margin: 0 auto; }
+    .onb-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.9rem; }
+    .onb-dots { display: flex; gap: 0.4rem; }
+    .onb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--card-border); transition: var(--transition); }
+    .onb-dot.on { background: var(--primary); width: 22px; border-radius: 999px; }
     .carnet-progress { font-weight: 700; color: var(--success); margin-bottom: 1rem; }
     .carnet-check { display: flex; align-items: center; flex-shrink: 0; cursor: pointer; padding-top: 0.15rem; }
     .carnet-check input { width: 1.4rem; height: 1.4rem; cursor: pointer; accent-color: var(--success); }
@@ -894,6 +915,7 @@
             <button id="btn-ruler" class="access-btn w-full" onclick="togglePref('ruler', this)" aria-pressed="false">📏 Règle de lecture : OFF</button>
             <button id="btn-calm" class="access-btn w-full" onclick="togglePref('calm', this)" aria-pressed="false">🧘 Mode calme (sans animation) : OFF</button>
             <button id="btn-sepia" class="access-btn w-full" onclick="togglePref('sepia', this)" aria-pressed="false">🟡 Fond Sépia anti-fatigue : OFF</button>
+            <button class="access-btn w-full" onclick="toggleAccessPanel(); showOnboarding();">🧭 Revoir la visite guidée</button>
         </div>
     </div>
 
@@ -1481,8 +1503,11 @@
 
             <div id="carnet-view-toolbar" class="carnet-toolbar hidden">
                 <button class="btn btn-primary" onclick="exportCarnetPDF()">📄 Exporter tout le carnet (PDF)</button>
-                <button class="btn btn-secondary" onclick="clearCarnet()">🗑 Vider le carnet</button>
+                <button class="btn btn-secondary" onclick="exportCarnetJSON()" title="Enregistrer une sauvegarde de ton carnet (pour un autre appareil)">💾 Sauvegarder (fichier)</button>
+                <button class="btn btn-secondary" onclick="importCarnetJSON()" title="Restaurer un carnet depuis un fichier de sauvegarde">📥 Importer</button>
+                <button class="btn btn-secondary" onclick="clearCarnet()">🗑 Vider</button>
             </div>
+            <input type="file" id="carnet-import-input" accept="application/json,.json" style="display:none" onchange="handleCarnetImport(this)">
             <p id="carnet-progress" class="carnet-progress"></p>
 
             <div id="carnet-list" class="carnet-list"></div>
@@ -1491,7 +1516,10 @@
                 <img class="empty-illus" src="assets/char-empty.png" alt="" aria-hidden="true">
                 <p style="font-size:1.1rem; margin-bottom:0.5rem;">Ton carnet est vide pour l'instant 📘</p>
                 <p style="margin-bottom:1.25rem;">Crée un prompt, puis clique sur « Carnet » pour l'y garder et l'exporter plus tard.</p>
-                <button class="btn btn-primary" onclick="switchView('library')">Voir tous les outils</button>
+                <div class="flex gap-4 justify-center" style="flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="switchView('library')">Voir tous les outils</button>
+                    <button class="btn btn-secondary" onclick="importCarnetJSON()">📥 Importer une sauvegarde</button>
+                </div>
             </div>
         </div>
 
@@ -1499,6 +1527,34 @@
 
     <!-- Zone d'impression (fiches PDF générées à la volée) -->
     <div id="print-area" aria-hidden="true"></div>
+
+    <!-- VISITE GUIDÉE (1er lancement) -->
+    <div id="onboarding" class="onb-overlay hidden" role="dialog" aria-modal="true" aria-label="Bienvenue sur IA4-NEURO">
+        <div class="onb-card">
+            <button class="onb-skip" onclick="finishOnboarding()">Passer</button>
+            <div class="onb-slides">
+                <div class="onb-slide active">
+                    <div class="onb-emoji">👋</div>
+                    <h2>Bienvenue !</h2>
+                    <p>IA4-NEURO t'aide à utiliser l'IA <strong>sans qu'elle fasse le travail à ta place</strong> : elle te débloque, t'explique et t'aide à réviser. Tout fonctionne <strong>même sans Internet</strong>.</p>
+                </div>
+                <div class="onb-slide">
+                    <div class="onb-emoji">🧩</div>
+                    <h2>1. Dis ce dont tu as besoin</h2>
+                    <p>Choisis ta situation (ou ta révision) : on te propose le bon outil et on <strong>construit un prompt</strong> prêt à coller dans ChatGPT, Claude ou Gemini.</p>
+                </div>
+                <div class="onb-slide">
+                    <div class="onb-emoji">📘</div>
+                    <h2>2. Garde et concentre-toi</h2>
+                    <p>Range tes prompts dans le <strong>Carnet</strong>, lance le <strong>Minuteur</strong> pour rester concentré·e, et règle le <strong>confort de lecture</strong> (taille, police dyslexie…) via l'icône en haut à droite.</p>
+                </div>
+            </div>
+            <div class="onb-footer">
+                <div class="onb-dots" id="onb-dots"></div>
+                <button class="btn btn-primary" id="onb-next" onclick="onbNext()">Suivant →</button>
+            </div>
+        </div>
+    </div>
 
     <!-- --- JAVASCRIPT --- -->
     <script>
@@ -2664,7 +2720,31 @@ ${data.concept}`
             document.addEventListener('change', (e) => {
                 if (e.target.tagName === 'SELECT') saveState();
             });
+
+            maybeShowOnboarding();
         };
+
+        // --- VISITE GUIDÉE (1er lancement) ---
+        let onbSlide = 0;
+        const ONB_TOTAL = 3;
+        function renderOnb() {
+            document.querySelectorAll('#onboarding .onb-slide').forEach((s, i) => s.classList.toggle('active', i === onbSlide));
+            const dots = document.getElementById('onb-dots');
+            dots.innerHTML = '';
+            for (let i = 0; i < ONB_TOTAL; i++) {
+                const d = document.createElement('span');
+                d.className = 'onb-dot' + (i === onbSlide ? ' on' : '');
+                dots.appendChild(d);
+            }
+            document.getElementById('onb-next').textContent = onbSlide === ONB_TOTAL - 1 ? "C'est parti ! ✨" : 'Suivant →';
+        }
+        function showOnboarding() { onbSlide = 0; renderOnb(); document.getElementById('onboarding').classList.remove('hidden'); }
+        function maybeShowOnboarding() { try { if (localStorage.getItem('ia4neuro_onboarded')) return; } catch (e) {} showOnboarding(); }
+        function onbNext() { if (onbSlide < ONB_TOTAL - 1) { onbSlide++; renderOnb(); } else finishOnboarding(); }
+        function finishOnboarding() {
+            try { localStorage.setItem('ia4neuro_onboarded', '1'); } catch (e) {}
+            document.getElementById('onboarding').classList.add('hidden');
+        }
 
         // --- NAVIGATION ---
         const VIEWS = ['view-intro', 'view-about-ai', 'view-methodology', 'view-quiz', 'view-library', 'view-programme', 'view-configurator', 'view-result', 'view-focus', 'view-carnet'];
@@ -2800,6 +2880,18 @@ ${data.concept}`
             renderLibrary();
         }
 
+        // --- FAVORIS (outils épinglés) ---
+        function getFavorites() { try { return JSON.parse(localStorage.getItem('ia4neuro_favorites')) || []; } catch (e) { return []; } }
+        function saveFavorites(a) { try { localStorage.setItem('ia4neuro_favorites', JSON.stringify(a)); } catch (e) {} }
+        function toggleFavorite(id, ev) {
+            if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+            const a = getFavorites();
+            const i = a.indexOf(id);
+            if (i !== -1) a.splice(i, 1); else a.unshift(id);
+            saveFavorites(a);
+            renderLibrary();
+        }
+
         function renderLibrary() {
             const grid = document.getElementById('library-grid');
             grid.innerHTML = '';
@@ -2814,6 +2906,10 @@ ${data.concept}`
                     || (tool.title + ' ' + tool.description + ' ' + tool.category).toLowerCase().includes(q);
                 return okProfile && okNeed && okQuery;
             });
+
+            // Favoris épinglés en tête
+            const favs = getFavorites();
+            visible.sort((a, b) => (favs.indexOf(b.id) !== -1 ? 1 : 0) - (favs.indexOf(a.id) !== -1 ? 1 : 0));
 
             const countEl = document.getElementById('filter-count');
             if (countEl) {
@@ -2837,6 +2933,7 @@ ${data.concept}`
                 card.setAttribute('tabindex', '0');
                 card.onclick = () => selectTool(tool.id);
                 card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTool(tool.id); } };
+                const isFav = favs.indexOf(tool.id) !== -1;
                 card.innerHTML = `
                     <div class="tool-top">
                         <div class="tool-icon-wrapper" style="color: ${tool.color}; background-color: ${tool.color}20;">
@@ -2844,9 +2941,12 @@ ${data.concept}`
                         </div>
                         <img class="tool-mascot" src="assets/mascot-${tool.id}.png" alt="" aria-hidden="true" loading="lazy" decoding="async" style="border-color: ${tool.color}66;" onerror="this.style.display='none'">
                     </div>
-                    <div class="mb-2">
+                    <div class="tool-cardmeta">
                         <span class="tool-tag" style="color: ${tool.color}; background-color: ${tool.color}15;">${tool.category}</span>
                         <span class="tool-who">${tool.forWho}</span>
+                        <button type="button" class="tool-fav${isFav ? ' on' : ''}" aria-pressed="${isFav}" title="${isFav ? 'Retirer des favoris' : 'Ajouter à mes favoris'}" onclick="toggleFavorite('${tool.id}', event)">
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
                     </div>
                     <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${tool.title}</h3>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1;">${tool.description}</p>
@@ -3706,6 +3806,45 @@ ${data.concept}`
         function clearCarnet() {
             if (!getCarnet().length) return;
             if (confirm('Vider tout ton carnet de prompts ? Cette action est définitive.')) { saveCarnet([]); carnetRefresh(); }
+        }
+
+        // Sauvegarde / restauration du carnet (fichier .json, pour changer d'appareil)
+        function exportCarnetJSON() {
+            const a = getCarnet();
+            if (!a.length) { alert('Ton carnet est vide : rien à sauvegarder.'); return; }
+            const blob = new Blob([JSON.stringify(a, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'carnet-ia4neuro.json';
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+        function importCarnetJSON() {
+            const inp = document.getElementById('carnet-import-input');
+            if (inp) inp.click();
+        }
+        function handleCarnetImport(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function () {
+                try {
+                    const data = JSON.parse(reader.result);
+                    if (!Array.isArray(data)) throw new Error('format');
+                    const valid = data.filter(e => e && typeof e.text === 'string' && e.text.trim());
+                    if (!valid.length) { alert('Ce fichier ne contient aucun prompt valide.'); return; }
+                    if (confirm('Ajouter ' + valid.length + ' prompt' + (valid.length > 1 ? 's' : '') + ' de la sauvegarde à ton carnet ?')) {
+                        saveCarnet(getCarnet().concat(valid));
+                        carnetRefresh();
+                        switchView('carnet');
+                    }
+                } catch (e) {
+                    alert('Fichier illisible. Choisis un fichier « carnet-ia4neuro.json » exporté depuis ce site.');
+                }
+                input.value = '';
+            };
+            reader.readAsText(file);
         }
 
         // --- MINUTEUR VISUEL (TIME TIMER) ---
