@@ -19,8 +19,13 @@ const CORE = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => Promise.allSettled(CORE.map((url) => cache.add(url))))
+    Promise.all([
+      caches.open(CACHE),
+      fetch('./precache-manifest.json', { cache: 'no-store' })
+        .then((response) => response.ok ? response.json() : CORE)
+        .catch(() => CORE)
+    ])
+      .then(([cache, resources]) => cache.addAll([...new Set([...CORE, ...resources])]))
       .then(() => self.skipWaiting())
   );
 });
@@ -47,7 +52,7 @@ self.addEventListener('fetch', (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('./index.html', copy));
+          caches.open(CACHE).then((c) => c.put(req, copy));
           return res;
         })
         .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))

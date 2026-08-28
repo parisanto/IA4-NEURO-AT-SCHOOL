@@ -1,0 +1,19 @@
+{
+  "name": "ia4-neuro-at-school",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "description": "Application pédagogique locale IA4-NEURO pour le Web, macOS et Windows.",
+  "scripts": {
+    "build:web": "node scripts/build-web.mjs",
+    "build:desktop": "node scripts/build-web.mjs --desktop",
+    "serve": "node scripts/serve.mjs",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build",
+    "check": "node scripts/check-build.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

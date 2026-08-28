@@ -992,6 +992,13 @@
             <button id="btn-sepia" class="access-btn w-full" onclick="togglePref('sepia', this)" aria-pressed="false">🟡 Fond Sépia anti-fatigue : OFF</button>
             <button class="access-btn w-full" onclick="toggleAccessPanel(); showOnboarding();">🧭 Revoir la visite guidée</button>
         </div>
+        <div class="access-row" style="border-top: 1px solid var(--card-border); padding-top: 1rem;">
+            <span>Données de l'application</span>
+            <button id="btn-global-export" class="access-btn w-full" onclick="exportIA4Backup()">💾 Sauvegarder toutes mes données</button>
+            <button id="btn-global-import" class="access-btn w-full" onclick="importIA4Backup()">📥 Restaurer une sauvegarde complète</button>
+            <p id="ia4-backup-status" role="status" style="font-size:.85rem; color:var(--success); margin:0;"></p>
+            <input type="file" id="ia4-backup-input" accept="application/json,.json" hidden onchange="handleIA4BackupFile(this)">
+        </div>
     </div>
 
     <!-- Règle de lecture (suit la souris ou le doigt) -->
@@ -4494,9 +4501,18 @@ ${data.reponse}`
                 r.onerror = () => rej(r.error);
             });
         }
-        function clAll(){ return clDb().then(d => new Promise((res, rej) => { const r = d.transaction(CL_STORE,'readonly').objectStore(CL_STORE).getAll(); r.onsuccess = () => res(r.result || []); r.onerror = () => rej(r.error); })); }
-        function clPut(it){ return clDb().then(d => new Promise((res, rej) => { const t = d.transaction(CL_STORE,'readwrite'); t.objectStore(CL_STORE).put(it); t.oncomplete = res; t.onerror = () => rej(t.error); })); }
-        function clDel(id){ return clDb().then(d => new Promise(res => { const t = d.transaction(CL_STORE,'readwrite'); t.objectStore(CL_STORE).delete(id); t.oncomplete = res; })); }
+        function clAll(){
+            if (window.IA4NativeStore) return window.IA4NativeStore.all();
+            return clDb().then(d => new Promise((res, rej) => { const r = d.transaction(CL_STORE,'readonly').objectStore(CL_STORE).getAll(); r.onsuccess = () => res(r.result || []); r.onerror = () => rej(r.error); }));
+        }
+        function clPut(it){
+            if (window.IA4NativeStore) return window.IA4NativeStore.put(it);
+            return clDb().then(d => new Promise((res, rej) => { const t = d.transaction(CL_STORE,'readwrite'); t.objectStore(CL_STORE).put(it); t.oncomplete = res; t.onerror = () => rej(t.error); }));
+        }
+        function clDel(id){
+            if (window.IA4NativeStore) return window.IA4NativeStore.delete(id);
+            return clDb().then(d => new Promise(res => { const t = d.transaction(CL_STORE,'readwrite'); t.objectStore(CL_STORE).delete(id); t.oncomplete = res; }));
+        }
         function clPutH(k,v){ return clDb().then(d => new Promise(res => { const t = d.transaction(CL_HANDLES,'readwrite'); t.objectStore(CL_HANDLES).put(v,k); t.oncomplete = res; })); }
         function clGetH(k){ return clDb().then(d => new Promise(res => { const r = d.transaction(CL_HANDLES,'readonly').objectStore(CL_HANDLES).get(k); r.onsuccess = () => res(r.result); r.onerror = () => res(null); })); }
 
@@ -5228,9 +5244,12 @@ ${data.reponse}`
         })();
     </script>
 
+    <script src="desktop-bridge.js"></script>
+
     <!-- --- PWA : installation + fonctionnement hors-ligne --- -->
     <script>
-        if ('serviceWorker' in navigator) {
+        const isDesktopRuntime = document.querySelector('meta[name="ia4-runtime"][content="desktop"]');
+        if (!isDesktopRuntime && 'serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('sw.js').catch(function () { /* hors-ligne / file:// : sans effet */ });
             });

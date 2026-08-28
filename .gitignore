@@ -1,0 +1,8 @@
+node_modules/
+.pnpm-store/
+.tooling/
+dist/
+src-tauri/target/
+src-tauri/gen/schemas/
+*.log
+.DS_Store

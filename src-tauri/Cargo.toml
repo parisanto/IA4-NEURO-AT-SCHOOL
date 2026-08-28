@@ -1,0 +1,21 @@
+[package]
+name = "ia4-neuro"
+version = "1.0.0"
+description = "IA4-NEURO — application pédagogique locale"
+authors = ["IA4SCHOOL"]
+edition = "2021"
+
+[lib]
+name = "ia4_neuro_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+rfd = "0.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+rusqlite = { version = "0.32", features = ["bundled"] }
