@@ -831,9 +831,11 @@
 
     /* ---------- VISITE GUIDÉE (onboarding) ---------- */
     .onb-overlay { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 1.25rem;
-        background: rgba(18, 22, 27, 0.55); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); animation: fadeIn 0.3s ease-out; }
+        overflow-y: auto; pointer-events: auto; touch-action: manipulation; background: rgba(18, 22, 27, 0.72); }
     .onb-card { position: relative; width: min(460px, 100%); background: var(--card-bg); border: 1px solid var(--card-border);
-        border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 2.5rem 1.75rem 1.5rem; text-align: center; }
+        border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 2.5rem 1.75rem 1.5rem; text-align: center;
+        isolation: isolate; pointer-events: auto; }
+    .onb-card button { position: relative; z-index: 2; pointer-events: auto; touch-action: manipulation; -webkit-app-region: no-drag; }
     .onb-skip { position: absolute; top: 0.9rem; right: 1rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-weight: 600; font-family: inherit; font-size: 0.9rem; }
     .onb-skip:hover { color: var(--text-main); }
     .onb-slide { display: none; }
@@ -1723,9 +1725,9 @@
     <div id="print-area" aria-hidden="true"></div>
 
     <!-- VISITE GUIDÉE (1er lancement) -->
-    <div id="onboarding" class="onb-overlay hidden" role="dialog" aria-modal="true" aria-label="Bienvenue sur IA4-NEURO">
+    <div id="onboarding" class="onb-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Bienvenue sur IA4-NEURO">
         <div class="onb-card">
-            <button class="onb-skip" onclick="finishOnboarding()">Passer</button>
+            <button type="button" class="onb-skip" data-onb-action="finish">Passer</button>
             <div class="onb-slides">
                 <div class="onb-slide active">
                     <div class="onb-emoji">👋</div>
@@ -1745,7 +1747,7 @@
             </div>
             <div class="onb-footer">
                 <div class="onb-dots" id="onb-dots"></div>
-                <button class="btn btn-primary" id="onb-next" onclick="onbNext()">Suivant →</button>
+                <button type="button" class="btn btn-primary" id="onb-next" data-onb-action="next">Suivant →</button>
             </div>
         </div>
     </div>
@@ -3297,6 +3299,7 @@ ${data.reponse}`
                 if (e.target.tagName === 'SELECT') saveState();
             });
 
+            initOnboardingControls();
             maybeShowOnboarding();
         };
 
@@ -3314,12 +3317,53 @@ ${data.reponse}`
             }
             document.getElementById('onb-next').textContent = onbSlide === ONB_TOTAL - 1 ? "C'est parti ! ✨" : 'Suivant →';
         }
-        function showOnboarding() { onbSlide = 0; renderOnb(); document.getElementById('onboarding').classList.remove('hidden'); }
+        function showOnboarding() {
+            onbSlide = 0;
+            renderOnb();
+            const onboarding = document.getElementById('onboarding');
+            onboarding.classList.remove('hidden');
+            onboarding.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(() => document.getElementById('onb-next').focus({ preventScroll: true }));
+        }
         function maybeShowOnboarding() { try { if (localStorage.getItem('ia4neuro_onboarded')) return; } catch (e) {} showOnboarding(); }
         function onbNext() { if (onbSlide < ONB_TOTAL - 1) { onbSlide++; renderOnb(); } else finishOnboarding(); }
         function finishOnboarding() {
             try { localStorage.setItem('ia4neuro_onboarded', '1'); } catch (e) {}
-            document.getElementById('onboarding').classList.add('hidden');
+            const onboarding = document.getElementById('onboarding');
+            onboarding.classList.add('hidden');
+            onboarding.setAttribute('aria-hidden', 'true');
+        }
+        function initOnboardingControls() {
+            const onboarding = document.getElementById('onboarding');
+            if (onboarding.dataset.controlsReady) return;
+            onboarding.dataset.controlsReady = '1';
+            let lastPointerAction = 0;
+            const runAction = (button) => {
+                if (button.dataset.onbAction === 'finish') finishOnboarding();
+                if (button.dataset.onbAction === 'next') onbNext();
+            };
+            onboarding.addEventListener('pointerup', (event) => {
+                const button = event.target.closest('[data-onb-action]');
+                if (!button) return;
+                event.preventDefault();
+                lastPointerAction = performance.now();
+                runAction(button);
+            });
+            onboarding.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-onb-action]');
+                if (!button || performance.now() - lastPointerAction < 500) return;
+                runAction(button);
+            });
+            document.addEventListener('keydown', (event) => {
+                if (onboarding.classList.contains('hidden')) return;
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    finishOnboarding();
+                } else if (event.key === 'Enter' && event.target === document.body) {
+                    event.preventDefault();
+                    onbNext();
+                }
+            });
         }
 
         // --- NAVIGATION ---
