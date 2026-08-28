@@ -2,6 +2,14 @@
 
 La chaîne GitHub refuse désormais de créer une version publique lorsque les certificats de signature sont absents. Les secrets restent exclusivement dans GitHub et ne sont jamais enregistrés dans le dépôt.
 
+## Version familiale Windows non signée
+
+Chaque mise à jour de `main` fabrique automatiquement un installateur Windows familial non signé. Il est disponible dans l'exécution de l'action « Applications macOS et Windows », sous le nom `IA4-NEURO-Windows-famille`, pendant 30 jours.
+
+Cette version n'est pas ajoutée aux publications publiques. Après téléchargement et décompression de l'archive, copier le fichier `-setup.exe` sur une clé USB. Windows SmartScreen peut afficher un avertissement lors de la première installation ; choisir « Informations complémentaires », puis « Exécuter quand même » uniquement si le fichier provient bien de ce dépôt.
+
+Pour le régénérer sans modifier le code, ouvrir l'action « Applications macOS et Windows », choisir « Run workflow », sélectionner le mode `familial`, puis lancer l'action.
+
 ## macOS
 
 La diffusion hors de l'App Store nécessite un abonnement Apple Developer actif et un certificat `Developer ID Application`. Le certificat doit être exporté depuis le Trousseau d'accès au format `.p12`, avec un mot de passe.
@@ -32,6 +40,6 @@ Le processus importe le certificat dans le magasin temporaire du runner Windows,
 
 ## Déclenchement
 
-Une fois tous les secrets enregistrés, lancer manuellement l'action « Applications macOS et Windows » ou pousser un tag correspondant à la version, par exemple `v1.0.0`. La version GitHub est créée en brouillon afin de permettre un dernier contrôle avant publication.
+Une fois tous les secrets enregistrés, lancer manuellement l'action « Applications macOS et Windows » en mode `signe` ou pousser un tag correspondant à la version, par exemple `v1.0.0`. La version GitHub est créée en brouillon afin de permettre un dernier contrôle avant publication.
 
 Les certificats, mots de passe et clés privées ne doivent jamais être ajoutés aux fichiers du projet, aux issues ou aux journaux GitHub.

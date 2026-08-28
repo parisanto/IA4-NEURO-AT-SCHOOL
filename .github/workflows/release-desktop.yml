@@ -2,14 +2,55 @@ name: Applications macOS et Windows
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Type de paquet à fabriquer
+        required: true
+        default: familial
+        type: choice
+        options:
+          - familial
+          - signe
   push:
+    branches: [main]
     tags: ['v*']
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  windows-familial:
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode == 'familial')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+      - name: Vérifier la source Web
+        run: pnpm run build:desktop && pnpm run check
+      - name: Construire l'installateur familial Windows
+        run: pnpm exec tauri build --bundles nsis
+      - name: Conserver l'installateur pendant 30 jours
+        uses: actions/upload-artifact@v4
+        with:
+          name: IA4-NEURO-Windows-famille
+          path: src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  publication-signee:
+    if: >-
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode == 'signe')
     strategy:
       fail-fast: false
       matrix:
