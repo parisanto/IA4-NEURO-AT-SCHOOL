@@ -15,6 +15,8 @@ Le dossier `src-tauri/` contient l'enveloppe native. Elle fournit :
 - des applications macOS Apple Silicon et Intel ;
 - des dialogues natifs pour sauvegarder et restaurer les données.
 
+L'interface historique utilise encore des gestionnaires `onclick` intégrés au HTML. La configuration native conserve une CSP locale restrictive, mais empêche Tauri d'ajouter des empreintes à `script-src`, car ces empreintes désactivent les gestionnaires intégrés dans les WebView macOS et Windows.
+
 ## Données
 
 La sauvegarde globale contient toutes les clés IA4-NEURO et Formation du stockage local, ainsi que les documents et vignettes du Classeur. Elle est compatible entre le Web, macOS et Windows.

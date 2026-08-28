@@ -1,6 +1,6 @@
 {
   "name": "ia4-neuro-at-school",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "packageManager": "pnpm@11.19.0",
   "description": "Application pédagogique locale IA4-NEURO pour le Web, macOS et Windows.",

@@ -2,11 +2,15 @@
 
 La chaîne GitHub refuse désormais de créer une version publique lorsque les certificats de signature sont absents. Les secrets restent exclusivement dans GitHub et ne sont jamais enregistrés dans le dépôt.
 
-## Version familiale Windows non signée
+## Versions familiales non signées
 
-Chaque mise à jour de `main` fabrique automatiquement un installateur Windows familial non signé. Il est disponible dans l'exécution de l'action « Applications macOS et Windows », sous le nom `IA4-NEURO-Windows-famille`, pendant 30 jours.
+Chaque mise à jour de `main` fabrique automatiquement trois installateurs familiaux non signés. Ils sont disponibles dans l'exécution de l'action « Applications macOS et Windows » pendant 30 jours :
 
-Cette version n'est pas ajoutée aux publications publiques. Après téléchargement et décompression de l'archive, copier le fichier `-setup.exe` sur une clé USB. Windows SmartScreen peut afficher un avertissement lors de la première installation ; choisir « Informations complémentaires », puis « Exécuter quand même » uniquement si le fichier provient bien de ce dépôt.
+- `IA4-NEURO-Windows-famille` ;
+- `IA4-NEURO-macOS-Apple-Silicon-famille` ;
+- `IA4-NEURO-macOS-Intel-famille`.
+
+Ces versions ne sont pas ajoutées aux publications publiques. Après téléchargement et décompression de l'archive, utiliser le fichier `-setup.exe` sous Windows ou le fichier `.dmg` correspondant au processeur du Mac. Windows SmartScreen et macOS Gatekeeper peuvent afficher un avertissement, car ces paquets familiaux ne portent pas de certificat éditeur.
 
 Pour le régénérer sans modifier le code, ouvrir l'action « Applications macOS et Windows », choisir « Run workflow », sélectionner le mode `familial`, puis lancer l'action.
 

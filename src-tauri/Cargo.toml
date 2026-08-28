@@ -1,6 +1,6 @@
 [package]
 name = "ia4-neuro"
-version = "1.0.0"
+version = "1.0.1"
 description = "IA4-NEURO — application pédagogique locale"
 authors = ["IA4SCHOOL"]
 edition = "2021"
